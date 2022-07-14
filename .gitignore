@@ -1,0 +1,14 @@
+#agbcc
+tools/agbcc/*
+libagbsyscall/*
+
+#compiled/compressed files
+*.gba
+*.o
+*.1bpp
+*.4bpp
+*.8bpp
+*.gbapal
+*.lz
+*.rl
+*font
