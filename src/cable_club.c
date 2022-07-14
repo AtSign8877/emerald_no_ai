@@ -34,6 +34,7 @@
 #include "constants/cable_club.h"
 #include "constants/songs.h"
 #include "constants/trainers.h"
+#include "mgba_printf/mgba.h"
 
 static const struct WindowTemplate sWindowTemplate_LinkPlayerCount = {
     .bg = 0,
@@ -834,6 +835,7 @@ static void SetLinkBattleTypeFlags(int linkService)
 static void Task_StartWiredCableClubBattle(u8 taskId)
 {
     struct Task* task = &gTasks[taskId];
+    MgbaPrintf(MGBA_LOG_INFO, "Entering Wired Cable Club Battle");
 
     switch (task->tState)
     {
@@ -880,6 +882,7 @@ static void Task_StartWirelessCableClubBattle(u8 taskId)
 {
     int i;
     s16* data = gTasks[taskId].data;
+    MgbaPrintf(MGBA_LOG_INFO, "Entering Wireless Cable Club Battle");
 
     switch (tState)
     {
