@@ -10,5 +10,6 @@ libagbsyscall/*
 *.8bpp
 *.gbapal
 *.lz
+*.ld
 *.rl
 *font
