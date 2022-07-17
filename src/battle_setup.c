@@ -37,6 +37,7 @@
 #include "mirage_tower.h"
 #include "field_screen_effect.h"
 #include "data.h"
+#include "cable_club.h"
 #include "constants/battle_frontier.h"
 #include "constants/battle_setup.h"
 #include "constants/game_stat.h"
@@ -455,6 +456,7 @@ static void DoBattlePikeWildBattle(void)
     TryUpdateGymLeaderRematchFromWild();
 }
 
+//This just looks like a transition function, doesnt affect the battle itself
 static void DoTrainerBattle(void)
 {
     CreateBattleStartTask(GetTrainerBattleTransition(), 0);
@@ -1268,6 +1270,7 @@ void ClearTrainerFlag(u16 trainerId)
     FlagClear(TRAINER_FLAGS_START + trainerId);
 }
 
+//This function is where we should begin establishing the link/setting the opponent's trainer data
 void BattleSetup_StartTrainerBattle(void)
 {
     if (gNoOfApproachingTrainers == 2)
@@ -1275,7 +1278,9 @@ void BattleSetup_StartTrainerBattle(void)
     else
         gBattleTypeFlags = (BATTLE_TYPE_TRAINER);
 
-    if (InBattlePyramid())
+    //gBattleTypeFlags |= BATTLE_TYPE_LINK; //this might be important later to force all battle types to be link battles
+
+    if (InBattlePyramid()) //battle pyramid should never be called in a normal playthrough
     {
         VarSet(VAR_TEMP_E, 0);
         gBattleTypeFlags |= BATTLE_TYPE_PYRAMID;
@@ -1297,7 +1302,7 @@ void BattleSetup_StartTrainerBattle(void)
 
         MarkApproachingPyramidTrainersAsBattled();
     }
-    else if (InTrainerHillChallenge())
+    else if (InTrainerHillChallenge()) //trainer hill shoud never be called in a normal playthrouh
     {
         gBattleTypeFlags |= BATTLE_TYPE_TRAINER_HILL;
 

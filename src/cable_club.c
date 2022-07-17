@@ -81,7 +81,7 @@ static void Task_ReestablishLinkAwaitConfirmation(u8 taskId);
 #define tTimer      data[4]
 #define tWindowId   data[5]
 
-static void CreateLinkupTask(u8 minPlayers, u8 maxPlayers)
+void CreateLinkupTask(u8 minPlayers, u8 maxPlayers)
 {
     if (FindTaskIdByFunc(Task_LinkupStart) == TASK_NONE)
     {
@@ -1182,7 +1182,7 @@ void Script_StartWiredTrade(void)
     // ScriptContext1_Stop();
 }
 
-void ColosseumPlayerSpotTriggered(void)
+void ColosseumPlayerSpotTriggered(void) //called via script only
 {
     gLinkType = LINKTYPE_BATTLE;
 

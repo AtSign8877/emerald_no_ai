@@ -11,5 +11,7 @@ bool32 AreBattleTowerLinkSpeciesSame(u16 *speciesList1, u16 *speciesList2);
 void Task_ReconnectWithLinkPlayers(u8 taskId);
 void Task_WaitForLinkPlayerConnection(u8 taskId);
 bool32 GetLinkTrainerCardColor(u8 linkPlayerIndex);
+void CreateLinkupTask(u8 minPlayers, u8 maxPlayers);
+void ColosseumPlayerSpotTriggered(void);
 
 #endif //GUARD_CABLE_CLUB_H
