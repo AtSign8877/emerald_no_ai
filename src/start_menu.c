@@ -733,6 +733,7 @@ static bool8 StartMenuOptionCallback(void)
 
 static bool8 StartMenuLinkCallback(void)
 {
+    gLinkType = LINKTYPE_SINGLE_BATTLE;
     CreateLinkupTask(2, 2);
     return TRUE;
 }
