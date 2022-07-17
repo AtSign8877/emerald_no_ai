@@ -46,6 +46,7 @@
 #include "constants/battle_frontier.h"
 #include "constants/rgb.h"
 #include "constants/songs.h"
+#include "cable_club.h"
 
 // Menu actions
 enum
@@ -98,6 +99,7 @@ static bool8 StartMenuPokeNavCallback(void);
 static bool8 StartMenuPlayerNameCallback(void);
 static bool8 StartMenuSaveCallback(void);
 static bool8 StartMenuOptionCallback(void);
+static bool8 StartMenuLinkCallback(void);
 static bool8 StartMenuExitCallback(void);
 static bool8 StartMenuSafariZoneRetireCallback(void);
 static bool8 StartMenuLinkModePlayerNameCallback(void);
@@ -163,6 +165,7 @@ static const struct MenuAction sStartMenuItems[] =
     {gText_MenuPlayer, {.u8_void = StartMenuPlayerNameCallback}},
     {gText_MenuSave, {.u8_void = StartMenuSaveCallback}},
     {gText_MenuOption, {.u8_void = StartMenuOptionCallback}},
+    {gText_MenuLink, {.u8_void = StartMenuLinkCallback}},
     {gText_MenuExit, {.u8_void = StartMenuExitCallback}},
     {gText_MenuRetire, {.u8_void = StartMenuSafariZoneRetireCallback}},
     {gText_MenuPlayer, {.u8_void = StartMenuLinkModePlayerNameCallback}},
@@ -593,7 +596,8 @@ static bool8 HandleStartMenuInput(void)
         if (gMenuCallback != StartMenuSaveCallback
             && gMenuCallback != StartMenuExitCallback
             && gMenuCallback != StartMenuSafariZoneRetireCallback
-            && gMenuCallback != StartMenuBattlePyramidRetireCallback)
+            && gMenuCallback != StartMenuBattlePyramidRetireCallback
+            && gMenuCallback != StartMenuLinkCallback)
         {
            FadeScreen(FADE_TO_BLACK, 0);
         }
@@ -717,6 +721,14 @@ static bool8 StartMenuOptionCallback(void)
     }
 
     return FALSE;
+}
+
+static bool8 StartMenuLinkCallback(void)
+{
+    CreateLinkupTask(2, 2);
+    //gSpecialVar_0x8005 = 1;
+    ColosseumPlayerSpotTriggered();
+    return TRUE;
 }
 
 static bool8 StartMenuExitCallback(void)

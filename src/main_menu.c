@@ -1094,6 +1094,7 @@ static void Task_HandleMainMenuAPressed(u8 taskId)
                 break;
             case ACTION_LINK_TEST:
                 CreateLinkupTask(2, 2);
+                gSpecialVar_0x8005 = 1;
                 ColosseumPlayerSpotTriggered();
                 DestroyTask(taskId);
                 break;
