@@ -58,6 +58,8 @@ enum
     MENU_ACTION_PLAYER,
     MENU_ACTION_SAVE,
     MENU_ACTION_OPTION,
+    MENU_ACTION_LINK,
+    MENU_ACTION_BATTLE,
     MENU_ACTION_EXIT,
     MENU_ACTION_RETIRE_SAFARI,
     MENU_ACTION_PLAYER_LINK,
@@ -100,6 +102,7 @@ static bool8 StartMenuPlayerNameCallback(void);
 static bool8 StartMenuSaveCallback(void);
 static bool8 StartMenuOptionCallback(void);
 static bool8 StartMenuLinkCallback(void);
+static bool8 StartMenuBattleCallback(void);
 static bool8 StartMenuExitCallback(void);
 static bool8 StartMenuSafariZoneRetireCallback(void);
 static bool8 StartMenuLinkModePlayerNameCallback(void);
@@ -166,6 +169,7 @@ static const struct MenuAction sStartMenuItems[] =
     {gText_MenuSave, {.u8_void = StartMenuSaveCallback}},
     {gText_MenuOption, {.u8_void = StartMenuOptionCallback}},
     {gText_MenuLink, {.u8_void = StartMenuLinkCallback}},
+    {gText_MenuBattle, {.u8_void = StartMenuBattleCallback}},
     {gText_MenuExit, {.u8_void = StartMenuExitCallback}},
     {gText_MenuRetire, {.u8_void = StartMenuSafariZoneRetireCallback}},
     {gText_MenuPlayer, {.u8_void = StartMenuLinkModePlayerNameCallback}},
@@ -311,6 +315,8 @@ static void BuildNormalStartMenu(void)
     AddStartMenuAction(MENU_ACTION_PLAYER);
     AddStartMenuAction(MENU_ACTION_SAVE);
     AddStartMenuAction(MENU_ACTION_OPTION);
+    AddStartMenuAction(MENU_ACTION_LINK);
+    AddStartMenuAction(MENU_ACTION_BATTLE);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
 
@@ -322,6 +328,8 @@ static void BuildSafariZoneStartMenu(void)
     AddStartMenuAction(MENU_ACTION_BAG);
     AddStartMenuAction(MENU_ACTION_PLAYER);
     AddStartMenuAction(MENU_ACTION_OPTION);
+    AddStartMenuAction(MENU_ACTION_LINK);
+    AddStartMenuAction(MENU_ACTION_BATTLE);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
 
@@ -726,7 +734,12 @@ static bool8 StartMenuOptionCallback(void)
 static bool8 StartMenuLinkCallback(void)
 {
     CreateLinkupTask(2, 2);
-    //gSpecialVar_0x8005 = 1;
+    return TRUE;
+}
+
+static bool8 StartMenuBattleCallback(void)
+{
+    gSpecialVar_0x8005 = 1;
     ColosseumPlayerSpotTriggered();
     return TRUE;
 }

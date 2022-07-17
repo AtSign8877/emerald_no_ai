@@ -559,6 +559,7 @@ static const struct MenuAction MultichoiceList_ForcedStartMenu[] =
     {gText_MenuOptionSave},
     {gText_MenuOptionOption},
     {gText_MenuOptionLink},
+    {gText_MenuOptionBattle},
     {gText_MenuOptionExit},
 };
 
