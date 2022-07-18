@@ -736,17 +736,16 @@ static bool8 StartMenuLinkCallback(void)
 {
     gLinkType = LINKTYPE_SINGLE_BATTLE;
     CreateLinkupTask(2, 2);
+    StartMenuExitCallback();
     return TRUE;
 }
 
 static bool8 StartMenuBattleCallback(void)
 {
     gSpecialVar_0x8005 = 0;
-    //SetMainCallback1(CB1_OverworldLink); //this line straight up causes the game to reset upon clicking 'battle'
     ColosseumPlayerSpotTriggered();
-    //struct Task *task = &gTasks[80]; //TaskID 80 is what the cable club uses for link tasks
     CB1_OverworldLink(); 
-    
+    StartMenuExitCallback();
     return TRUE;
 }
 
