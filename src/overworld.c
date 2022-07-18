@@ -66,6 +66,7 @@
 #include "constants/songs.h"
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"
+#include "mgba_printf/mgba.h"
 
 struct CableClubPlayer
 {
@@ -165,7 +166,7 @@ static void ResetPlayerHeldKeys(u16 *);
 static u16 KeyInterCB_SelfIdle(u32);
 static u16 KeyInterCB_DeferToEventScript(u32);
 static u16 GetDirectionForDpadKey(u16);
-static void CB1_OverworldLink(void);
+//static void CB1_OverworldLink(void);
 static void SetKeyInterceptCallback(u16 (*func)(u32));
 static void SetFieldVBlankCallback(void);
 static void FieldClearVBlankHBlankCallbacks(void);
@@ -2225,8 +2226,7 @@ static void CreateLinkPlayerSprites(void)
         CreateLinkPlayerSprite(i, gLinkPlayers[i].version);
 }
 
-
-static void CB1_OverworldLink(void)
+void CB1_OverworldLink(void)
 {
     if (gWirelessCommType == 0 || !IsRfuRecvQueueEmpty() || !IsSendingKeysToLink())
     {
@@ -2288,10 +2288,12 @@ static bool32 AreAllPlayersInLinkState(u16 state)
 {
     s32 i;
     s32 count = gFieldLinkPlayerCount;
-
-    for (i = 0; i < count; i++)
+    MgbaPrintf(MGBA_LOG_INFO, "New loop");
+    for (i = 0; i < count; i++) {
+        MgbaPrintf(MGBA_LOG_INFO, "sPlayerLinkStates: %d", sPlayerLinkStates[i]);
         if (sPlayerLinkStates[i] != state)
             return FALSE;
+    }
     return TRUE;
 }
 

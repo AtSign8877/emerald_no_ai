@@ -605,7 +605,8 @@ static bool8 HandleStartMenuInput(void)
             && gMenuCallback != StartMenuExitCallback
             && gMenuCallback != StartMenuSafariZoneRetireCallback
             && gMenuCallback != StartMenuBattlePyramidRetireCallback
-            && gMenuCallback != StartMenuLinkCallback)
+            && gMenuCallback != StartMenuLinkCallback
+            && gMenuCallback != StartMenuBattleCallback)
         {
            FadeScreen(FADE_TO_BLACK, 0);
         }
@@ -741,6 +742,7 @@ static bool8 StartMenuLinkCallback(void)
 static bool8 StartMenuBattleCallback(void)
 {
     gSpecialVar_0x8005 = 1;
+    //SetMainCallback1(CB1_OverworldLink); //this line straight up causes the game to reset upon clicking 'battle'
     ColosseumPlayerSpotTriggered();
     return TRUE;
 }
