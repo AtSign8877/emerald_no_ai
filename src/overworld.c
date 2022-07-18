@@ -1420,6 +1420,7 @@ static void ResetSafariZoneFlag_(void)
 
 bool32 IsOverworldLinkActive(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Overworld link check");
     if (gMain.callback1 == CB1_OverworldLink)
         return TRUE;
     else
@@ -2244,6 +2245,9 @@ void CB1_OverworldLink(void)
         //
         // Note 2: There are some key intercept callbacks that treat the key as a player
         // ID. It's so hacky.
+        
+        if(sPlayerKeyInterceptCallback == 0) return;
+        MgbaPrintf(MGBA_LOG_INFO, "sPlayerKeyInterceptCallback: %d", sPlayerKeyInterceptCallback);
         UpdateHeldKeyCode(sPlayerKeyInterceptCallback(selfId));
         ClearAllPlayerKeys();
     }
@@ -2264,6 +2268,7 @@ static void SetKeyInterceptCallback(u16 (*func)(u32))
 {
     sRfuKeepAliveTimer = 0;
     sPlayerKeyInterceptCallback = func;
+    MgbaPrintf(MGBA_LOG_INFO, "sPlayerKeyInterceptCallback set to: %d", sPlayerKeyInterceptCallback);
 }
 
 // Once every ~60 frames, if the link state hasn't changed (timer reset by calls
@@ -2288,9 +2293,8 @@ static bool32 AreAllPlayersInLinkState(u16 state)
 {
     s32 i;
     s32 count = gFieldLinkPlayerCount;
-    MgbaPrintf(MGBA_LOG_INFO, "New loop");
     for (i = 0; i < count; i++) {
-        MgbaPrintf(MGBA_LOG_INFO, "sPlayerLinkStates: %d", sPlayerLinkStates[i]);
+        //MgbaPrintf(MGBA_LOG_INFO, "sPlayerLinkStates: %d", sPlayerLinkStates[i]);
         if (sPlayerLinkStates[i] != state)
             return FALSE;
     }
@@ -2437,11 +2441,12 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 
 static void UpdateHeldKeyCode(u16 key)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Link key code check");
     if (key >= LINK_KEY_CODE_EMPTY && key < LINK_KEY_CODE_UNK_8)
         gHeldKeyCodeToSend = key;
     else
         gHeldKeyCodeToSend = LINK_KEY_CODE_EMPTY;
-
+    MgbaPrintf(MGBA_LOG_INFO, "Wireless Comm check");
     if (gWirelessCommType != 0
         && GetLinkSendQueueLength() > 1
         && IsOverworldLinkActive() == TRUE
@@ -2659,6 +2664,7 @@ static bool32 IsAnyPlayerExitingCableClub(void)
 
 u16 SetInCableClubSeat(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Setting in cable club seat");
     SetKeyInterceptCallback(KeyInterCB_SetReady);
     return 0;
 }
@@ -2899,6 +2905,7 @@ bool32 IsSendingKeysOverCable(void)
 
 static u32 GetLinkSendQueueLength(void)
 {
+    //MgbaPrintf(MGBA_LOG_INFO, "Getting link quwu length");
     if (gWirelessCommType != 0)
         return gRfu.sendQueue.count;
     else

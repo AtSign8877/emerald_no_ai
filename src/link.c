@@ -1784,12 +1784,12 @@ bool8 HandleLinkConnection(void)
 {
     bool32 main1Failed, main2Failed;
 
-    MgbaPrintf(MGBA_LOG_INFO, "gWirelessCommType: %d", gWirelessCommType);
+    //MgbaPrintf(MGBA_LOG_INFO, "gWirelessCommType: %d", gWirelessCommType);
 
     if (gWirelessCommType == 0)
     {
         gLinkStatus = LinkMain1(&gShouldAdvanceLinkState, gSendCmd, gRecvCmds);
-        MgbaPrintf(MGBA_LOG_INFO, "gLinkStatus: %d", gLinkStatus);
+        //MgbaPrintf(MGBA_LOG_INFO, "gLinkStatus: %d", gLinkStatus);
         LinkMain2(&gMain.heldKeys);
         if ((gLinkStatus & LINK_STAT_RECEIVED_NOTHING) && IsSendingKeysOverCable() == TRUE)
             return TRUE;
