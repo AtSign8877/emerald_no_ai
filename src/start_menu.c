@@ -777,8 +777,6 @@ static bool8 BattleCallback(void)
         return TRUE;
     }
     return FALSE;
-    SetMainCallback1(CB1_OverworldLink);
-    return TRUE;
 }
 
 static bool8 StartMenuExitCallback(void)
