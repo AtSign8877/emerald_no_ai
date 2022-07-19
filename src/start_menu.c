@@ -741,14 +741,16 @@ static bool8 StartMenuLinkCallback(void)
     MgbaPrintf(MGBA_LOG_INFO, "Connection Made with result %d", gSpecialVar_Result);
     if (gSpecialVar_Result == LINKUP_SUCCESS) {
     }
+    StartMenuExitCallback();
     return TRUE;
 }
 
 static bool8 StartMenuBattleCallback(void)
 {
-    gSpecialVar_0x8005 = 1;
-    //SetMainCallback1(CB1_OverworldLink); //this line straight up causes the game to reset upon clicking 'battle'
+    gSpecialVar_0x8005 = 0;
     ColosseumPlayerSpotTriggered();
+    CB1_OverworldLink(); 
+    StartMenuExitCallback();
     return TRUE;
 }
 
