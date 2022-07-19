@@ -5,6 +5,7 @@
 #include "util.h"
 #include "constants/event_objects.h"
 #include "constants/map_scripts.h"
+#include "mgba_printf/mgba.h"
 
 #define RAM_SCRIPT_MAGIC 51
 
@@ -190,10 +191,21 @@ bool8 ScriptContext2_IsEnabled(void)
 
 bool8 ScriptContext1_IsScriptSetUp(void)
 {
-    if (sScriptContext1Status == 0)
+    MgbaPrintf(MGBA_LOG_INFO, "Script1 is currently %d", sScriptContext1Status);
+    if (sScriptContext1Status == 0) {
+        MgbaPrintf(MGBA_LOG_INFO, "Script1 is setup??");
         return TRUE;
+    }
     else
         return FALSE;
+}
+
+bool8 ScriptContext1_IsEnabled(void) {
+    if (sScriptContext1Status == 1) {
+        return FALSE;
+    }
+    else
+        return TRUE;
 }
 
 void ScriptContext1_Init(void)
@@ -232,11 +244,13 @@ void ScriptContext1_SetupScript(const u8 *ptr)
 
 void ScriptContext1_Stop(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Script 1 Stopped");
     sScriptContext1Status = 1;
 }
 
 void EnableBothScriptContexts(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Both Enabled");
     sScriptContext1Status = 0;
     ScriptContext2_Enable();
 }

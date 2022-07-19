@@ -209,7 +209,9 @@ static void Task_DelayedBlockRequest(u8 taskId)
 
 static void Task_LinkupStart(u8 taskId)
 {
+    
     s16 *data = gTasks[taskId].data;
+    MgbaPrintf(MGBA_LOG_INFO, "Link Up Start");
 
     if (data[0] == 0)
     {
@@ -227,7 +229,9 @@ static void Task_LinkupStart(u8 taskId)
 
 static void Task_LinkupAwaitConnection(u8 taskId)
 {
+    
     u32 playerCount = GetLinkPlayerCount_2();
+    //MgbaPrintf(MGBA_LOG_INFO, "Link Up Await Connection");
 
     if (CheckLinkCanceledBeforeConnection(taskId) == TRUE
      || CheckLinkCanceled(taskId) == TRUE
@@ -252,6 +256,7 @@ static void Task_LinkupAwaitConnection(u8 taskId)
 
 static void Task_LinkupConfirmWhenReady(u8 taskId)
 {
+    //MgbaPrintf(MGBA_LOG_INFO, "Link Up Confirm when ready");
     if (CheckLinkCanceledBeforeConnection(taskId) == TRUE
      || CheckSioErrored(taskId) == TRUE
      || CheckLinkErrored(taskId) == TRUE)
@@ -266,8 +271,10 @@ static void Task_LinkupConfirmWhenReady(u8 taskId)
 
 static void Task_LinkupAwaitConfirmation(u8 taskId)
 {
+    
     s16 *data = gTasks[taskId].data;
     s32 linkPlayerCount = GetLinkPlayerCount_2();
+    //MgbaPrintf(MGBA_LOG_INFO, "Link Up await confirmation");
 
     if (CheckLinkCanceledBeforeConnection(taskId) == TRUE
      || CheckSioErrored(taskId) == TRUE
@@ -291,6 +298,7 @@ static void Task_LinkupAwaitConfirmation(u8 taskId)
 
 static void Task_LinkupTryConfirmation(u8 taskId)
 {
+    //MgbaPrintf(MGBA_LOG_INFO, "Link Up Try Confirmation");
     if (CheckLinkCanceledBeforeConnection(taskId) == TRUE
      || CheckSioErrored(taskId) == TRUE
      || CheckLinkErrored(taskId) == TRUE)
@@ -319,8 +327,10 @@ static void Task_LinkupTryConfirmation(u8 taskId)
 
 static void Task_LinkupConfirm(u8 taskId)
 {
+    
     u8 minPlayers = gTasks[taskId].tMinPlayers;
     u8 maxPlayers = gTasks[taskId].tMaxPlayers;
+    //MgbaPrintf(MGBA_LOG_INFO, "Link Up Confirm");
 
     if (CheckLinkErrored(taskId) == TRUE
      || TryLinkTimeout(taskId) == TRUE)
@@ -382,7 +392,9 @@ static void Task_LinkupExchangeDataWithLeader(u8 taskId)
 
 static void Task_LinkupCheckStatusAfterConfirm(u8 taskId)
 {
+    
     struct TrainerCard *card;
+    //MgbaPrintf(MGBA_LOG_INFO, "Link Up Check Status After Confirm");
 
     if (CheckLinkErrored(taskId) == TRUE)
         return;
@@ -470,12 +482,16 @@ bool32 AreBattleTowerLinkSpeciesSame(u16 *speciesList1, u16 *speciesList2)
 
 static void FinishLinkup(u16 *linkupStatus, u32 taskId)
 {
+    
     struct TrainerCard *trainerCards = gTrainerCards;
+    MgbaPrintf(MGBA_LOG_INFO, "Finish Link Up");
 
     if (*linkupStatus == LINKUP_SUCCESS)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "SUCCESS?");
         if (gLinkType == LINKTYPE_BATTLE_TOWER_50 || gLinkType == LINKTYPE_BATTLE_TOWER_OPEN)
         {
+            MgbaPrintf(MGBA_LOG_INFO, "Are we trying a battle tower????");
             if (AreBattleTowerLinkSpeciesSame(trainerCards[0].monSpecies, trainerCards[1].monSpecies))
             {
                 // Unsuccessful battle tower linkup
@@ -493,6 +509,7 @@ static void FinishLinkup(u16 *linkupStatus, u32 taskId)
         }
         else
         {
+            MgbaPrintf(MGBA_LOG_INFO, "Normal Link Success?");
             // Successful linkup
             ClearLinkPlayerCountWindow(gTasks[taskId].tWindowId);
             EnableBothScriptContexts();
@@ -501,6 +518,7 @@ static void FinishLinkup(u16 *linkupStatus, u32 taskId)
     }
     else
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Fail?");
         // Unsuccessful linkup
         SetCloseLinkCallback();
         gTasks[taskId].func = Task_StopLinkup;
@@ -509,7 +527,9 @@ static void FinishLinkup(u16 *linkupStatus, u32 taskId)
 
 static void Task_LinkupAwaitTrainerCardData(u8 taskId)
 {
+    
     u8 index;
+    //MgbaPrintf(MGBA_LOG_INFO, "Link Up Await Trainer Card");
 
     if (CheckLinkErrored(taskId) == TRUE)
         return;

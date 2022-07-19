@@ -2227,6 +2227,12 @@ static void CreateLinkPlayerSprites(void)
         CreateLinkPlayerSprite(i, gLinkPlayers[i].version);
 }
 
+bool8 CanSendPlayerKeyInterceptCallback(void) {
+    if(sPlayerKeyInterceptCallback == 0)
+        return FALSE;
+    return TRUE;
+}
+
 void CB1_OverworldLink(void)
 {
     if (gWirelessCommType == 0 || !IsRfuRecvQueueEmpty() || !IsSendingKeysToLink())

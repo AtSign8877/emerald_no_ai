@@ -701,6 +701,7 @@ SECTIONS {
         src/m4a_tables.o(.rodata);
         data/sound_data.o(.rodata);
         src/mgba_printf/mgba.o(.rodata);
+        src/script.o(.rodata);
     } =0
 
     song_data :

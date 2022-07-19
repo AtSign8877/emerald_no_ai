@@ -48,6 +48,7 @@
 #include "constants/songs.h"
 #include "cable_club.h"
 #include "mgba_printf/mgba.h"
+#include "field_message_box.h"
 
 // Menu actions
 enum
@@ -109,6 +110,10 @@ static bool8 StartMenuSafariZoneRetireCallback(void);
 static bool8 StartMenuLinkModePlayerNameCallback(void);
 static bool8 StartMenuBattlePyramidRetireCallback(void);
 static bool8 StartMenuBattlePyramidBagCallback(void);
+
+//Linking callback stuff
+static bool8 LinkCallback(void);
+static bool8 BattleCallback(void);
 
 // Menu callbacks
 static bool8 SaveStartCallback(void);
@@ -738,20 +743,40 @@ static bool8 StartMenuLinkCallback(void)
     gLinkType = LINKTYPE_SINGLE_BATTLE;
     CreateLinkupTask(2, 2);
     ScriptContext1_Stop();
-    MgbaPrintf(MGBA_LOG_INFO, "Connection Made with result %d", gSpecialVar_Result);
-    if (gSpecialVar_Result == LINKUP_SUCCESS) {
-    }
-    StartMenuExitCallback();
-    return TRUE;
+    gMenuCallback = LinkCallback;
+    //StartMenuExitCallback();
+    return FALSE;
 }
 
 static bool8 StartMenuBattleCallback(void)
 {
-    gSpecialVar_0x8005 = 0;
+    gSpecialVar_0x8005 = 1;
     ColosseumPlayerSpotTriggered();
-    CB1_OverworldLink(); 
+    ScriptContext1_Stop();
+    gMenuCallback = BattleCallback;
     StartMenuExitCallback();
-    return TRUE;
+    return FALSE;
+}
+
+static bool8 LinkCallback(void)
+{
+    //MgbaPrintf(MGBA_LOG_INFO, "In Link Callback");
+    if (ScriptContext1_IsEnabled()){
+        MgbaPrintf(MGBA_LOG_INFO, "In Link Callback Success!");
+        StartMenuExitCallback();
+        HideFieldMessageBox();
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static bool8 BattleCallback(void)
+{
+    if(CanSendPlayerKeyInterceptCallback()){
+        SetMainCallback1(CB1_OverworldLink);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static bool8 StartMenuExitCallback(void)

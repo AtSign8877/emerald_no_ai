@@ -54,6 +54,7 @@ extern u8 gFieldLinkPlayerCount;
 
 extern const struct UCoords32 gDirectionToVectors[];
 
+bool8 CanSendPlayerKeyInterceptCallback(void);
 void DoWhiteOut(void);
 void Overworld_ResetStateAfterFly(void);
 void Overworld_ResetStateAfterTeleport(void);
