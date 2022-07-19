@@ -519,12 +519,12 @@ static void HandleReceiveRemoteLinkPlayer(u8 who)
 static void ProcessRecvCmds(u8 unused)
 {
     u16 i;
-
     for (i = 0; i < MAX_LINK_PLAYERS; i++)
     {
         gLinkPartnersHeldKeys[i] = 0;
         if (gRecvCmds[i][0] == 0)
         {
+            //MgbaPrintf(MGBA_LOG_INFO,"Nothing recieved for player %d", i);
             continue;
         }
         switch (gRecvCmds[i][0])

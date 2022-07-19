@@ -744,8 +744,7 @@ static bool8 StartMenuBattleCallback(void)
 {
     gSpecialVar_0x8005 = 0;
     ColosseumPlayerSpotTriggered();
-    CB1_OverworldLink(); 
-    StartMenuExitCallback();
+    SetMainCallback1(CB1_OverworldLink);
     return TRUE;
 }
 

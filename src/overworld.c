@@ -2245,9 +2245,10 @@ void CB1_OverworldLink(void)
         //
         // Note 2: There are some key intercept callbacks that treat the key as a player
         // ID. It's so hacky.
+        //MgbaPrintf(MGBA_LOG_INFO, "sPlayerKeyInterceptCallback: %d", sPlayerKeyInterceptCallback);
         
         if(sPlayerKeyInterceptCallback == 0) return;
-        MgbaPrintf(MGBA_LOG_INFO, "sPlayerKeyInterceptCallback: %d", sPlayerKeyInterceptCallback);
+        
         UpdateHeldKeyCode(sPlayerKeyInterceptCallback(selfId));
         ClearAllPlayerKeys();
     }
@@ -2268,7 +2269,6 @@ static void SetKeyInterceptCallback(u16 (*func)(u32))
 {
     sRfuKeepAliveTimer = 0;
     sPlayerKeyInterceptCallback = func;
-    MgbaPrintf(MGBA_LOG_INFO, "sPlayerKeyInterceptCallback set to: %d", sPlayerKeyInterceptCallback);
 }
 
 // Once every ~60 frames, if the link state hasn't changed (timer reset by calls
@@ -2408,6 +2408,7 @@ static void HandleLinkPlayerKeyInput(u32 playerId, u16 key, struct CableClubPlay
         sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_EXITING_ROOM;
         break;
     case LINK_KEY_CODE_READY:
+        MgbaPrintf(MGBA_LOG_INFO, "Setting ready!");
         sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_READY;
         break;
     case LINK_KEY_CODE_IDLE:
@@ -2441,12 +2442,10 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 
 static void UpdateHeldKeyCode(u16 key)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Link key code check");
     if (key >= LINK_KEY_CODE_EMPTY && key < LINK_KEY_CODE_UNK_8)
         gHeldKeyCodeToSend = key;
     else
         gHeldKeyCodeToSend = LINK_KEY_CODE_EMPTY;
-    MgbaPrintf(MGBA_LOG_INFO, "Wireless Comm check");
     if (gWirelessCommType != 0
         && GetLinkSendQueueLength() > 1
         && IsOverworldLinkActive() == TRUE
@@ -2647,8 +2646,9 @@ u32 GetCableClubPartnersReady(void)
 {
     if (IsAnyPlayerInLinkState(PLAYER_LINK_STATE_EXITING_ROOM) == TRUE)
         return CABLE_SEAT_FAILED;
-    if (sPlayerKeyInterceptCallback == KeyInterCB_Ready && sPlayerLinkStates[gLocalLinkPlayerId] != PLAYER_LINK_STATE_READY)
+    if (sPlayerKeyInterceptCallback == KeyInterCB_Ready && sPlayerLinkStates[gLocalLinkPlayerId] != PLAYER_LINK_STATE_READY) {
         return CABLE_SEAT_WAITING;
+    }
     if (sPlayerKeyInterceptCallback == KeyInterCB_ExitingSeat && sPlayerLinkStates[gLocalLinkPlayerId] == PLAYER_LINK_STATE_BUSY)
         return CABLE_SEAT_FAILED;
     if (AreAllPlayersInLinkState(PLAYER_LINK_STATE_READY))
@@ -2665,6 +2665,7 @@ static bool32 IsAnyPlayerExitingCableClub(void)
 u16 SetInCableClubSeat(void)
 {
     MgbaPrintf(MGBA_LOG_INFO, "Setting in cable club seat");
+    
     SetKeyInterceptCallback(KeyInterCB_SetReady);
     return 0;
 }

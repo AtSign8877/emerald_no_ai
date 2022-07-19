@@ -1046,7 +1046,6 @@ void ExitLinkRoom(void)
 static void Task_EnterCableClubSeat(u8 taskId)
 {
     struct Task* task = &gTasks[taskId];
-
     switch (task->tState)
     {
     case 0:
@@ -1185,7 +1184,7 @@ void Script_StartWiredTrade(void)
 void ColosseumPlayerSpotTriggered(void) //called via script only
 {
     gLinkType = LINKTYPE_BATTLE;
-
+    MgbaPrintf(MGBA_LOG_INFO, "ColosseumPlayerSpotTriggered");
     if (gWirelessCommType)
         CreateTask_EnterCableClubSeat(Task_StartWirelessCableClubBattle);
     else
