@@ -1206,7 +1206,7 @@ void Script_StartWiredTrade(void)
 void ColosseumPlayerSpotTriggered(void) //called via script only
 {
     gLinkType = LINKTYPE_BATTLE;
-
+    MgbaPrintf(MGBA_LOG_INFO, "ColosseumPlayerSpotTriggered");
     if (gWirelessCommType)
         CreateTask_EnterCableClubSeat(Task_StartWirelessCableClubBattle);
     else
