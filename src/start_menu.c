@@ -765,6 +765,12 @@ static bool8 LinkCallback(void)
         MgbaPrintf(MGBA_LOG_INFO, "In Link Callback Success!");
         StartMenuExitCallback();
         HideFieldMessageBox();
+        SetMainCallback3(CB1_OverworldLink);
+        StartSendingKeysToLink();
+        if(IsLinkMaster()) {
+            gSpecialVar_0x8005 = 1;
+        }
+        else gSpecialVar_0x8005 = 0;
         return TRUE;
     }
     return FALSE;
@@ -772,11 +778,8 @@ static bool8 LinkCallback(void)
 
 static bool8 BattleCallback(void)
 {
-    if(CanSendPlayerKeyInterceptCallback()){
-        SetMainCallback1(CB1_OverworldLink);
-        return TRUE;
-    }
-    return FALSE;
+    SetInCableClubSeat();
+    return TRUE;
 }
 
 static bool8 StartMenuExitCallback(void)

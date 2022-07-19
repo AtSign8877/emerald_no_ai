@@ -1066,7 +1066,7 @@ void ExitLinkRoom(void)
 static void Task_EnterCableClubSeat(u8 taskId)
 {
     struct Task* task = &gTasks[taskId];
-    MgbaPrintf(MGBA_LOG_INFO, "Enter Cable Club Seat");
+    //MgbaPrintf(MGBA_LOG_INFO, "Enter Cable Club Seat");
 
     switch (task->tState)
     {

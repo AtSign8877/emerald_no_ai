@@ -1488,6 +1488,11 @@ void SetMainCallback1(MainCallback cb)
     gMain.callback1 = cb;
 }
 
+void SetMainCallback3(MainCallback cb)
+{
+    gMain.callback3 = cb;
+}
+
 // This function is never called.
 void SetUnusedCallback(void *func)
 {
@@ -2471,6 +2476,7 @@ static void UpdateHeldKeyCode(u16 key)
             break;
         }
     }
+    if(gHeldKeyCodeToSend != LINK_KEY_CODE_NULL && gHeldKeyCodeToSend != LINK_KEY_CODE_EMPTY) MgbaPrintf(MGBA_LOG_INFO, "Key being sent over: %d", gHeldKeyCodeToSend);
 }
 
 static u16 KeyInterCB_ReadButtons(u32 key)
@@ -2651,7 +2657,7 @@ static u16 KeyInterCB_InLinkActivity(u32 key)
 
 u32 GetCableClubPartnersReady(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Checking if Partner is Ready");
+    //MgbaPrintf(MGBA_LOG_INFO, "Checking if Partner is Ready");
     if (IsAnyPlayerInLinkState(PLAYER_LINK_STATE_EXITING_ROOM) == TRUE)
         return CABLE_SEAT_FAILED;
     if (sPlayerKeyInterceptCallback == KeyInterCB_Ready && sPlayerLinkStates[gLocalLinkPlayerId] != PLAYER_LINK_STATE_READY) {

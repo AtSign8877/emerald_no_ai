@@ -697,6 +697,7 @@ static void BuildSendCmd(u16 command)
 
             gSendCmd[0] = LINKCMD_SEND_HELD_KEYS;
             gSendCmd[1] = gHeldKeyCodeToSend;
+            MgbaPrintf(MGBA_LOG_INFO, "Sending held keys!");
             break;
     }
 }
@@ -1791,8 +1792,8 @@ bool8 HandleLinkConnection(void)
         gLinkStatus = LinkMain1(&gShouldAdvanceLinkState, gSendCmd, gRecvCmds);
         //MgbaPrintf(MGBA_LOG_INFO, "gLinkStatus: %d", gLinkStatus);
         LinkMain2(&gMain.heldKeys);
-        if ((gLinkStatus & LINK_STAT_RECEIVED_NOTHING) && IsSendingKeysOverCable() == TRUE)
-            return TRUE;
+        //if ((gLinkStatus & LINK_STAT_RECEIVED_NOTHING) && IsSendingKeysOverCable() == TRUE)
+        //    return TRUE;
     }
     else
     {
