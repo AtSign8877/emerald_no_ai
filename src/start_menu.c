@@ -750,7 +750,12 @@ static bool8 StartMenuLinkCallback(void)
 
 static bool8 StartMenuBattleCallback(void)
 {
-    gSpecialVar_0x8005 = 1;
+    if(IsLinkMaster()) {
+        gSpecialVar_0x8005 = 1;
+    }
+    else 
+        gSpecialVar_0x8005 = 0;
+    gSpecialVar_0x8004 = 1;
     ColosseumPlayerSpotTriggered();
     ScriptContext1_Stop();
     gMenuCallback = BattleCallback;
@@ -767,10 +772,6 @@ static bool8 LinkCallback(void)
         HideFieldMessageBox();
         SetMainCallback3(CB1_OverworldLink);
         StartSendingKeysToLink();
-        if(IsLinkMaster()) {
-            gSpecialVar_0x8005 = 1;
-        }
-        else gSpecialVar_0x8005 = 0;
         return TRUE;
     }
     return FALSE;
