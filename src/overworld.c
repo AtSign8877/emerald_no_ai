@@ -2288,9 +2288,9 @@ static bool32 AreAllPlayersInLinkState(u16 state)
 {
     s32 i;
     s32 count = gFieldLinkPlayerCount;
-    MgbaPrintf(MGBA_LOG_INFO, "New loop");
+    //MgbaPrintf(MGBA_LOG_INFO, "New loop");
     for (i = 0; i < count; i++) {
-        MgbaPrintf(MGBA_LOG_INFO, "sPlayerLinkStates: %d", sPlayerLinkStates[i]);
+        //MgbaPrintf(MGBA_LOG_INFO, "sPlayerLinkStates: %d", sPlayerLinkStates[i]);
         if (sPlayerLinkStates[i] != state)
             return FALSE;
     }
@@ -2640,6 +2640,7 @@ static u16 KeyInterCB_InLinkActivity(u32 key)
 
 u32 GetCableClubPartnersReady(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Checking if Partner is Ready");
     if (IsAnyPlayerInLinkState(PLAYER_LINK_STATE_EXITING_ROOM) == TRUE)
         return CABLE_SEAT_FAILED;
     if (sPlayerKeyInterceptCallback == KeyInterCB_Ready && sPlayerLinkStates[gLocalLinkPlayerId] != PLAYER_LINK_STATE_READY)

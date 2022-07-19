@@ -47,6 +47,7 @@
 #include "constants/rgb.h"
 #include "constants/songs.h"
 #include "cable_club.h"
+#include "mgba_printf/mgba.h"
 
 // Menu actions
 enum
@@ -736,6 +737,10 @@ static bool8 StartMenuLinkCallback(void)
 {
     gLinkType = LINKTYPE_SINGLE_BATTLE;
     CreateLinkupTask(2, 2);
+    ScriptContext1_Stop();
+    MgbaPrintf(MGBA_LOG_INFO, "Connection Made with result %d", gSpecialVar_Result);
+    if (gSpecialVar_Result == LINKUP_SUCCESS) {
+    }
     return TRUE;
 }
 
