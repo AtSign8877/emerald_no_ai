@@ -38,6 +38,7 @@
 #include "field_screen_effect.h"
 #include "data.h"
 #include "cable_club.h"
+#include "link.h"
 #include "constants/battle_frontier.h"
 #include "constants/battle_setup.h"
 #include "constants/game_stat.h"
@@ -456,7 +457,7 @@ static void DoBattlePikeWildBattle(void)
     TryUpdateGymLeaderRematchFromWild();
 }
 
-//This just looks like a transition function, doesnt affect the battle itself
+//This just looks like a transition function, doesnt effect the battle itself
 static void DoTrainerBattle(void)
 {
     CreateBattleStartTask(GetTrainerBattleTransition(), 0);
@@ -1273,12 +1274,22 @@ void ClearTrainerFlag(u16 trainerId)
 //This function is where we should begin establishing the link/setting the opponent's trainer data
 void BattleSetup_StartTrainerBattle(void)
 {
+    if(IsLinkMaster()) {
+        gSpecialVar_0x8005 = 1;
+    }
+    else 
+        gSpecialVar_0x8005 = 0;
+    gSpecialVar_0x8004 = 1;
+    ScriptContext1_Stop();
+    ColosseumPlayerSpotTriggered();
+    SetInCableClubSeat();
+    /*
     if (gNoOfApproachingTrainers == 2)
         gBattleTypeFlags = (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TRAINER);
     else
         gBattleTypeFlags = (BATTLE_TYPE_TRAINER);
 
-    //gBattleTypeFlags |= BATTLE_TYPE_LINK; //this might be important later to force all battle types to be link battles
+    gBattleTypeFlags |= BATTLE_TYPE_LINK;
 
     if (InBattlePyramid()) //battle pyramid should never be called in a normal playthrough
     {
@@ -1324,8 +1335,9 @@ void BattleSetup_StartTrainerBattle(void)
         DoBattlePyramidTrainerHillBattle();
     else
         DoTrainerBattle();
-
-    ScriptContext1_Stop();
+    */
+    
+    
 }
 
 static void CB2_EndTrainerBattle(void)
