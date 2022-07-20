@@ -1283,6 +1283,7 @@ void BattleSetup_StartTrainerBattle(void)
     ScriptContext1_Stop();
     ColosseumPlayerSpotTriggered();
     SetInCableClubSeat();
+    
     /*
     if (gNoOfApproachingTrainers == 2)
         gBattleTypeFlags = (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TRAINER);

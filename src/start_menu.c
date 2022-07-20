@@ -765,7 +765,6 @@ static bool8 StartMenuBattleCallback(void)
 
 static bool8 LinkCallback(void)
 {
-    //MgbaPrintf(MGBA_LOG_INFO, "In Link Callback");
     if (ScriptContext1_IsEnabled()){
         MgbaPrintf(MGBA_LOG_INFO, "In Link Callback Success!");
         StartMenuExitCallback();

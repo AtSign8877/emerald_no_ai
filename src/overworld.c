@@ -174,6 +174,7 @@ static void TransitionMapMusic(void);
 static u8 GetAdjustedInitialTransitionFlags(struct InitialPlayerAvatarState *, u16, u8);
 static u8 GetAdjustedInitialDirection(struct InitialPlayerAvatarState *, u8, u16, u8);
 static u16 GetCenterScreenMetatileBehavior(void);
+static bool32 IsAnyPlayerInLinkState(u16 state);
 
 static void *sUnusedOverworldCallback;
 static u8 sPlayerLinkStates[MAX_LINK_PLAYERS];
@@ -2243,6 +2244,20 @@ void CB1_OverworldLink(void)
     if (gWirelessCommType == 0 || !IsRfuRecvQueueEmpty() || !IsSendingKeysToLink())
     {
         u8 selfId = gLocalLinkPlayerId;
+        
+        if(IsAnyPlayerInLinkState(PLAYER_LINK_STATE_READY) && sPlayerLinkStates[selfId] != PLAYER_LINK_STATE_READY) {
+            MgbaPrintf(MGBA_LOG_INFO, "Automatically starting battle!");
+            if(IsLinkMaster()) {
+                gSpecialVar_0x8005 = 1;
+            }
+            else 
+                gSpecialVar_0x8005 = 0;
+            gSpecialVar_0x8004 = 1;
+            ColosseumPlayerSpotTriggered();
+            ScriptContext1_Stop();
+            SetInCableClubSeat();
+        }
+        
         UpdateAllLinkPlayers(gLinkPartnersHeldKeys, selfId);
 
         // Note: Because guestId is between 0 and 4, while the smallest key code is
@@ -2260,7 +2275,10 @@ void CB1_OverworldLink(void)
         
         if(sPlayerKeyInterceptCallback == 0) return;
         
+        
+        
         UpdateHeldKeyCode(sPlayerKeyInterceptCallback(selfId));
+        
         ClearAllPlayerKeys();
     }
 }
