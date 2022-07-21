@@ -1282,7 +1282,6 @@ void BattleSetup_StartTrainerBattle(void)
     gSpecialVar_0x8004 = 1;
     ScriptContext1_Stop();
     ColosseumPlayerSpotTriggered();
-    SetInCableClubSeat();
     
     /*
     if (gNoOfApproachingTrainers == 2)

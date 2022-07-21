@@ -615,6 +615,7 @@ static void ProcessRecvCmds(u8 unused)
                     else
                     {
                         SetBlockReceivedFlag(i);
+                        MgbaPrintf(MGBA_LOG_INFO, "Setting receive flag %d", i);
                     }
                 }
             }
@@ -697,7 +698,6 @@ static void BuildSendCmd(u16 command)
 
             gSendCmd[0] = LINKCMD_SEND_HELD_KEYS;
             gSendCmd[1] = gHeldKeyCodeToSend;
-            MgbaPrintf(MGBA_LOG_INFO, "Sending held keys!");
             break;
     }
 }

@@ -855,7 +855,7 @@ static void SetLinkBattleTypeFlags(int linkService)
 static void Task_StartWiredCableClubBattle(u8 taskId)
 {
     struct Task* task = &gTasks[taskId];
-    MgbaPrintf(MGBA_LOG_INFO, "Entering Wired Cable Club Battle");
+    //MgbaPrintf(MGBA_LOG_INFO, "Entering Wired Cable Club Battle");
 
     switch (task->tState)
     {

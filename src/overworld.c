@@ -2,6 +2,7 @@
 #include "overworld.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
+#include "battle_main.h"
 #include "berry.h"
 #include "bg.h"
 #include "cable_club.h"
@@ -77,6 +78,12 @@ struct CableClubPlayer
     struct MapPosition pos;
     u16 metatileBehavior;
 };
+
+struct TrainerInfoBlock
+{
+    u16 trainerId;
+};
+
 
 #define PLAYER_LINK_STATE_IDLE 0x80
 #define PLAYER_LINK_STATE_BUSY 0x81
@@ -2244,8 +2251,13 @@ void CB1_OverworldLink(void)
     if (gWirelessCommType == 0 || !IsRfuRecvQueueEmpty() || !IsSendingKeysToLink())
     {
         u8 selfId = gLocalLinkPlayerId;
+        int i;
+        struct TrainerInfoBlock* trainerInfo;
         
-        if(IsAnyPlayerInLinkState(PLAYER_LINK_STATE_READY) && sPlayerLinkStates[selfId] != PLAYER_LINK_STATE_READY) {
+        //if(IsAnyPlayerInLinkState(PLAYER_LINK_STATE_READY) && ()) {
+        if (GetBlockReceivedStatus() && sPlayerLinkStates[selfId] != PLAYER_LINK_STATE_READY && !(GetBlockReceivedStatus() & (1 << selfId))) {
+            MgbaPrintf(MGBA_LOG_INFO, "Received Status %d", GetBlockReceivedStatus());
+                
             MgbaPrintf(MGBA_LOG_INFO, "Automatically starting battle!");
             if(IsLinkMaster()) {
                 gSpecialVar_0x8005 = 1;
@@ -2253,9 +2265,20 @@ void CB1_OverworldLink(void)
             else 
                 gSpecialVar_0x8005 = 0;
             gSpecialVar_0x8004 = 1;
-            ColosseumPlayerSpotTriggered();
+            
+            for (i = 0; i < GetLinkPlayerCount(); i++)
+            {
+                if (i == selfId) continue;
+                trainerInfo = (struct TrainerInfoBlock*) gBlockRecvBuffer[i];
+                MgbaPrintf(MGBA_LOG_INFO, "Making party with trainer ID: %d", trainerInfo->trainerId);
+                CreateNPCTrainerParty(&gPlayerParty[0], trainerInfo->trainerId, TRUE);
+                ResetBlockReceivedFlag(i);
+                //sPlayerLinkStates[i] = PLAYER_LINK_STATE_READY;
+                break;
+            }
             ScriptContext1_Stop();
-            SetInCableClubSeat();
+            ResetBlockReceivedFlags();
+            ColosseumPlayerSpotTriggered();
         }
         
         UpdateAllLinkPlayers(gLinkPartnersHeldKeys, selfId);
@@ -2274,9 +2297,7 @@ void CB1_OverworldLink(void)
         //MgbaPrintf(MGBA_LOG_INFO, "sPlayerKeyInterceptCallback: %d", sPlayerKeyInterceptCallback);
         
         if(sPlayerKeyInterceptCallback == 0) return;
-        
-        
-        
+          
         UpdateHeldKeyCode(sPlayerKeyInterceptCallback(selfId));
         
         ClearAllPlayerKeys();
@@ -2637,6 +2658,17 @@ static u16 KeyInterCB_Ready(u32 keyOrPlayerId)
 
 static u16 KeyInterCB_SetReady(u32 key)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Setting ready w/o sending party");
+    SetKeyInterceptCallback(KeyInterCB_Ready);
+    return LINK_KEY_CODE_READY;
+}
+
+static u16 KeyInterCB_SetReadyAndSendParty(u32 key)
+{
+    struct TrainerInfoBlock trainerInfo;
+    trainerInfo.trainerId = gTrainerBattleOpponent_A;
+    MgbaPrintf(MGBA_LOG_INFO, "Sending over trainer ID %d", trainerInfo.trainerId);
+    SendBlock(-1, &trainerInfo, sizeof(trainerInfo));
     SetKeyInterceptCallback(KeyInterCB_Ready);
     return LINK_KEY_CODE_READY;
 }
@@ -2698,7 +2730,8 @@ u16 SetInCableClubSeat(void)
 {
     MgbaPrintf(MGBA_LOG_INFO, "Setting in cable club seat");
     
-    SetKeyInterceptCallback(KeyInterCB_SetReady);
+    if(IsAnyPlayerInLinkState(PLAYER_LINK_STATE_READY)) SetKeyInterceptCallback(KeyInterCB_SetReady);
+    else SetKeyInterceptCallback(KeyInterCB_SetReadyAndSendParty);
     return 0;
 }
 
