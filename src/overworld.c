@@ -8,6 +8,7 @@
 #include "bg.h"
 #include "cable_club.h"
 #include "clock.h"
+#include "data.h"
 #include "event_data.h"
 #include "event_object_movement.h"
 #include "event_scripts.h"
@@ -26,6 +27,7 @@
 #include "gpu_regs.h"
 #include "heal_location.h"
 #include "io_reg.h"
+#include "item.h"
 #include "link.h"
 #include "link_rfu.h"
 #include "load_save.h"
@@ -2255,6 +2257,7 @@ void CB1_OverworldLink(void)
     {
         u8 selfId = gLocalLinkPlayerId;
         int i;
+        int c;
         struct TrainerInfoBlock* trainerInfo;
         
         //if(IsAnyPlayerInLinkState(PLAYER_LINK_STATE_READY) && ()) {
@@ -2281,10 +2284,15 @@ void CB1_OverworldLink(void)
                     gSpecialVar_0x8005 = 0;
                 gSpecialVar_0x8004 = 1;
                 ScriptContext1_Stop();
+                ClearBag();
+                for(c = 0; c < MAX_TRAINER_ITEMS; c++) {
+                    AddBagItem(gTrainers[trainerInfo->trainerId].items[c], 1);
+                }
                 ResetBlockReceivedFlags();
                 sPlayerLinkStates[gLocalLinkPlayerId] = PLAYER_LINK_STATE_READY;
                 ColosseumPlayerSpotTriggered();
                 sPlayerLinkStates[i] = PLAYER_LINK_STATE_READY;
+                
                 break;
             }
             
