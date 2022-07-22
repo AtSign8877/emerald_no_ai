@@ -81,6 +81,7 @@ struct CableClubPlayer
 
 struct TrainerInfoBlock
 {
+    u8 init; //set to false by default and true when sent to not recive blank trainer info by mistake
     u16 trainerId;
 };
 
@@ -2259,26 +2260,31 @@ void CB1_OverworldLink(void)
             MgbaPrintf(MGBA_LOG_INFO, "Received Status %d", GetBlockReceivedStatus());
                 
             MgbaPrintf(MGBA_LOG_INFO, "Automatically starting battle!");
-            if(IsLinkMaster()) {
-                gSpecialVar_0x8005 = 1;
-            }
-            else 
-                gSpecialVar_0x8005 = 0;
-            gSpecialVar_0x8004 = 1;
+            
             
             for (i = 0; i < GetLinkPlayerCount(); i++)
             {
                 if (i == selfId) continue;
                 trainerInfo = (struct TrainerInfoBlock*) gBlockRecvBuffer[i];
+                if (!trainerInfo->init) continue;
+                trainerInfo->init = FALSE;
                 MgbaPrintf(MGBA_LOG_INFO, "Making party with trainer ID: %d", trainerInfo->trainerId);
                 CreateNPCTrainerParty(&gPlayerParty[0], trainerInfo->trainerId, TRUE);
                 ResetBlockReceivedFlag(i);
-                //sPlayerLinkStates[i] = PLAYER_LINK_STATE_READY;
+                if(IsLinkMaster()) {
+                    gSpecialVar_0x8005 = 1;
+                }
+                else 
+                    gSpecialVar_0x8005 = 0;
+                gSpecialVar_0x8004 = 1;
+                ScriptContext1_Stop();
+                ResetBlockReceivedFlags();
+                sPlayerLinkStates[gLocalLinkPlayerId] = PLAYER_LINK_STATE_READY;
+                ColosseumPlayerSpotTriggered();
+                sPlayerLinkStates[i] = PLAYER_LINK_STATE_READY;
                 break;
             }
-            ScriptContext1_Stop();
-            ResetBlockReceivedFlags();
-            ColosseumPlayerSpotTriggered();
+            
         }
         
         UpdateAllLinkPlayers(gLinkPartnersHeldKeys, selfId);
@@ -2658,7 +2664,6 @@ static u16 KeyInterCB_Ready(u32 keyOrPlayerId)
 
 static u16 KeyInterCB_SetReady(u32 key)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Setting ready w/o sending party");
     SetKeyInterceptCallback(KeyInterCB_Ready);
     return LINK_KEY_CODE_READY;
 }
@@ -2666,10 +2671,16 @@ static u16 KeyInterCB_SetReady(u32 key)
 static u16 KeyInterCB_SetReadyAndSendParty(u32 key)
 {
     struct TrainerInfoBlock trainerInfo;
+    trainerInfo.init = TRUE;
     trainerInfo.trainerId = gTrainerBattleOpponent_A;
+    
     MgbaPrintf(MGBA_LOG_INFO, "Sending over trainer ID %d", trainerInfo.trainerId);
+    
     SendBlock(-1, &trainerInfo, sizeof(trainerInfo));
-    SetKeyInterceptCallback(KeyInterCB_Ready);
+    
+    sPlayerLinkStates[gLocalLinkPlayerId] = PLAYER_LINK_STATE_READY;
+    
+    SetKeyInterceptCallback(KeyInterCB_SetReady);
     return LINK_KEY_CODE_READY;
 }
 
