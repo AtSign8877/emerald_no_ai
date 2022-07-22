@@ -60,6 +60,7 @@
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "cable_club.h"
+#include "mgba_printf/mgba.h"
 
 extern const struct BgTemplate gBattleBgTemplates[];
 extern const struct WindowTemplate *const gBattleWindowTemplates[];
@@ -1953,12 +1954,18 @@ u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 firstTrain
     if (trainerNum == TRAINER_SECRET_BASE)
         return 0;
 
+    MgbaPrintf(MGBA_LOG_INFO, "Battle Type Flags: %d", gBattleTypeFlags);
+
     if (gBattleTypeFlags & BATTLE_TYPE_TRAINER && !(gBattleTypeFlags & (BATTLE_TYPE_FRONTIER
                                                                         | BATTLE_TYPE_EREADER_TRAINER
                                                                         | BATTLE_TYPE_TRAINER_HILL)))
     {
-        if (firstTrainer == TRUE)
-            ZeroEnemyPartyMons();
+        MgbaPrintf(MGBA_LOG_INFO, "Reached trainer data creation");
+        if (firstTrainer == TRUE) {
+            s32 i;
+            for (i = 0; i < PARTY_SIZE; i++)
+                ZeroMonData(&party[i]);
+        }
 
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
         {

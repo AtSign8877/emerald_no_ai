@@ -1,5 +1,6 @@
 #include "global.h"
 #include "overworld.h"
+#include "battle.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
 #include "battle_main.h"
@@ -83,6 +84,7 @@ struct TrainerInfoBlock
 {
     u8 init; //set to false by default and true when sent to not recive blank trainer info by mistake
     u16 trainerId;
+    u16 battleFlags;
 };
 
 
@@ -2269,6 +2271,7 @@ void CB1_OverworldLink(void)
                 if (!trainerInfo->init) continue;
                 trainerInfo->init = FALSE;
                 MgbaPrintf(MGBA_LOG_INFO, "Making party with trainer ID: %d", trainerInfo->trainerId);
+                gBattleTypeFlags = trainerInfo->battleFlags;
                 CreateNPCTrainerParty(&gPlayerParty[0], trainerInfo->trainerId, TRUE);
                 ResetBlockReceivedFlag(i);
                 if(IsLinkMaster()) {
@@ -2673,6 +2676,7 @@ static u16 KeyInterCB_SetReadyAndSendParty(u32 key)
     struct TrainerInfoBlock trainerInfo;
     trainerInfo.init = TRUE;
     trainerInfo.trainerId = gTrainerBattleOpponent_A;
+    trainerInfo.battleFlags = gBattleTypeFlags;
     
     MgbaPrintf(MGBA_LOG_INFO, "Sending over trainer ID %d", trainerInfo.trainerId);
     

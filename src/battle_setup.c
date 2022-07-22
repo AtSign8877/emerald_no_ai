@@ -1274,6 +1274,13 @@ void ClearTrainerFlag(u16 trainerId)
 //This function is where we should begin establishing the link/setting the opponent's trainer data
 void BattleSetup_StartTrainerBattle(void)
 {
+    if (gNoOfApproachingTrainers == 2)
+        gBattleTypeFlags = (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TRAINER);
+    else
+        gBattleTypeFlags = (BATTLE_TYPE_TRAINER);
+
+    gBattleTypeFlags |= BATTLE_TYPE_LINK;
+    
     if(IsLinkMaster()) {
         gSpecialVar_0x8005 = 1;
     }
@@ -1284,12 +1291,7 @@ void BattleSetup_StartTrainerBattle(void)
     ColosseumPlayerSpotTriggered();
     
     /*
-    if (gNoOfApproachingTrainers == 2)
-        gBattleTypeFlags = (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TRAINER);
-    else
-        gBattleTypeFlags = (BATTLE_TYPE_TRAINER);
-
-    gBattleTypeFlags |= BATTLE_TYPE_LINK;
+    
 
     if (InBattlePyramid()) //battle pyramid should never be called in a normal playthrough
     {
