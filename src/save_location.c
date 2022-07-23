@@ -114,7 +114,7 @@ static void TrySetUnknownWarpStatus(void)
 
 void TrySetMapSaveWarpStatus(void)
 {
-    TrySetPokeCenterWarpStatus();
+    //TrySetPokeCenterWarpStatus();
     TrySetReloadWarpStatus();
     TrySetUnknownWarpStatus();
 }

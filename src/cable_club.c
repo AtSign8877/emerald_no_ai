@@ -373,6 +373,7 @@ static void Task_LinkupExchangeDataWithLeader(u8 taskId)
     else if (gSpecialVar_Result == LINKUP_PLAYER_NOT_READY
           || gSpecialVar_Result == LINKUP_PARTNER_NOT_READY)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "One or more players not ready when exchaning with leader (closing link)");
         CloseLink();
         HideFieldMessageBox();
         gTasks[taskId].func = Task_StopLinkup;
@@ -409,6 +410,7 @@ static void Task_LinkupCheckStatusAfterConfirm(u8 taskId)
         }
         else
         {
+            MgbaPrintf(MGBA_LOG_INFO, "Closing link in Task_LinkupCheckStatusAfterConfirm, first instance");
             CloseLink();
             HideFieldMessageBox();
             gTasks[taskId].func = Task_StopLinkup;
@@ -423,6 +425,7 @@ static void Task_LinkupCheckStatusAfterConfirm(u8 taskId)
     else if (gSpecialVar_Result == LINKUP_PLAYER_NOT_READY
           || gSpecialVar_Result == LINKUP_PARTNER_NOT_READY)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Closing link in Task_LinkupCheckStatusAfterConfirm, second instance");
         CloseLink();
         HideFieldMessageBox();
         gTasks[taskId].func = Task_StopLinkup;
@@ -1251,6 +1254,7 @@ void Task_WaitForLinkPlayerConnection(u8 taskId)
     task->tTimer++;
     if (task->tTimer > 300)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Closing link in Task_WaitForLinkPlayerConnection, first instance");
         CloseLink();
         SetMainCallback2(CB2_LinkError);
         DestroyTask(taskId);
@@ -1263,6 +1267,7 @@ void Task_WaitForLinkPlayerConnection(u8 taskId)
         {
             if (!DoesLinkPlayerCountMatchSaved())
             {
+                MgbaPrintf(MGBA_LOG_INFO, "Closing link in Task_WaitForLinkPlayerConnection, second instance");
                 CloseLink();
                 SetMainCallback2(CB2_LinkError);
             }

@@ -236,6 +236,7 @@ bool8 IsWirelessAdapterConnected(void)
         return TRUE;
     }
     SetWirelessCommType0_Internal();
+    MgbaPrintf(MGBA_LOG_INFO, "Wireless Adapter not found (closing link)");
     CloseLink();
     RestoreSerialTimer3IntrHandlers();
     return FALSE;
@@ -392,6 +393,7 @@ void OpenLink(void)
 
 void CloseLink(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Closing link");
     gReceivedRemoteLinkPlayers = FALSE;
     if (gWirelessCommType)
         LinkRfu_Shutdown();
@@ -481,7 +483,6 @@ static void CB2_LinkTest(void)
 u16 LinkMain2(const u16 *heldKeys)
 {
     u8 i;
-
     if (!sLinkOpen)
         return 0;
 
@@ -489,6 +490,7 @@ u16 LinkMain2(const u16 *heldKeys)
         gSendCmd[i] = 0;
 
     gLinkHeldKeys = *heldKeys;
+    MgbaPrintf(MGBA_LOG_INFO, "gLinkStatus: %d", gLinkStatus);
     if (gLinkStatus & LINK_STAT_CONN_ESTABLISHED)
     {
         ProcessRecvCmds(SIO_MULTI_CNT->id);
@@ -832,6 +834,7 @@ u8 GetLinkPlayerDataExchangeStatusTimed(int minPlayers, int maxPlayers)
             if (GetLinkPlayerCount() == 0)
             {
                 gLinkErrorOccurred = TRUE;
+                MgbaPrintf(MGBA_LOG_INFO, "Link Error: Link player count is 0 (closing link)");
                 CloseLink();
             }
             for (i = 0, index = 0; i < GetLinkPlayerCount(); index++, i++)
@@ -935,6 +938,7 @@ static bool32 InitBlockSend(const void *src, size_t size)
 {
     if (sBlockSend.active)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Error sending block: block sending in progress");
         return FALSE;
     }
     sBlockSend.multiplayerId = GetMultiplayerId();
@@ -955,6 +959,7 @@ static bool32 InitBlockSend(const void *src, size_t size)
     BuildSendCmd(LINKCMD_INIT_BLOCK);
     gLinkCallback = LinkCB_BlockSendBegin;
     sBlockSendDelayCounter = 0;
+    MgbaPrintf(MGBA_LOG_INFO, "Block sent!");
     return TRUE;
 }
 
@@ -968,6 +973,8 @@ static void LinkCB_BlockSend(void)
 {
     int i;
     const u8 *src;
+
+    MgbaPrintf(MGBA_LOG_INFO, "Send Block CB");
 
     src = sBlockSend.src;
     gSendCmd[0] = LINKCMD_CONT_BLOCK;
@@ -985,6 +992,7 @@ static void LinkCB_BlockSend(void)
 
 static void LinkCB_BlockSendEnd(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Block send end");
     gLinkCallback = NULL;
 }
 
@@ -1034,6 +1042,7 @@ u8 BitmaskAllOtherLinkPlayers(void)
 
 bool8 SendBlock(u8 unused, const void *src, u16 size)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "gWirelessCommType: %d", gWirelessCommType);
     if (gWirelessCommType == TRUE)
         return Rfu_InitBlockSend(src, size);
 
@@ -1349,6 +1358,7 @@ void CheckLinkPlayersMatchSaved(void)
          || StringCompare(sSavedLinkPlayers[i].name, gLinkPlayers[i].name) != 0)
         {
             gLinkErrorOccurred = TRUE;
+            MgbaPrintf(MGBA_LOG_INFO, "Error in CheckLinkPlayersMatchSaved (closing link)");
             CloseLink();
             SetMainCallback2(CB2_LinkError);
         }
@@ -1446,6 +1456,7 @@ static void LinkCB_WaitCloseLink(void)
         // All ready, close link
         gBattleTypeFlags &= ~BATTLE_TYPE_LINK_IN_BATTLE;
         gLinkVSyncDisabled = TRUE;
+        MgbaPrintf(MGBA_LOG_INFO, "Closing link properly");
         CloseLink();
         gLinkCallback = NULL;
         gLinkDummy1 = TRUE;
@@ -1508,6 +1519,7 @@ static void LinkCB_WaitCloseLinkWithJP(void)
         // All ready, close link
         gBattleTypeFlags &= ~BATTLE_TYPE_LINK_IN_BATTLE;
         gLinkVSyncDisabled = TRUE;
+        MgbaPrintf(MGBA_LOG_INFO, "Closing link properly");
         CloseLink();
         gLinkCallback = NULL;
         gLinkDummy1 = TRUE;
@@ -1565,6 +1577,7 @@ static void TrySetLinkErrorBuffer(void)
     {
         // Link error has occurred, handle message details if
         // necessary, then stop the link.
+        MgbaPrintf(MGBA_LOG_INFO, "Link Error Ocurred in TrySetLinkErrorBuffer (closing link)");
         if (!gSuppressLinkErrorMessage)
         {
             sLinkErrorBuffer.status = gLinkStatus;
