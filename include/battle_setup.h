@@ -15,7 +15,9 @@ struct RematchTrainer
 extern const struct RematchTrainer gRematchTable[REMATCH_TABLE_ENTRIES];
 
 extern u16 gTrainerBattleOpponent_A;
+extern u16 gTrainerBattleOpponent_A_backup;
 extern u16 gTrainerBattleOpponent_B;
+extern u16 gTrainerBattleOpponent_B_backup;
 extern u16 gPartnerTrainerId;
 
 void BattleSetup_StartWildBattle(void);
@@ -63,5 +65,8 @@ bool8 ShouldTryRematchBattle(void);
 bool8 IsTrainerReadyForRematch(void);
 void ShouldTryGetTrainerScript(void);
 u16 CountBattledRematchTeams(u16 trainerId);
+bool32 IsPlayerDefeated(u32 battleOutcome);
+void RegisterTrainerInMatchCall(void);
+void SetBattledTrainersFlags(void);
 
 #endif // GUARD_BATTLE_SETUP_H

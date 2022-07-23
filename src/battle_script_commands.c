@@ -51,6 +51,7 @@
 #include "constants/rgb.h"
 #include "constants/songs.h"
 #include "constants/trainers.h"
+#include "link.h"
 
 extern const u8* const gBattleScriptsForMoveEffects[];
 
@@ -3239,7 +3240,7 @@ static void Cmd_getexp(void)
               | BATTLE_TYPE_FRONTIER
               | BATTLE_TYPE_SAFARI
               | BATTLE_TYPE_BATTLE_TOWER
-              | BATTLE_TYPE_EREADER_TRAINER)))
+              | BATTLE_TYPE_EREADER_TRAINER) && !IsLinkMaster()))
         {
             gBattleScripting.getexpState = 6; // goto last case
         }

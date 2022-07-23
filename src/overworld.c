@@ -1656,6 +1656,8 @@ static void CB2_ReturnToFieldLocal(void)
 
 static void CB2_ReturnToFieldLink(void)
 {
+    StartSendingKeysToLink();
+    SetMainCallback3(CB1_OverworldLink);
     if (!Overworld_IsRecvQueueAtMax() && ReturnToFieldLink(&gMain.state))
         SetMainCallback2(CB2_Overworld);
 }
@@ -1663,9 +1665,9 @@ static void CB2_ReturnToFieldLink(void)
 void CB2_ReturnToFieldFromMultiplayer(void)
 {
     FieldClearVBlankHBlankCallbacks();
-    StopMapMusic();
-    SetMainCallback1(CB1_OverworldLink);
-    ResetAllMultiplayerState();
+    //StopMapMusic();
+    //SetMainCallback1(CB1_OverworldLink);
+    //ResetAllMultiplayerState();
 
     if (gWirelessCommType != 0)
         gFieldCallback = FieldCB_ReturnToFieldWirelessLink;
@@ -1695,6 +1697,13 @@ void CB2_ReturnToFieldContinueScriptPlayMapMusic(void)
 {
     FieldClearVBlankHBlankCallbacks();
     gFieldCallback = FieldCB_ContinueScriptHandleMusic;
+    CB2_ReturnToField();
+}
+
+void CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion(void)
+{
+    FieldClearVBlankHBlankCallbacks();
+    gFieldCallback = FieldCB_ContinueScriptHandleMusic_LinkVersion;
     CB2_ReturnToField();
 }
 

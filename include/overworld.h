@@ -143,6 +143,7 @@ void CB2_ReturnToFieldFromMultiplayer(void);
 void CB2_ReturnToFieldWithOpenMenu(void);
 void CB2_ReturnToFieldContinueScript(void);
 void CB2_ReturnToFieldContinueScriptPlayMapMusic(void);
+void CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion(void);
 void CB2_ReturnToFieldFadeFromBlack(void);
 void CB2_ContinueSavedGame(void);
 void ResetAllMultiplayerState(void);

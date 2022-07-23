@@ -35,6 +35,10 @@
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "mgba_printf/mgba.h"
+#include "fldeff_misc.h"
+#include "battle_transition.h"
+#include "mirage_tower.h"
+#include "field_control_avatar.h"
 
 static const struct WindowTemplate sWindowTemplate_LinkPlayerCount = {
     .bg = 0,
@@ -748,8 +752,11 @@ void TryContestEModeLinkup(void)
 
 u8 CreateTask_ReestablishCableClubLink(void)
 {
-    if (FuncIsActiveTask(Task_ReestablishLink) != FALSE)
+    MgbaPrintf(MGBA_LOG_INFO, "Trying to reestablish link");
+    if (FuncIsActiveTask(Task_ReestablishLink) != FALSE) {
+        MgbaPrintf(MGBA_LOG_INFO, "Cancelling reestablish link");
         return 0xFF;
+    }
 
     switch (gSpecialVar_0x8004)
     {
@@ -776,15 +783,18 @@ u8 CreateTask_ReestablishCableClubLink(void)
         break;
     }
 
+    MgbaPrintf(MGBA_LOG_INFO, "Try to create Reestablish link Task??");
     return CreateTask(Task_ReestablishLink, 80);
 }
 
 static void Task_ReestablishLink(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
+    MgbaPrintf(MGBA_LOG_INFO, "in reestablish link");
 
     if (data[0] == 0)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Trying to Open Link and ResetLinkPlayers");
         OpenLink();
         ResetLinkPlayers();
         CreateTask(Task_WaitForLinkPlayerConnection, 80);
@@ -798,6 +808,7 @@ static void Task_ReestablishLink(u8 taskId)
 
 static void Task_ReestablishLinkAwaitConnection(u8 taskId)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Trying to Awaiting Reestablish Link Connection");
     if (GetLinkPlayerCount_2() >= 2)
     {
         if (IsLinkMaster() == TRUE)
@@ -818,9 +829,11 @@ static void Task_ReestablishLinkLeader(u8 taskId)
 
 static void Task_ReestablishLinkAwaitConfirmation(u8 taskId)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Trying to Awaiting Reestablish Link Confirmation");
     if (gReceivedRemoteLinkPlayers == TRUE
      && IsLinkPlayerDataExchangeComplete() == TRUE)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Successfully reconnected");
         CheckLinkPlayersMatchSaved();
         StartSendingKeysToLink();
         DestroyTask(taskId);
@@ -854,6 +867,60 @@ static void SetLinkBattleTypeFlags(int linkService)
 }
 
 #define tTimer data[1]
+#define tTransition data[2]
+
+static void Task_StartWiredLinkTrainerBattle(u8 taskId)
+{
+    struct Task* task = &gTasks[taskId];
+    //MgbaPrintf(MGBA_LOG_INFO, "Entering Wired Cable Club Battle");
+
+    switch (task->tState)
+    {
+    case 0:
+        if (!FldEffPoison_IsActive()) // is poison not active?
+        {
+            //FadeScreen(FADE_TO_BLACK, 0);
+            BattleTransition_StartOnField(task->tTransition);
+            gLinkType = LINKTYPE_BATTLE;
+            ClearLinkCallback_2();
+            ClearMirageTowerPulseBlendEffect();
+            task->tState++;
+        }
+        break;
+    case 1:
+        if (IsBattleTransitionDone() == TRUE)
+            task->tState++;
+        break;
+    case 2:
+        task->tTimer++;
+        if (task->tTimer > 20)
+            task->tState++;
+        break;
+    case 3:
+        SetCloseLinkCallback();
+        task->tState++;
+        break;
+    case 4:
+        if (!gReceivedRemoteLinkPlayers)
+            task->tState++;
+        break;
+    case 5:
+        //if (gLinkPlayers[0].trainerId & 1)
+        //    PlayMapChosenOrBattleBGM(MUS_VS_GYM_LEADER);
+        //else
+        //    PlayMapChosenOrBattleBGM(MUS_VS_TRAINER);
+
+        SetLinkBattleTypeFlags(gSpecialVar_0x8004);
+        CleanupOverworldWindowsAndTilemaps();
+        gTrainerBattleOpponent_A = TRAINER_LINK_OPPONENT;
+        SetMainCallback2(CB2_InitBattle);
+        RestartWildEncounterImmunitySteps();
+        ClearPoisonStepCounter();
+        gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattle;
+        DestroyTask(taskId);
+        break;
+    }
+}
 
 static void Task_StartWiredCableClubBattle(u8 taskId)
 {
@@ -895,7 +962,7 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
         CleanupOverworldWindowsAndTilemaps();
         gTrainerBattleOpponent_A = TRAINER_LINK_OPPONENT;
         SetMainCallback2(CB2_InitBattle);
-        gMain.savedCallback = CB2_ReturnFromCableClubBattle;
+        gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattle;
         DestroyTask(taskId);
         break;
     }
@@ -969,6 +1036,7 @@ static void Task_StartWirelessCableClubBattle(u8 taskId)
 }
 
 #undef tTimer
+#undef tTransition
 
 static void CB2_ReturnFromUnionRoomBattle(void)
 {
@@ -1012,6 +1080,35 @@ static void CB2_ReturnFromUnionRoomBattle(void)
         break;
     }
     RunTasks();
+}
+
+void CB2_ReturnFromLinkedTrainerBattle(void)
+{
+    gBattleTypeFlags &= ~BATTLE_TYPE_LINK_IN_BATTLE;
+    gTrainerBattleOpponent_A = gTrainerBattleOpponent_A_backup;
+    gTrainerBattleOpponent_B = gTrainerBattleOpponent_B_backup;
+    ResetAllMultiplayerState();
+    StartSendingKeysToLink();
+    SetMainCallback3(CB1_OverworldLink);
+    if (IsPlayerDefeated(gBattleOutcome) == TRUE)
+    {
+        if(IsLinkMaster())
+            SetMainCallback2(CB2_WhiteOut);
+        else
+            SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion);
+    }
+    else
+    {
+        SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion);
+        RegisterTrainerInMatchCall();
+        SetBattledTrainersFlags();
+    }
+    //if (CreateTask_ReestablishCableClubLink() == 0)
+    //    MgbaPrintf(MGBA_LOG_INFO, "Failed Creating task");
+    /*
+    gMain.savedCallback = CB2_ReturnToFieldFromMultiplayer;
+    SetMainCallback2(CB2_SetUpSaveAfterLinkBattle);
+    */
 }
 
 void CB2_ReturnFromCableClubBattle(void)
@@ -1112,12 +1209,24 @@ static void Task_EnterCableClubSeat(u8 taskId)
     }
 }
 
+#define tTransition data[2]
 void CreateTask_EnterCableClubSeat(TaskFunc followupFunc)
 {
     u8 taskId = CreateTask(Task_EnterCableClubSeat, 80);
     SetTaskFuncWithFollowupFunc(taskId, Task_EnterCableClubSeat, followupFunc);
     ScriptContext1_Stop();
 }
+
+
+void CreateTask_EnterCableClubSeat_1(TaskFunc taskFunc, u8 transition, u16 song)
+{
+    u8 taskId = CreateTask(Task_EnterCableClubSeat, 80);
+    SetTaskFuncWithFollowupFunc(taskId, Task_EnterCableClubSeat, taskFunc);
+    gTasks[taskId].tTransition = transition;
+    PlayMapChosenOrBattleBGM(song);
+    ScriptContext1_Stop();
+}
+#undef tTransition
 
 static void Task_StartWiredTrade(u8 taskId)
 {
@@ -1214,6 +1323,13 @@ void ColosseumPlayerSpotTriggered(void) //called via script only
         CreateTask_EnterCableClubSeat(Task_StartWirelessCableClubBattle);
     else
         CreateTask_EnterCableClubSeat(Task_StartWiredCableClubBattle);
+}
+
+void TriggerLinkedTrainerBattle(u8 transition, u16 song)
+{
+    gLinkType = LINKTYPE_BATTLE;
+    MgbaPrintf(MGBA_LOG_INFO, "TriggerLinkedTrainerBattle");
+    CreateTask_EnterCableClubSeat_1(Task_StartWiredLinkTrainerBattle, transition, song);
 }
 
 // Unused

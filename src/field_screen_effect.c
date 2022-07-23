@@ -139,12 +139,46 @@ static void Task_WaitForFadeAndEnableScriptCtx(u8 taskID)
     }
 }
 
+static void Task_WaitForFadeAndEnableScriptCtx_LinkVersion(u8 taskID)
+{
+    struct Task *task = &gTasks[taskID];
+    switch (task->tState)
+    {
+    case 0:
+        task->data[1] = CreateTask_ReestablishCableClubLink();
+        task->tState++;
+        break;
+    case 1:
+        if (gTasks[task->data[1]].isActive != TRUE)
+        {
+            //WarpFadeInScreen();
+            task->tState++;
+        }
+        break;
+    case 2:
+        if (WaitForWeatherFadeIn() == TRUE)
+        {
+            DestroyTask(taskID);
+            EnableBothScriptContexts();
+        }
+        break;
+    }
+}
+
 void FieldCB_ContinueScriptHandleMusic(void)
 {
     ScriptContext2_Enable();
     Overworld_PlaySpecialMapMusic();
     FadeInFromBlack();
     CreateTask(Task_WaitForFadeAndEnableScriptCtx, 10);
+}
+
+void FieldCB_ContinueScriptHandleMusic_LinkVersion(void)
+{
+    ScriptContext2_Enable();
+    Overworld_PlaySpecialMapMusic();
+    FadeInFromBlack();
+    CreateTask(Task_WaitForFadeAndEnableScriptCtx_LinkVersion, 10);
 }
 
 void FieldCB_ContinueScript(void)

@@ -13,5 +13,8 @@ void Task_WaitForLinkPlayerConnection(u8 taskId);
 bool32 GetLinkTrainerCardColor(u8 linkPlayerIndex);
 void CreateLinkupTask(u8 minPlayers, u8 maxPlayers);
 void ColosseumPlayerSpotTriggered(void);
+void TriggerLinkedTrainerBattle(u8 transition, u16 song);
+void CreateTask_EnterCableClubSeat_1(TaskFunc taskFunc, u8 transition, u16 song);
+void CB2_ReturnFromLinkedTrainerBattle(void);
 
 #endif //GUARD_CABLE_CLUB_H

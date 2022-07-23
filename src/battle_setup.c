@@ -86,9 +86,7 @@ static void CB2_GiveStarter(void);
 static void CB2_StartFirstBattle(void);
 static void CB2_EndFirstBattle(void);
 static void CB2_EndTrainerBattle(void);
-static bool32 IsPlayerDefeated(u32 battleOutcome);
 static u16 GetRematchTrainerId(u16 trainerId);
-static void RegisterTrainerInMatchCall(void);
 static void HandleRematchVarsOnBattleEnd(void);
 static const u8 *GetIntroSpeechOfApproachingTrainer(void);
 static const u8 *GetTrainerCantBattleSpeech(void);
@@ -96,6 +94,8 @@ static const u8 *GetTrainerCantBattleSpeech(void);
 EWRAM_DATA static u16 sTrainerBattleMode = 0;
 EWRAM_DATA u16 gTrainerBattleOpponent_A = 0;
 EWRAM_DATA u16 gTrainerBattleOpponent_B = 0;
+EWRAM_DATA u16 gTrainerBattleOpponent_A_backup = 0;
+EWRAM_DATA u16 gTrainerBattleOpponent_B_backup = 0;
 EWRAM_DATA u16 gPartnerTrainerId = 0;
 EWRAM_DATA static u16 sTrainerObjectEventLocalId = 0;
 EWRAM_DATA static u8 *sTrainerAIntroSpeech = NULL;
@@ -993,7 +993,7 @@ static u16 GetTrainerBFlag(void)
     return TRAINER_FLAGS_START + gTrainerBattleOpponent_B;
 }
 
-static bool32 IsPlayerDefeated(u32 battleOutcome)
+bool32 IsPlayerDefeated(u32 battleOutcome)
 {
     switch (battleOutcome)
     {
@@ -1244,7 +1244,7 @@ bool8 GetTrainerFlag(void)
         return FlagGet(GetTrainerAFlag());
 }
 
-static void SetBattledTrainersFlags(void)
+void SetBattledTrainersFlags(void)
 {
     if (gTrainerBattleOpponent_B != 0)
         FlagSet(GetTrainerBFlag());
@@ -1274,10 +1274,17 @@ void ClearTrainerFlag(u16 trainerId)
 //This function is where we should begin establishing the link/setting the opponent's trainer data
 void BattleSetup_StartTrainerBattle(void)
 {
+    u8 transitionType;
+    
     if (gNoOfApproachingTrainers == 2)
         gBattleTypeFlags = (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TRAINER);
     else
         gBattleTypeFlags = (BATTLE_TYPE_TRAINER);
+
+    transitionType = GetTrainerBattleTransition();
+    IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
+    IncrementGameStat(GAME_STAT_TRAINER_BATTLES);
+    TryUpdateGymLeaderRematchFromTrainer();
 
     gBattleTypeFlags |= BATTLE_TYPE_LINK;
     
@@ -1286,57 +1293,20 @@ void BattleSetup_StartTrainerBattle(void)
     }
     else 
         gSpecialVar_0x8005 = 0;
-    gSpecialVar_0x8004 = 1;
-    ScriptContext1_Stop();
-    ColosseumPlayerSpotTriggered();
-    
-    /*
-    
-
-    if (InBattlePyramid()) //battle pyramid should never be called in a normal playthrough
-    {
-        VarSet(VAR_TEMP_E, 0);
-        gBattleTypeFlags |= BATTLE_TYPE_PYRAMID;
-
-        if (gNoOfApproachingTrainers == 2)
-        {
-            FillFrontierTrainersParties(1);
-            ZeroMonData(&gEnemyParty[1]);
-            ZeroMonData(&gEnemyParty[2]);
-            ZeroMonData(&gEnemyParty[4]);
-            ZeroMonData(&gEnemyParty[5]);
-        }
-        else
-        {
-            FillFrontierTrainerParty(1);
-            ZeroMonData(&gEnemyParty[1]);
-            ZeroMonData(&gEnemyParty[2]);
-        }
-
-        MarkApproachingPyramidTrainersAsBattled();
-    }
-    else if (InTrainerHillChallenge()) //trainer hill shoud never be called in a normal playthrouh
-    {
-        gBattleTypeFlags |= BATTLE_TYPE_TRAINER_HILL;
-
-        if (gNoOfApproachingTrainers == 2)
-            FillHillTrainersParties();
-        else
-            FillHillTrainerParty();
-
-        SetHillTrainerFlag();
-    }
 
     sNoOfPossibleTrainerRetScripts = gNoOfApproachingTrainers;
     gNoOfApproachingTrainers = 0;
     sShouldCheckTrainerBScript = FALSE;
     gWhichTrainerToFaceAfterBattle = 0;
-    gMain.savedCallback = CB2_EndTrainerBattle;
+    gTrainerBattleOpponent_A_backup = gTrainerBattleOpponent_A;
+    gTrainerBattleOpponent_B_backup = gTrainerBattleOpponent_B;
 
-    if (InBattlePyramid() || InTrainerHillChallenge())
-        DoBattlePyramidTrainerHillBattle();
-    else
-        DoTrainerBattle();
+    gSpecialVar_0x8004 = 1;
+    ScriptContext1_Stop();
+    TriggerLinkedTrainerBattle(transitionType, 0);
+    
+    /*
+    DoTrainerBattle();
     */
     
     
@@ -1769,7 +1739,7 @@ static u32 GetTrainerMatchCallFlag(u32 trainerId)
     return 0xFFFF;
 }
 
-static void RegisterTrainerInMatchCall(void)
+void RegisterTrainerInMatchCall(void)
 {
     if (FlagGet(FLAG_HAS_MATCH_CALL))
     {
