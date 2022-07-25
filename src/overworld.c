@@ -1433,7 +1433,7 @@ static void ResetSafariZoneFlag_(void)
 
 bool32 IsOverworldLinkActive(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Overworld link check");
+    //MgbaPrintf(MGBA_LOG_INFO, "Overworld link check");
     if (gMain.callback1 == CB1_OverworldLink)
         return TRUE;
     else
@@ -1704,6 +1704,18 @@ void CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion(void)
 {
     FieldClearVBlankHBlankCallbacks();
     gFieldCallback = FieldCB_ContinueScriptHandleMusic_LinkVersion;
+    FieldClearVBlankHBlankCallbacks();
+    StopMapMusic();
+    SetMainCallback1(CB1_Overworld);
+    SetMainCallback3(CB1_OverworldLink);
+    ResetAllMultiplayerState();
+    ResetSendBuffer();
+    ResetRecvBuffer();
+    gSpecialVar_0x8004 = 1;
+
+
+    ScriptContext1_Init();
+    ScriptContext2_Disable();
     CB2_ReturnToField();
 }
 
@@ -2941,8 +2953,10 @@ bool32 Overworld_IsRecvQueueAtMax(void)
 {
     if (!IsOverworldLinkActive())
         return FALSE;
-    if (GetLinkRecvQueueLength() >= OVERWORLD_RECV_QUEUE_MAX)
+    if (GetLinkRecvQueueLength() >= OVERWORLD_RECV_QUEUE_MAX) {
+        MgbaPrintf(MGBA_LOG_INFO, "Overworld Queue Max");
         sReceivingFromLink = TRUE;
+    }
     else
         sReceivingFromLink = FALSE;
     return sReceivingFromLink;

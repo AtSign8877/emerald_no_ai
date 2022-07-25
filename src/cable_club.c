@@ -917,6 +917,7 @@ static void Task_StartWiredLinkTrainerBattle(u8 taskId)
         RestartWildEncounterImmunitySteps();
         ClearPoisonStepCounter();
         gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattle;
+        //SetMainCallback3(NULL);
         DestroyTask(taskId);
         break;
     }
@@ -1087,9 +1088,10 @@ void CB2_ReturnFromLinkedTrainerBattle(void)
     gBattleTypeFlags &= ~BATTLE_TYPE_LINK_IN_BATTLE;
     gTrainerBattleOpponent_A = gTrainerBattleOpponent_A_backup;
     gTrainerBattleOpponent_B = gTrainerBattleOpponent_B_backup;
-    ResetAllMultiplayerState();
-    StartSendingKeysToLink();
-    SetMainCallback3(CB1_OverworldLink);
+    //ResetAllMultiplayerState();
+    //ResetRecvBuffer();
+    //StartSendingKeysToLink();
+    //SetMainCallback3(CB1_OverworldLink);
     if (IsPlayerDefeated(gBattleOutcome) == TRUE)
     {
         if(IsLinkMaster())

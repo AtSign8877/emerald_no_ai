@@ -16,6 +16,7 @@
 #include "decompress.h"
 #include "constants/songs.h"
 #include "constants/items.h"
+#include "mgba_printf/mgba.h"
 
 #define TAG_SWAP_LINE 109
 
@@ -313,8 +314,10 @@ static bool8 IsActiveOverworldLinkBusy(void)
 
 bool8 MenuHelpers_ShouldWaitForLinkRecv(void)
 {
-    if (IsActiveOverworldLinkBusy() == TRUE || IsLinkRecvQueueAtOverworldMax() == TRUE )
+    if (IsActiveOverworldLinkBusy() == TRUE || IsLinkRecvQueueAtOverworldMax() == TRUE ) {
+        //MgbaPrintf(MGBA_LOG_INFO, "Should wait for link Recv");
         return TRUE;
+    }
     else
         return FALSE;
 }

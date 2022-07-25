@@ -2233,11 +2233,11 @@ void CB2_InitEndLinkBattle(void)
         SetVBlankCallback(VBlankCB_Battle);
 
         // Show end Vs screen with battle results
-        taskId = CreateTask(InitLinkBattleVsScreen, 0);
-        gTasks[taskId].data[1] = 0x10E;
-        gTasks[taskId].data[2] = 0x5A;
-        gTasks[taskId].data[5] = 1;
-        BufferPartyVsScreenHealth_AtEnd(taskId);
+        //taskId = CreateTask(InitLinkBattleVsScreen, 0);
+        //gTasks[taskId].data[1] = 0x10E;
+        //gTasks[taskId].data[2] = 0x5A;
+        //gTasks[taskId].data[5] = 1;
+        //BufferPartyVsScreenHealth_AtEnd(taskId);
 
         SetMainCallback2(CB2_EndLinkBattle);
         gBattleCommunication[MULTIUSE_STATE] = 0;

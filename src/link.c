@@ -2088,6 +2088,7 @@ static void DequeueRecvCmds(u16 (*recvCmds)[CMD_LENGTH])
                 recvCmds[i][j] = gLink.recvQueue.data[i][j][gLink.recvQueue.pos];
             }
         }
+        //MgbaPrintf(MGBA_LOG_INFO, "DequeueRecvCmds --");
         gLink.recvQueue.count--;
         gLink.recvQueue.pos++;
         if (gLink.recvQueue.pos >= QUEUE_CAPACITY)
@@ -2248,6 +2249,7 @@ static void DoRecv(void)
     u16 recv[4];
     u8 i;
     u8 index;
+    int nz_index;
 
     *(u64 *)recv = REG_SIOMLT_RECV;
     if (gLink.sendCmdIndex == 0)
@@ -2280,6 +2282,13 @@ static void DoRecv(void)
         }
         else
         {
+            nz_index = 0;
+            for (i = 0; i < gLink.playerCount; i++)
+            {
+                if(recv[i]) nz_index = i;
+                if(nz_index) break;
+            }
+            MgbaPrintf(MGBA_LOG_INFO, "Recieved command: %d while queue was full", recv[nz_index]);
             gLink.queueFull = QUEUE_FULL_RECV;
         }
         gLink.recvCmdIndex++;
