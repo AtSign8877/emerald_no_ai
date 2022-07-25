@@ -2,11 +2,11 @@
 #include "librfu.h"
 
 static void sio32intr_clock_master(void);
-static void sio32intr_clock_slave(void);
+static void sio32intr_clock_listener(void);
 static u16 handshake_wait(u16 slot);
 static void STWI_set_timer_in_RAM(u8 count);
 static void STWI_stop_timer_in_RAM(void);
-static void STWI_init_slave(void);
+static void STWI_init_listener(void);
 static void Callback_Dummy_M(int reqCommandId, int error, void (*callbackM)());
 static void Callback_Dummy_S(u16 reqCommandId, void (*callbackS)(u16));
 static void Callback_Dummy_ID(void (*callbackId)(void));
@@ -23,7 +23,7 @@ void IntrSIO32(void)
         if (gSTWIStatus->msMode == AGB_CLK_MASTER)
             sio32intr_clock_master();
         else
-            sio32intr_clock_slave();
+            sio32intr_clock_listener();
     }
 }
 
@@ -113,11 +113,11 @@ static void sio32intr_clock_master(void)
         )
         {
 
-            gSTWIStatus->msMode = AGB_CLK_SLAVE;
+            gSTWIStatus->msMode = AGB_CLK_LISTENER;
             REG_SIODATA32 = 0x80000000;
             REG_SIOCNT = SIO_INTR_ENABLE | SIO_32BIT_MODE | SIO_57600_BPS;
             REG_SIOCNT = SIO_INTR_ENABLE | SIO_32BIT_MODE | SIO_57600_BPS | SIO_ENABLE;
-            gSTWIStatus->state = 5; // slave receive req init
+            gSTWIStatus->state = 5; // listener receive req init
         }
         else
         {
@@ -144,7 +144,7 @@ static void sio32intr_clock_master(void)
     }
 }
 
-static void sio32intr_clock_slave(void)
+static void sio32intr_clock_listener(void)
 {
     u32 regSIODATA32;
     u32 r0;
@@ -156,7 +156,7 @@ static void sio32intr_clock_slave(void)
         return;
     REG_SIOCNT = SIO_INTR_ENABLE | SIO_32BIT_MODE | SIO_57600_BPS | SIO_MULTI_SD;
     regSIODATA32 = REG_SIODATA32;
-    if (gSTWIStatus->state == 5) // slave receive req init
+    if (gSTWIStatus->state == 5) // listener receive req init
     {
         ((u32*)gSTWIStatus->rxPacket)[0] = regSIODATA32;
         gSTWIStatus->reqNext = 1;
@@ -198,13 +198,13 @@ static void sio32intr_clock_slave(void)
                 }
                 REG_SIODATA32 = ((u32*)gSTWIStatus->txPacket)[0];
                 gSTWIStatus->ackNext = 1;
-                gSTWIStatus->state = 7; // slave send ack
+                gSTWIStatus->state = 7; // listener send ack
             }
             else
             {
                 REG_SIODATA32 = 0x80000000;
                 gSTWIStatus->reqNext = 1;
-                gSTWIStatus->state = 6; // slave receive req
+                gSTWIStatus->state = 6; // listener receive req
             }
         }
         else
@@ -214,7 +214,7 @@ static void sio32intr_clock_slave(void)
             return;
         }
     }
-    else if (gSTWIStatus->state == 6) // slave receive req
+    else if (gSTWIStatus->state == 6) // listener receive req
     {
         ((u32*)gSTWIStatus->rxPacket)[gSTWIStatus->reqNext] = regSIODATA32;
         gSTWIStatus->reqNext++;
@@ -246,20 +246,20 @@ static void sio32intr_clock_slave(void)
             }
             REG_SIODATA32 = ((u32*)gSTWIStatus->txPacket)[0];
             gSTWIStatus->ackNext = 1;
-            gSTWIStatus->state = 7; // slave send ack
+            gSTWIStatus->state = 7; // listener send ack
         }
         else
         {
             REG_SIODATA32 = 0x80000000;
         }
     }
-    else if (gSTWIStatus->state == 7) // slave send ack
+    else if (gSTWIStatus->state == 7) // listener send ack
     {
         if (regSIODATA32 == 0x80000000)
         {
             if (gSTWIStatus->ackLength < gSTWIStatus->ackNext)
             {
-                gSTWIStatus->state = 8; // slave done ack
+                gSTWIStatus->state = 8; // listener done ack
             }
             else
             {
@@ -276,13 +276,13 @@ static void sio32intr_clock_slave(void)
     }
     if (handshake_wait(1) == 1)
         return;
-    if (gSTWIStatus->state == 8) // slave done ack
+    if (gSTWIStatus->state == 8) // listener done ack
     {
         REG_SIOCNT = SIO_INTR_ENABLE | SIO_32BIT_MODE | SIO_57600_BPS;
         STWI_stop_timer_in_RAM();
         if (gSTWIStatus->error == ERR_REQ_CMD_ACK_REJECTION)
         {
-            STWI_init_slave();
+            STWI_init_listener();
             if (gSTWIStatus->callbackS != NULL)
             {
                 Callback_Dummy_S(0x1EE, gSTWIStatus->callbackS);
@@ -370,10 +370,10 @@ static void STWI_stop_timer_in_RAM(void)
     REG_TMCNT_H(gSTWIStatus->timerSelect) = 0;
 }
 
-static void STWI_init_slave(void)
+static void STWI_init_listener(void)
 {
-    gSTWIStatus->state = 5; // slave receive req init
-    gSTWIStatus->msMode = AGB_CLK_SLAVE;
+    gSTWIStatus->state = 5; // listener receive req init
+    gSTWIStatus->msMode = AGB_CLK_LISTENER;
     gSTWIStatus->reqLength = 0;
     gSTWIStatus->reqNext = 0;
     gSTWIStatus->reqActiveCommand = 0;

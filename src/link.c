@@ -147,7 +147,7 @@ static bool8 IsSioMultiMaster(void);
 static void SetWirelessCommType0_Internal(void);
 static void DisableSerial(void);
 static void EnableSerial(void);
-static void CheckMasterOrSlave(void);
+static void CheckMasterOrListener(void);
 static void InitTimer(void);
 static void EnqueueSendCmd(u16 *sendCmd);
 static void DequeueRecvCmds(u16 (*recvCmds)[CMD_LENGTH]);
@@ -393,7 +393,7 @@ void OpenLink(void)
 
 void CloseLink(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Closing link");
+    MgbaPrintf(MGBA_LOG_INFO, "Closing link with status %d", gLinkStatus);
     gReceivedRemoteLinkPlayers = FALSE;
     if (gWirelessCommType)
         LinkRfu_Shutdown();
@@ -490,7 +490,6 @@ u16 LinkMain2(const u16 *heldKeys)
         gSendCmd[i] = 0;
 
     gLinkHeldKeys = *heldKeys;
-    MgbaPrintf(MGBA_LOG_INFO, "gLinkStatus: %d", gLinkStatus);
     if (gLinkStatus & LINK_STAT_CONN_ESTABLISHED)
     {
         ProcessRecvCmds(SIO_MULTI_CNT->id);
@@ -1928,7 +1927,7 @@ u32 LinkMain1(u8 *shouldAdvanceLinkState, u16 *sendCmd, u16 (*recvCmds)[CMD_LENG
             switch (*shouldAdvanceLinkState)
             {
                 default:
-                    CheckMasterOrSlave();
+                    CheckMasterOrListener();
                     break;
                 case 1:
                     if (gLink.isMaster == LINK_MASTER && gLink.playerCount > 1)
@@ -1994,13 +1993,13 @@ u32 LinkMain1(u8 *shouldAdvanceLinkState, u16 *sendCmd, u16 (*recvCmds)[CMD_LENG
         retVal |= LINK_STAT_ERROR_INVALID_ID;
 
     retVal2 = retVal;
-    if (gLink.lag == LAG_SLAVE)
-        retVal2 |= LINK_STAT_ERROR_LAG_SLAVE;
+    if (gLink.lag == LAG_LISTENER)
+        retVal2 |= LINK_STAT_ERROR_LAG_LISTENER;
 
     return retVal2;
 }
 
-static void CheckMasterOrSlave(void)
+static void CheckMasterOrListener(void)
 {
     u32 terminals;
 
@@ -2011,7 +2010,7 @@ static void CheckMasterOrSlave(void)
     }
     else
     {
-        gLink.isMaster = LINK_SLAVE;
+        gLink.isMaster = LINK_LISTENER;
     }
 }
 
@@ -2137,7 +2136,7 @@ void LinkVSync(void)
         {
             if (gLink.state == LINK_STATE_CONN_ESTABLISHED)
             {
-                gLink.lag = LAG_SLAVE;
+                gLink.lag = LAG_LISTENER;
             }
             if (gLink.state == LINK_STATE_HANDSHAKE)
             {
@@ -2207,14 +2206,14 @@ static bool8 DoHandshake(void)
     }
     else
     {
-        REG_SIOMLT_SEND = SLAVE_HANDSHAKE;
+        REG_SIOMLT_SEND = LISTENER_HANDSHAKE;
     }
     *(u64 *)gLink.handshakeBuffer = REG_SIOMLT_RECV;
     REG_SIOMLT_RECV = 0;
     gLink.handshakeAsMaster = FALSE;
     for (i = 0; i < MAX_LINK_PLAYERS; i++)
     {
-        if ((gLink.handshakeBuffer[i] & ~0x3) == SLAVE_HANDSHAKE || gLink.handshakeBuffer[i] == MASTER_HANDSHAKE)
+        if ((gLink.handshakeBuffer[i] & ~0x3) == LISTENER_HANDSHAKE || gLink.handshakeBuffer[i] == MASTER_HANDSHAKE)
         {
             playerCount++;
             if (minRecv > gLink.handshakeBuffer[i] && gLink.handshakeBuffer[i] != 0)
@@ -2257,7 +2256,7 @@ static void DoRecv(void)
         {
             if (gLink.checksum != recv[i] && sChecksumAvailable)
             {
-                gLink.badChecksum = TRUE;
+                //gLink.badChecksum = TRUE;
             }
         }
         gLink.checksum = 0;

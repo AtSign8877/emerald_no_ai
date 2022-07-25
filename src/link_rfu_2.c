@@ -943,7 +943,7 @@ static bool32 RfuMain1_Child(void)
                              | recv[i * COMM_SLOT_LENGTH + (j * 2) + 0];
     }
     RfuHandleReceiveCommand(0);
-    if (lman.childClockSlave_flag == 0 && gRfu.disconnectMode != RFU_DISCONNECT_NONE)
+    if (lman.childClockListener_flag == 0 && gRfu.disconnectMode != RFU_DISCONNECT_NONE)
     {
         rfu_REQ_disconnect(gRfuLinkStatus->connSlotFlag | gRfuLinkStatus->linkLossSlotFlag);
         rfu_waitREQComplete();
@@ -1979,7 +1979,7 @@ static void Task_PlayerExchangeChat(u8 taskId)
 
 static void RfuCheckErrorStatus(void)
 {
-    if (gRfu.errorState == RFU_ERROR_STATE_OCCURRED && lman.childClockSlave_flag == 0)
+    if (gRfu.errorState == RFU_ERROR_STATE_OCCURRED && lman.childClockListener_flag == 0)
     {
         if (gMain.callback2 == CB2_MysteryGiftEReader || lman.init_param->mboot_flag)
             gWirelessCommType = 2;
@@ -1991,7 +1991,7 @@ static void RfuCheckErrorStatus(void)
     }
     else if (gRfu.sendQueue.full == TRUE || gRfu.recvQueue.full == TRUE)
     {
-        if (lman.childClockSlave_flag)
+        if (lman.childClockListener_flag)
             rfu_LMAN_requestChangeAgbClockMaster();
         RfuSetStatus(RFU_STATUS_FATAL_ERROR, F_RFU_ERROR_5 | F_RFU_ERROR_6 | F_RFU_ERROR_7);
         RfuSetErrorParams(F_RFU_ERROR_5 | F_RFU_ERROR_6 | F_RFU_ERROR_7);
@@ -2248,7 +2248,7 @@ static void LinkManagerCB_Parent(u8 msg, u8 paramCount)
         break;
     case LMAN_MSG_REQ_API_ERROR:
     case LMAN_MSG_WATCH_DOG_TIMER_ERROR:
-    case LMAN_MSG_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA:
+    case LMAN_MSG_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA:
     case LMAN_MSG_RFU_FATAL_ERROR:
         RfuSetErrorParams(msg);
         RfuSetStatus(RFU_STATUS_FATAL_ERROR, msg);
@@ -2319,7 +2319,7 @@ static void LinkManagerCB_Child(u8 msg, u8 unused1)
         break;
     case LMAN_MSG_REQ_API_ERROR:
     case LMAN_MSG_WATCH_DOG_TIMER_ERROR:
-    case LMAN_MSG_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA:
+    case LMAN_MSG_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA:
     case LMAN_MSG_RFU_FATAL_ERROR:
         RfuSetStatus(RFU_STATUS_FATAL_ERROR, msg);
         RfuSetErrorParams(msg);
@@ -2498,7 +2498,7 @@ static void LinkManagerCB_UnionRoom(u8 msg, u8 paramCount)
         break;
     case LMAN_MSG_REQ_API_ERROR:
     case LMAN_MSG_WATCH_DOG_TIMER_ERROR:
-    case LMAN_MSG_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA:
+    case LMAN_MSG_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA:
     case LMAN_MSG_RFU_FATAL_ERROR:
         RfuSetErrorParams(msg);
         RfuSetStatus(RFU_STATUS_FATAL_ERROR, msg);

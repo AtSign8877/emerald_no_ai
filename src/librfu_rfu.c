@@ -180,11 +180,11 @@ u16 rfu_initializeAPI(u32 *APIBuffer, u16 buffByteSize, IntrFunc *sioIntrTable_p
         gRfuSlotStatusUNI[i]->recvBuffer = NULL;
         gRfuSlotStatusUNI[i]->recvBufferSize = 0;
     }
-    // rfu_REQ_changeMasterSlave is the function next to rfu_STC_fastCopy
+    // rfu_REQ_changeMasterListener is the function next to rfu_STC_fastCopy
 #if LIBRFU_VERSION < 1026
     src = (const u16 *)((uintptr_t)&rfu_STC_fastCopy & ~1);
     dst = gRfuFixed->fastCopyBuffer;
-    buffByteSizeMax = ((void *)rfu_REQ_changeMasterSlave - (void *)rfu_STC_fastCopy) / sizeof(u16);
+    buffByteSizeMax = ((void *)rfu_REQ_changeMasterListener - (void *)rfu_STC_fastCopy) / sizeof(u16);
     while (buffByteSizeMax-- != 0)
         *dst++ = *src++;
 #else
@@ -289,7 +289,7 @@ static void rfu_CB_defaultCallback(u8 reqCommand, u16 reqResult)
     s32 bmSlotFlags;
     u8 i;
 
-    if (reqCommand == ID_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA_REQ)
+    if (reqCommand == ID_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA_REQ)
     {
         if (gRfuStatic->flags & 8)
             gRfuFixed->reqCallback(reqCommand, reqResult);
@@ -837,7 +837,7 @@ void rfu_REQ_endConnectParent(void)
 
 u16 rfu_syncVBlank(void)
 {
-    u8 masterSlave, i;
+    u8 masterListener, i;
     s32 bmSlotFlag;
 
     rfu_NI_checkCommFailCounter();
@@ -845,20 +845,20 @@ u16 rfu_syncVBlank(void)
         return 0;
     if (gRfuStatic->nowWatchInterval != 0)
         --gRfuStatic->nowWatchInterval;
-    masterSlave = rfu_getMasterSlave();
+    masterListener = rfu_getMasterListener();
     if (!(gRfuStatic->flags & 2))
     {
-        if (masterSlave == AGB_CLK_SLAVE)
+        if (masterListener == AGB_CLK_LISTENER)
         {
             gRfuStatic->flags |= 4;
             gRfuStatic->watchdogTimer = 360;
         }
     }
-    else if (masterSlave != AGB_CLK_SLAVE)
+    else if (masterListener != AGB_CLK_LISTENER)
     {
         gRfuStatic->flags &= 0xFB;
     }
-    if (masterSlave != AGB_CLK_SLAVE)
+    if (masterListener != AGB_CLK_LISTENER)
         gRfuStatic->flags &= 0xFD;
     else
         gRfuStatic->flags |= 2;
@@ -1220,7 +1220,7 @@ static void rfu_STC_fastCopy(const u8 **src_p, u8 **dst_p, s32 size)
     *dst_p = dst;
 }
 
-void rfu_REQ_changeMasterSlave(void)
+void rfu_REQ_changeMasterListener(void)
 {
     if (STWI_read_status(1) == AGB_CLK_MASTER)
     {
@@ -1233,21 +1233,21 @@ void rfu_REQ_changeMasterSlave(void)
     }
 }
 
-bool8 rfu_getMasterSlave(void)
+bool8 rfu_getMasterListener(void)
 {
-    bool8 masterSlave = STWI_read_status(1);
+    bool8 masterListener = STWI_read_status(1);
 
-    if (masterSlave == AGB_CLK_MASTER)
+    if (masterListener == AGB_CLK_MASTER)
     {
         if (gSTWIStatus->sending)
         {
             if (gSTWIStatus->reqActiveCommand == ID_MS_CHANGE_REQ
              || gSTWIStatus->reqActiveCommand == ID_DATA_TX_AND_CHANGE_REQ
              || gSTWIStatus->reqActiveCommand == ID_RESUME_RETRANSMIT_AND_CHANGE_REQ)
-                masterSlave = AGB_CLK_SLAVE;
+                masterListener = AGB_CLK_LISTENER;
         }
     }
-    return masterSlave;
+    return masterListener;
 }
 
 void rfu_clearAllSlot(void)
@@ -1723,8 +1723,8 @@ static void rfu_CB_sendData3(u8 reqCommand, u16 reqResult)
 {
     if (reqResult != 0)
         rfu_STC_REQ_callback(ID_DATA_TX_REQ, reqResult);
-    else if (reqCommand == ID_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA_REQ)
-        rfu_STC_REQ_callback(ID_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA_REQ, 0);
+    else if (reqCommand == ID_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA_REQ)
+        rfu_STC_REQ_callback(ID_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA_REQ, 0);
 }
 
 static void rfu_constructSendLLFrame(void)

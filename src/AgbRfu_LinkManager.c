@@ -53,7 +53,7 @@ void rfu_LMAN_REQ_sendData(u8 clockChangeFlag)
 {
     if (gRfuLinkStatus->parentChild == MODE_CHILD)
     {
-        if (lman.childClockSlave_flag == RFU_CHILD_CLOCK_SLAVE_ON)
+        if (lman.childClockListener_flag == RFU_CHILD_CLOCK_LISTENER_ON)
             clockChangeFlag = TRUE;
         else
             clockChangeFlag = FALSE;
@@ -133,11 +133,11 @@ u8 rfu_LMAN_establishConnection(u8 parent_child, u16 connect_period, u16 name_ac
         rfu_LMAN_occureCallback(LMAN_MSG_LMAN_API_ERROR_RETURN, 1);
         return LMAN_ERROR_MANAGER_BUSY;
     }
-    if (rfu_getMasterSlave() == AGB_CLK_SLAVE)
+    if (rfu_getMasterListener() == AGB_CLK_LISTENER)
     {
         lman.param[0] = 2;
         rfu_LMAN_occureCallback(LMAN_MSG_LMAN_API_ERROR_RETURN, 1);
-        return LMAN_ERROR_AGB_CLK_SLAVE;
+        return LMAN_ERROR_AGB_CLK_LISTENER;
     }
     for (i = 0, serial_list = acceptable_serialNo_list; i < 16; i++)
     {
@@ -191,11 +191,11 @@ u8 rfu_LMAN_CHILD_connectParent(u16 parentId, u16 connect_period)
         rfu_LMAN_occureCallback(LMAN_MSG_LMAN_API_ERROR_RETURN, 1);
         return LMAN_ERROR_MANAGER_BUSY;
     }
-    if (rfu_getMasterSlave() == AGB_CLK_SLAVE)
+    if (rfu_getMasterListener() == AGB_CLK_LISTENER)
     {
         lman.param[0] = 2;
         rfu_LMAN_occureCallback(LMAN_MSG_LMAN_API_ERROR_RETURN, 1);
-        return LMAN_ERROR_AGB_CLK_SLAVE;
+        return LMAN_ERROR_AGB_CLK_LISTENER;
     }
     for (i = 0; i < gRfuLinkStatus->findParentCount; i++)
     {
@@ -522,7 +522,7 @@ void rfu_LMAN_manager_entity(u32 rand)
                 rfu_REQ_CHILD_endConnectRecovery();
                 break;
             case LMAN_STATE_MS_CHANGE:
-                rfu_REQ_changeMasterSlave();
+                rfu_REQ_changeMasterListener();
                 break;
             case LMAN_STATE_WAIT_CLOCK_MASTER:
                 break;
@@ -797,14 +797,14 @@ static void rfu_LMAN_REQ_callback(u16 reqCommandId, u16 reqResult)
                 {
                     lman.state = lman.state_bak[0];
                     lman.next_state = lman.state_bak[1];
-                    lman.childClockSlave_flag = RFU_CHILD_CLOCK_SLAVE_ON;
-                    rfu_LMAN_occureCallback(LMAN_MSG_CHANGE_AGB_CLOCK_SLAVE, 0);
+                    lman.childClockListener_flag = RFU_CHILD_CLOCK_LISTENER_ON;
+                    rfu_LMAN_occureCallback(LMAN_MSG_CHANGE_AGB_CLOCK_LISTENER, 0);
                 }
                 else if (lman.next_state == LMAN_STATE_SEND_CHILD_NAME)
                 {
                     lman.state = lman.next_state;
-                    lman.childClockSlave_flag = RFU_CHILD_CLOCK_SLAVE_ON;
-                    rfu_LMAN_occureCallback(LMAN_MSG_CHANGE_AGB_CLOCK_SLAVE, 0);
+                    lman.childClockListener_flag = RFU_CHILD_CLOCK_LISTENER_ON;
+                    rfu_LMAN_occureCallback(LMAN_MSG_CHANGE_AGB_CLOCK_LISTENER, 0);
                     lman.nameAcceptTimer.active |= 1 << lman.child_slot;
                     lman.nameAcceptTimer.count[lman.child_slot] = lman.nameAcceptTimer.count_max;
                     rfu_clearSlot(TYPE_NI_SEND, lman.child_slot);
@@ -950,9 +950,9 @@ static void rfu_LMAN_REQ_callback(u16 reqCommandId, u16 reqResult)
             rfu_LMAN_managerChangeAgbClockMaster();
         }
     }
-    if (reqCommandId == ID_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA_REQ)
+    if (reqCommandId == ID_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA_REQ)
     {
-        rfu_LMAN_occureCallback(LMAN_MSG_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA, 0);
+        rfu_LMAN_occureCallback(LMAN_MSG_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA, 0);
         rfu_LMAN_managerChangeAgbClockMaster();
     }
 }
@@ -968,7 +968,7 @@ static void rfu_LMAN_MSC_callback(u16 reqCommandId)
     if (gRfuLinkStatus->parentChild == MODE_CHILD)
     {
         rfu_LMAN_linkWatcher(reqCommandId);
-        if (lman.childClockSlave_flag != RFU_CHILD_CLOCK_SLAVE_ON)
+        if (lman.childClockListener_flag != RFU_CHILD_CLOCK_LISTENER_ON)
         {
             rfu_LMAN_managerChangeAgbClockMaster();
             lman.msc_exe_flag = 0;
@@ -987,7 +987,7 @@ static void rfu_LMAN_MSC_callback(u16 reqCommandId)
     {
         lman.MSC_callback(reqCommandId);
         rfu_waitREQComplete();
-        if (lman.childClockSlave_flag == RFU_CHILD_CLOCK_SLAVE_OFF_REQ)
+        if (lman.childClockListener_flag == RFU_CHILD_CLOCK_LISTENER_OFF_REQ)
         {
             rfu_LMAN_managerChangeAgbClockMaster();
         }
@@ -1135,11 +1135,11 @@ static void rfu_LMAN_CHILD_checkSendChildName(void)
     REG_IME = imeBak;
     if (lman.state == LMAN_STATE_WAIT_CHANGE_CLOCK_MASTER)
     {
-        if (lman.childClockSlave_flag == RFU_CHILD_CLOCK_SLAVE_ON)
+        if (lman.childClockListener_flag == RFU_CHILD_CLOCK_LISTENER_ON)
         {
             rfu_LMAN_requestChangeAgbClockMaster();
         }
-        if (lman.childClockSlave_flag == RFU_CHILD_CLOCK_SLAVE_OFF)
+        if (lman.childClockListener_flag == RFU_CHILD_CLOCK_LISTENER_OFF)
         {
             lman.state = lman.next_state = LMAN_STATE_READY;
             rfu_LMAN_disconnect(gRfuLinkStatus->connSlotFlag | gRfuLinkStatus->linkLossSlotFlag);
@@ -1348,22 +1348,22 @@ static u8 rfu_LMAN_setFastSearchParent(u8 enable_flag)
 
 static void rfu_LMAN_managerChangeAgbClockMaster(void)
 {
-    if (lman.childClockSlave_flag != RFU_CHILD_CLOCK_SLAVE_OFF)
+    if (lman.childClockListener_flag != RFU_CHILD_CLOCK_LISTENER_OFF)
     {
-        lman.childClockSlave_flag = RFU_CHILD_CLOCK_SLAVE_OFF;
+        lman.childClockListener_flag = RFU_CHILD_CLOCK_LISTENER_OFF;
         rfu_LMAN_occureCallback(LMAN_MSG_CHANGE_AGB_CLOCK_MASTER, 0);
     }
 }
 
 void rfu_LMAN_requestChangeAgbClockMaster(void)
 {
-    if (lman.childClockSlave_flag == RFU_CHILD_CLOCK_SLAVE_OFF)
+    if (lman.childClockListener_flag == RFU_CHILD_CLOCK_LISTENER_OFF)
     {
         rfu_LMAN_occureCallback(LMAN_MSG_CHANGE_AGB_CLOCK_MASTER, 0);
     }
-    else if (lman.childClockSlave_flag == RFU_CHILD_CLOCK_SLAVE_ON)
+    else if (lman.childClockListener_flag == RFU_CHILD_CLOCK_LISTENER_ON)
     {
-        lman.childClockSlave_flag = RFU_CHILD_CLOCK_SLAVE_OFF_REQ;
+        lman.childClockListener_flag = RFU_CHILD_CLOCK_LISTENER_OFF_REQ;
     }
 }
 

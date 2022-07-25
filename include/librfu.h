@@ -31,10 +31,10 @@
     For example, if both the CPU internal RAM --> VRAM have a one cycle access, then a 21 count DMA can occur.
 
 
-  If RFU is used outside of these restrictions, problems, such as the loss of data caused by the failure of the AGB, as a clock slave,
+  If RFU is used outside of these restrictions, problems, such as the loss of data caused by the failure of the AGB, as a clock listener,
   to notify that data has been received from the RFU, will occur.
-  When this problem occurs, the REQ callback will send a REQ_commandID=ID_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA_REQ notification.
-   (When using Link Manager, the LMAN call back will send a LMAN_msg=LMAN_MSG_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA notification.)
+  When this problem occurs, the REQ callback will send a REQ_commandID=ID_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA_REQ notification.
+   (When using Link Manager, the LMAN call back will send a LMAN_msg=LMAN_MSG_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA notification.)
 
 */
 
@@ -61,9 +61,9 @@
 #define ID_DATA_TX_REQ                              0x0024
 #define ID_DATA_TX_AND_CHANGE_REQ                   0x0025
 #define ID_DATA_RX_REQ                              0x0026
-#define ID_MS_CHANGE_REQ                            0x0027    // When returned by the REQ callback, this ID indicates that execution of rfu_REQ_changeMasterSlave has finished.
+#define ID_MS_CHANGE_REQ                            0x0027    // When returned by the REQ callback, this ID indicates that execution of rfu_REQ_changeMasterListener has finished.
                                                               // This ID is returned by both the REQ callback and the MSC callback.
-                                                              // When returned by the MSC callback, this is notification that after the AGB has been made into the clock slave, the MC_Timer expired and the RFU returned the AGB to be the clock master.
+                                                              // When returned by the MSC callback, this is notification that after the AGB has been made into the clock listener, the MC_Timer expired and the RFU returned the AGB to be the clock master.
 #define ID_DISCONNECT_REQ                           0x0030
 #define ID_TEST_MODE_REQ                            0x0031    // not defined in SDK header
 #define ID_CPR_START_REQ                            0x0032
@@ -73,7 +73,7 @@
 #define ID_UNK36_REQ                                0x0036    // not defined in SDK header
 #define ID_RESUME_RETRANSMIT_AND_CHANGE_REQ         0x0037
 #define ID_STOP_MODE_REQ                            0x003d
-#define ID_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA_REQ   0x00ff    // When the AGB is the clock slave, the RFU generates an informational notice, and an automatically started DMA, such as HDMA, is generated at the instant the AGB is being returned as the clock master. This ID is notified by a REQ callback when the exchange of this information (REQ command) fails.
+#define ID_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA_REQ   0x00ff    // When the AGB is the clock listener, the RFU generates an informational notice, and an automatically started DMA, such as HDMA, is generated at the instant the AGB is being returned as the clock master. This ID is notified by a REQ callback when the exchange of this information (REQ command) fails.
 
 // REQ Command ID returned by the MSC callback
 #define ID_DISCONNECTED_AND_CHANGE_REQ              0x0029
@@ -93,7 +93,7 @@
 #define RFU_API_BUFF_SIZE_RAM           0x0e64             // Necessary size for buffer specified by rfu_initializeAPI (fast communication version that operates the library SIO interrupt routines in RAM)
 #define RFU_API_BUFF_SIZE_ROM           0x0504             // Necessary size for buffer specified by rfu_initializeAPI (fast communication version that operates the library SIO interrupt routines in ROM)
 
-#define RFU_CHILD_MAX                   4                  // Maximum number of slaves that can be connected to one parent device
+#define RFU_CHILD_MAX                   4                  // Maximum number of listeners that can be connected to one parent device
 
 #define RFU_GAME_NAME_LENGTH            13                 // Possible length of game name set by rfu_REQB_configGameData
 #define RFU_USER_NAME_LENGTH            8                  // Possible length of user name set by rfu_REQB_configGameData
@@ -161,8 +161,8 @@
 // Definition Data Returned with Return Values for Library Functions
 // *******************************************************
 
-// Value returned by rfu_getMasterSlave
-#define AGB_CLK_SLAVE                   0                  // AGB clock slave
+// Value returned by rfu_getMasterListener
+#define AGB_CLK_LISTENER                   0                  // AGB clock listener
 #define AGB_CLK_MASTER                  1                  // AGB clock master
 
 // *******************************************************
@@ -174,7 +174,7 @@
 #define ERR_REQ_CMD_CLOCK_DRIFT        (ERR_REQ_CMD | 0x0001) // Clock drift occurs when a REQ command is sent
 #define ERR_REQ_CMD_SENDING            (ERR_REQ_CMD | 0x0002) // The next command cannot be issued because a REQ command is being sent
 #define ERR_REQ_CMD_ACK_REJECTION      (ERR_REQ_CMD | 0x0003) // The REQ command was refused when issued
-#define ERR_REQ_CMD_CLOCK_SLAVE        (ERR_REQ_CMD | 0x0004) // Issuing the REQ command was attempted but failed because the AGB is the clock slave
+#define ERR_REQ_CMD_CLOCK_LISTENER        (ERR_REQ_CMD | 0x0004) // Issuing the REQ command was attempted but failed because the AGB is the clock listener
 #define ERR_REQ_CMD_IME_DISABLE        (ERR_REQ_CMD | 0x0006) // Issuing the REQ command was attempted but failed because the IME register is 0
 
 #define ERR_PID_NOT_FOUND               0x0100                // The specified PID does not exist in the gRfuLinkStatus->partner[0-3].id list
@@ -374,7 +374,7 @@ struct NIComm
     u32 remainSize;                // Size of remaining communication data
     u16 errorCode;                 // Error code
     u8 bmSlot;                     // Expresses the current communication slot in bits
-                                   //   (When sending from the Master, because multiple slaves can be specified with bmSlot, communications are terminated based on the failCounter for each child device)
+                                   //   (When sending from the Master, because multiple listeners can be specified with bmSlot, communications are terminated based on the failCounter for each child device)
     // Parameters used inside the Library
     u8 recvAckFlag[WINDOW_COUNT];
     u8 ack;
@@ -529,10 +529,10 @@ u16 rfu_REQBN_watchLink(u16 reqCommandId, u8 *bmLinkLossSlot, u8 *linkLossReason
 void rfu_REQ_disconnect(u8 bmDisconnectSlot);
 
 // Relation of clock between AGB and RFU
-    // Switch to AGB clock slave
-void rfu_REQ_changeMasterSlave(void);
-    // Acquire either the master or slave clock from the current AGB-RFU
-bool8 rfu_getMasterSlave(void);
+    // Switch to AGB clock listener
+void rfu_REQ_changeMasterListener(void);
+    // Acquire either the master or listener clock from the current AGB-RFU
+bool8 rfu_getMasterListener(void);
 
 // Communication Configuration
     // MSC Callback Configuration

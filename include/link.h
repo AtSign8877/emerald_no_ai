@@ -8,7 +8,7 @@
 #define OVERWORLD_RECV_QUEUE_MAX 3
 #define BLOCK_BUFFER_SIZE 0x100
 
-#define LINK_SLAVE 0
+#define LINK_LISTENER 0
 #define LINK_MASTER 8
 
 #define LINK_STAT_LOCAL_ID               0x00000003
@@ -35,8 +35,8 @@
 #define LINK_STAT_ERROR_LAG_MASTER_SHIFT 16
 #define LINK_STAT_ERROR_INVALID_ID       0x00020000
 #define LINK_STAT_ERROR_INVALID_ID_SHIFT 17
-#define LINK_STAT_ERROR_LAG_SLAVE        0x00040000
-#define LINK_STAT_ERROR_LAG_SLAVE_SHIFT  18
+#define LINK_STAT_ERROR_LAG_LISTENER        0x00040000
+#define LINK_STAT_ERROR_LAG_LISTENER_SHIFT  18
 
 #define EXTRACT_PLAYER_COUNT(status) \
 (((status) & LINK_STAT_PLAYER_COUNT) >> LINK_STAT_PLAYER_COUNT_SHIFT)
@@ -126,7 +126,7 @@ struct LinkStatus
 };
 
 #define MASTER_HANDSHAKE  0x8FFF
-#define SLAVE_HANDSHAKE   0xB9A0
+#define LISTENER_HANDSHAKE   0xB9A0
 #define EREADER_HANDSHAKE 0xCCD0
 
 #define SIO_MULTI_CNT ((struct SioMultiCnt *)REG_ADDR_SIOCNT)
@@ -163,7 +163,7 @@ enum
 {
     LAG_NONE,
     LAG_MASTER,
-    LAG_SLAVE,
+    LAG_LISTENER,
 };
 
 struct LinkPlayer
@@ -206,7 +206,7 @@ struct RecvQueue
 
 struct Link
 {
-    /* 0x000 */ u8 isMaster; // 0: slave, 8: master
+    /* 0x000 */ u8 isMaster; // 0: listener, 8: master
     /* 0x001 */ u8 state;
     /* 0x002 */ u8 localId; // local multi-player ID
     /* 0x003 */ u8 playerCount;

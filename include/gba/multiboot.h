@@ -1,7 +1,7 @@
 #ifndef GUARD_GBA_MULTIBOOT_H
 #define GUARD_GBA_MULTIBOOT_H
 
-#define MULTIBOOT_NCHILD        3       // Maximum number of slaves
+#define MULTIBOOT_NCHILD        3       // Maximum number of listeners
 #define MULTIBOOT_HEADER_SIZE   0xc0    // Header size
 #define MULTIBOOT_SEND_SIZE_MIN 0x100   // Minimum transmission size
 #define MULTIBOOT_SEND_SIZE_MAX 0x40000 // Maximum transmission size

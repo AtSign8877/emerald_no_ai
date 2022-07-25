@@ -498,7 +498,7 @@ static void STWI_intr_timer(void)
         STWI_stop_timer();
         STWI_reset_ClockCounter();
         if (gSTWIStatus->callbackM != NULL)
-            gSTWIStatus->callbackM(ID_CLOCK_SLAVE_MS_CHANGE_ERROR_BY_DMA_REQ, 0);
+            gSTWIStatus->callbackM(ID_CLOCK_LISTENER_MS_CHANGE_ERROR_BY_DMA_REQ, 0);
         break;
     }
 }
@@ -561,10 +561,10 @@ static u16 STWI_init(u8 request)
             gSTWIStatus->callbackM(request, gSTWIStatus->error);
         return TRUE;
     }
-    else if (gSTWIStatus->msMode == AGB_CLK_SLAVE)
+    else if (gSTWIStatus->msMode == AGB_CLK_LISTENER)
     {
-        // Can't send if clock slave
-        gSTWIStatus->error = ERR_REQ_CMD_CLOCK_SLAVE;
+        // Can't send if clock listener
+        gSTWIStatus->error = ERR_REQ_CMD_CLOCK_LISTENER;
         if (gSTWIStatus->callbackM != NULL)
             gSTWIStatus->callbackM(request, gSTWIStatus->error, gSTWIStatus);
         return TRUE;
@@ -639,7 +639,7 @@ static s32 STWI_restart_Command(void)
 
 static s32 STWI_reset_ClockCounter(void)
 {
-    gSTWIStatus->state = 5; // slave receive req init
+    gSTWIStatus->state = 5; // listener receive req init
     gSTWIStatus->reqLength = 0;
     gSTWIStatus->reqNext = 0;
     REG_SIODATA32 = (1 << 31);

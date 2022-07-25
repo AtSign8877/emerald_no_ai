@@ -115,7 +115,7 @@ static bool32 ValidateEReaderConnection(void)
     
     // Validate that we are player 1, the EReader is player 2,
     // and that players 3 and 4 are empty.
-    if (handshakes[0] == SLAVE_HANDSHAKE && handshakes[1] == EREADER_HANDSHAKE
+    if (handshakes[0] == LISTENER_HANDSHAKE && handshakes[1] == EREADER_HANDSHAKE
      && handshakes[2] == 0xFFFF && handshakes[3] == 0xFFFF)
     {
         return TRUE;
