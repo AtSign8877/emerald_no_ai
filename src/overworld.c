@@ -1704,11 +1704,11 @@ void CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion(void)
 {
     FieldClearVBlankHBlankCallbacks();
     gFieldCallback = FieldCB_ContinueScriptHandleMusic_LinkVersion;
-    FieldClearVBlankHBlankCallbacks();
     StopMapMusic();
     SetMainCallback1(CB1_Overworld);
     SetMainCallback3(CB1_OverworldLink);
     ResetAllMultiplayerState();
+    SetKeyInterceptCallback(0);
     ResetSendBuffer();
     ResetRecvBuffer();
     gSpecialVar_0x8004 = 1;
