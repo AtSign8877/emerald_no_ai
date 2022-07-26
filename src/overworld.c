@@ -1705,6 +1705,7 @@ void CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion(void)
     FieldClearVBlankHBlankCallbacks();
     gFieldCallback = FieldCB_ContinueScriptHandleMusic_LinkVersion;
     StopMapMusic();
+    gHeldKeyCodeToSend = LINK_KEY_CODE_NULL;
     SetMainCallback1(CB1_Overworld);
     SetMainCallback3(CB1_OverworldLink);
     ResetAllMultiplayerState();
