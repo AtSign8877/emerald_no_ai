@@ -151,7 +151,6 @@ static void Task_WaitForFadeAndEnableScriptCtx_LinkVersion(u8 taskID)
     case 1:
         if (gTasks[task->data[1]].isActive != TRUE)
         {
-            //WarpFadeInScreen();
             task->tState++;
         }
         break;

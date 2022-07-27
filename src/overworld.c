@@ -1715,7 +1715,7 @@ void CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion(void)
     gSpecialVar_0x8004 = 1;
 
 
-    ScriptContext1_Init();
+    //ScriptContext1_Init();
     ScriptContext2_Disable();
     CB2_ReturnToField();
 }

@@ -1088,10 +1088,7 @@ void CB2_ReturnFromLinkedTrainerBattle(void)
     gBattleTypeFlags &= ~BATTLE_TYPE_LINK_IN_BATTLE;
     gTrainerBattleOpponent_A = gTrainerBattleOpponent_A_backup;
     gTrainerBattleOpponent_B = gTrainerBattleOpponent_B_backup;
-    //ResetAllMultiplayerState();
-    //ResetRecvBuffer();
-    //StartSendingKeysToLink();
-    //SetMainCallback3(CB1_OverworldLink);
+
     if (IsPlayerDefeated(gBattleOutcome) == TRUE)
     {
         if(IsLinkMaster())
@@ -1105,12 +1102,6 @@ void CB2_ReturnFromLinkedTrainerBattle(void)
         RegisterTrainerInMatchCall();
         SetBattledTrainersFlags();
     }
-    //if (CreateTask_ReestablishCableClubLink() == 0)
-    //    MgbaPrintf(MGBA_LOG_INFO, "Failed Creating task");
-    /*
-    gMain.savedCallback = CB2_ReturnToFieldFromMultiplayer;
-    SetMainCallback2(CB2_SetUpSaveAfterLinkBattle);
-    */
 }
 
 void CB2_ReturnFromCableClubBattle(void)
@@ -1226,7 +1217,7 @@ void CreateTask_EnterCableClubSeat_1(TaskFunc taskFunc, u8 transition, u16 song)
     SetTaskFuncWithFollowupFunc(taskId, Task_EnterCableClubSeat, taskFunc);
     gTasks[taskId].tTransition = transition;
     PlayMapChosenOrBattleBGM(song);
-    ScriptContext1_Stop();
+    //ScriptContext1_Stop();
 }
 #undef tTransition
 
