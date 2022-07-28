@@ -882,6 +882,7 @@ static void Task_StartWiredLinkTrainerBattle(u8 taskId)
             //FadeScreen(FADE_TO_BLACK, 0);
             BattleTransition_StartOnField(task->tTransition);
             gLinkType = LINKTYPE_BATTLE;
+            gLinkLeader = IsLinkMaster();
             ClearLinkCallback_2();
             ClearMirageTowerPulseBlendEffect();
             task->tState++;
@@ -916,7 +917,10 @@ static void Task_StartWiredLinkTrainerBattle(u8 taskId)
         SetMainCallback2(CB2_InitBattle);
         RestartWildEncounterImmunitySteps();
         ClearPoisonStepCounter();
-        gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattle;
+        if(gLinkLeader)
+            gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattleLeader;
+        else
+            gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattleListener;
         //SetMainCallback3(NULL);
         DestroyTask(taskId);
         break;
@@ -933,6 +937,7 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
     case 0:
         FadeScreen(FADE_TO_BLACK, 0);
         gLinkType = LINKTYPE_BATTLE;
+        gLinkLeader = IsLinkMaster();
         ClearLinkCallback_2();
         task->tState++;
         break;
@@ -963,7 +968,10 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
         CleanupOverworldWindowsAndTilemaps();
         gTrainerBattleOpponent_A = TRAINER_LINK_OPPONENT;
         SetMainCallback2(CB2_InitBattle);
-        gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattle;
+        if(gLinkLeader)
+            gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattleLeader;
+        else
+            gMain.savedCallback = CB2_ReturnFromLinkedTrainerBattleListener;
         DestroyTask(taskId);
         break;
     }
@@ -1083,7 +1091,7 @@ static void CB2_ReturnFromUnionRoomBattle(void)
     RunTasks();
 }
 
-void CB2_ReturnFromLinkedTrainerBattle(void)
+void CB2_ReturnFromLinkedTrainerBattleLeader(void)
 {
     gBattleTypeFlags &= ~BATTLE_TYPE_LINK_IN_BATTLE;
     gTrainerBattleOpponent_A = gTrainerBattleOpponent_A_backup;
@@ -1091,10 +1099,7 @@ void CB2_ReturnFromLinkedTrainerBattle(void)
 
     if (IsPlayerDefeated(gBattleOutcome) == TRUE)
     {
-        if(IsLinkMaster())
-            SetMainCallback2(CB2_WhiteOut);
-        else
-            SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion);
+        SetMainCallback2(CB2_WhiteOut_LinkVersion);
     }
     else
     {
@@ -1102,6 +1107,12 @@ void CB2_ReturnFromLinkedTrainerBattle(void)
         RegisterTrainerInMatchCall();
         SetBattledTrainersFlags();
     }
+}
+
+void CB2_ReturnFromLinkedTrainerBattleListener(void)
+{
+    gBattleTypeFlags &= ~BATTLE_TYPE_LINK_IN_BATTLE;
+    SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic_LinkVersion);
 }
 
 void CB2_ReturnFromCableClubBattle(void)

@@ -98,6 +98,7 @@ struct Link gLink;
 u8 gLastRecvQueueCount;
 u16 gLinkSavedIme;
 
+EWRAM_DATA bool8 gLinkLeader = FALSE;
 static EWRAM_DATA u8 sLinkTestDebugValuesEnabled = 0;
 static EWRAM_DATA u8 sDummyFlag = FALSE;
 EWRAM_DATA u32 gBerryBlenderKeySendAttempts = 0;

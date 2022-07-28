@@ -374,6 +374,7 @@ static void (*const sMovementStatusHandler[])(struct LinkPlayerObjectEvent *, st
 // code
 void DoWhiteOut(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "In Do White Out");
     ScriptContext2_RunNewScript(EventScript_WhiteOut);
     SetMoney(&gSaveBlock1Ptr->money, GetMoney(&gSaveBlock1Ptr->money) / 2);
     HealPlayerParty();
@@ -1578,6 +1579,56 @@ void CB2_WhiteOut(void)
         SetMainCallback2(CB2_Overworld);
     }
 }
+
+void CB2_WhiteOut_LinkVersion(void)
+{
+    u8 state;
+
+    if (++gMain.state >= 120)
+    {
+        MgbaPrintf(MGBA_LOG_INFO, "In White out CB");
+        FieldClearVBlankHBlankCallbacks();
+        StopMapMusic();
+        ResetSafariZoneFlag_();
+        DoWhiteOut();
+        ResetInitialPlayerAvatarState();
+        gHeldKeyCodeToSend = LINK_KEY_CODE_NULL;
+        ResetAllMultiplayerState();
+        SetKeyInterceptCallback(0);
+        ResetSendBuffer();
+        ResetRecvBuffer();
+        gSpecialVar_0x8004 = 1;
+        ScriptContext1_Init();
+        ScriptContext2_Disable();
+        gFieldCallback = FieldCB_WarpExitFadeFromBlack_LinkVersion;
+        state = 0;
+        DoMapLoadLoop(&state);
+        SetFieldVBlankCallback();
+        SetMainCallback1(CB1_Overworld);
+        SetMainCallback2(CB2_Overworld);
+        SetMainCallback3(CB1_OverworldLink);
+    }
+    
+    /*
+    FieldClearVBlankHBlankCallbacks();
+    gFieldCallback = FieldCB_ContinueScriptHandleMusic_LinkVersion;
+    StopMapMusic();
+    gHeldKeyCodeToSend = LINK_KEY_CODE_NULL;
+    SetMainCallback1(CB1_Overworld);
+    SetMainCallback3(CB1_OverworldLink);
+    ResetAllMultiplayerState();
+    SetKeyInterceptCallback(0);
+    ResetSendBuffer();
+    ResetRecvBuffer();
+    gSpecialVar_0x8004 = 1;
+
+
+    ScriptContext1_Init();
+    ScriptContext2_Disable();
+    CB2_ReturnToField();
+    */
+}
+
 
 void CB2_LoadMap(void)
 {

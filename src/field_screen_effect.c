@@ -37,9 +37,12 @@
 
 static void Task_ExitNonAnimDoor(u8);
 static void Task_ExitNonDoor(u8);
+static void Task_ExitNonAnimDoor_LinkVersion(u8);
+static void Task_ExitNonDoor_LinkVersion(u8);
 static void Task_DoContestHallWarp(u8);
 static void FillPalBufferWhite(void);
 static void Task_ExitDoor(u8);
+static void Task_ExitDoor_LinkVersion(u8);
 static bool32 WaitForWeatherFadeIn(void);
 static void Task_SpinEnterWarp(u8 taskId);
 static void Task_WarpAndLoadMap(u8 taskId);
@@ -303,6 +306,23 @@ static void SetUpWarpExitTask(void)
     CreateTask(func, 10);
 }
 
+static void SetUpWarpExitTask_LinkVersion(void)
+{
+    s16 x, y;
+    u8 behavior;
+    TaskFunc func;
+
+    PlayerGetDestCoords(&x, &y);
+    behavior = MapGridGetMetatileBehaviorAt(x, y);
+    if (MetatileBehavior_IsDoor(behavior) == TRUE)
+        func = Task_ExitDoor_LinkVersion;
+    else if (MetatileBehavior_IsNonAnimDoor(behavior) == TRUE)
+        func = Task_ExitNonAnimDoor_LinkVersion;
+    else
+        func = Task_ExitNonDoor_LinkVersion;
+    CreateTask(func, 10);
+}
+
 void FieldCB_DefaultWarpExit(void)
 {
     Overworld_PlaySpecialMapMusic();
@@ -325,6 +345,20 @@ void FieldCB_WarpExitFadeFromBlack(void)
         Overworld_PlaySpecialMapMusic();
     FadeInFromBlack();
     SetUpWarpExitTask();
+    ScriptContext2_Enable();
+}
+
+void FieldCB_WarpExitFadeFromBlack_LinkVersion(void)
+{
+    /*
+    ScriptContext2_Enable();
+    Overworld_PlaySpecialMapMusic();
+    FadeInFromBlack();
+    CreateTask(Task_WaitForFadeAndEnableScriptCtx_LinkVersion, 10);
+    */
+    Overworld_PlaySpecialMapMusic();
+    FadeInFromBlack();
+    SetUpWarpExitTask_LinkVersion();
     ScriptContext2_Enable();
 }
 
@@ -444,6 +478,172 @@ static void Task_ExitNonDoor(u8 taskId)
         gTasks[taskId].tState++;
         break;
     case 1:
+        if (WaitForWeatherFadeIn())
+        {
+            UnfreezeObjectEvents();
+            ScriptContext2_Disable();
+            DestroyTask(taskId);
+        }
+        break;
+    }
+}
+
+////
+static void Task_ExitDoor_LinkVersion(u8 taskId)
+{
+    /*
+    struct Task *task = &gTasks[taskID];
+    switch (task->tState)
+    {
+    case 0:
+        task->data[1] = CreateTask_ReestablishCableClubLink();
+        task->tState++;
+        break;
+    case 1:
+        if (gTasks[task->data[1]].isActive != TRUE)
+        {
+            //WarpFadeInScreen();
+            task->tState++;
+        }
+        break;
+    case 2:
+        if (WaitForWeatherFadeIn() == TRUE)
+        {
+            DestroyTask(taskID);
+            EnableBothScriptContexts();
+        }
+        break;
+    }
+    */
+    struct Task *task = &gTasks[taskId];
+    s16 *x = &task->data[2];
+    s16 *y = &task->data[3];
+
+    switch (task->tState)
+    {
+    case 0:
+        task->data[4] = CreateTask_ReestablishCableClubLink();
+        task->tState++;
+        break;
+    case 1:
+        if (gTasks[task->data[4]].isActive != TRUE)
+        {
+            //WarpFadeInScreen();
+            task->tState++;
+        }
+        break;
+    case 2:
+        SetPlayerVisibility(FALSE);
+        FreezeObjectEvents();
+        PlayerGetDestCoords(x, y);
+        FieldSetDoorOpened(*x, *y);
+        task->tState = 3;
+        break;
+    case 3:
+        if (WaitForWeatherFadeIn())
+        {
+            u8 objEventId;
+            SetPlayerVisibility(TRUE);
+            objEventId = GetObjectEventIdByLocalIdAndMap(OBJ_EVENT_ID_PLAYER, 0, 0);
+            ObjectEventSetHeldMovement(&gObjectEvents[objEventId], MOVEMENT_ACTION_WALK_NORMAL_DOWN);
+            task->tState = 4;
+        }
+        break;
+    case 4:
+        if (IsPlayerStandingStill())
+        {
+            u8 objEventId;
+            task->data[1] = FieldAnimateDoorClose(*x, *y);
+            objEventId = GetObjectEventIdByLocalIdAndMap(OBJ_EVENT_ID_PLAYER, 0, 0);
+            ObjectEventClearHeldMovementIfFinished(&gObjectEvents[objEventId]);
+            task->tState = 5;
+        }
+        break;
+    case 5:
+        if (task->data[1] < 0 || gTasks[task->data[1]].isActive != TRUE)
+        {
+            UnfreezeObjectEvents();
+            task->tState = 6;
+        }
+        break;
+    case 6:
+        ScriptContext2_Disable();
+        DestroyTask(taskId);
+        break;
+    }
+}
+
+static void Task_ExitNonAnimDoor_LinkVersion(u8 taskId)
+{
+    struct Task *task = &gTasks[taskId];
+    s16 *x = &task->data[2];
+    s16 *y = &task->data[3];
+
+    switch (task->tState)
+    {
+    case 0:
+        task->data[4] = CreateTask_ReestablishCableClubLink();
+        task->tState++;
+        break;
+    case 1:
+        if (gTasks[task->data[4]].isActive != TRUE)
+        {
+            //WarpFadeInScreen();
+            task->tState++;
+        }
+        break;
+    case 2:
+        SetPlayerVisibility(FALSE);
+        FreezeObjectEvents();
+        PlayerGetDestCoords(x, y);
+        task->tState = 3;
+        break;
+    case 3:
+        if (WaitForWeatherFadeIn())
+        {
+            u8 objEventId;
+            SetPlayerVisibility(TRUE);
+            objEventId = GetObjectEventIdByLocalIdAndMap(OBJ_EVENT_ID_PLAYER, 0, 0);
+            ObjectEventSetHeldMovement(&gObjectEvents[objEventId], GetWalkNormalMovementAction(GetPlayerFacingDirection()));
+            task->tState = 4;
+        }
+        break;
+    case 4:
+        if (IsPlayerStandingStill())
+        {
+            UnfreezeObjectEvents();
+            task->tState = 5;
+        }
+        break;
+    case 5:
+        ScriptContext2_Disable();
+        DestroyTask(taskId);
+        break;
+    }
+}
+
+static void Task_ExitNonDoor_LinkVersion(u8 taskId)
+{
+    struct Task *task = &gTasks[taskId];
+    switch (gTasks[taskId].tState)
+    {
+    case 0:
+        task->data[4] = CreateTask_ReestablishCableClubLink();
+        task->tState++;
+        break;
+    case 1:
+        if (gTasks[task->data[4]].isActive != TRUE)
+        {
+            //WarpFadeInScreen();
+            task->tState++;
+        }
+        break;
+    case 2:
+        FreezeObjectEvents();
+        ScriptContext2_Enable();
+        gTasks[taskId].tState++;
+        break;
+    case 3:
         if (WaitForWeatherFadeIn())
         {
             UnfreezeObjectEvents();

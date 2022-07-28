@@ -16,6 +16,7 @@ void FieldCB_ReturnToFieldCableLink(void);
 void FieldCB_ReturnToFieldWirelessLink(void);
 void FieldCB_DefaultWarpExit(void);
 void FieldCB_WarpExitFadeFromBlack(void);
+void FieldCB_WarpExitFadeFromBlack_LinkVersion(void);
 void FieldCB_WarpExitFadeFromWhite(void);
 bool8 FieldCB_ReturnToFieldOpenStartMenu(void);
 void ReturnToFieldOpenStartMenu(void);

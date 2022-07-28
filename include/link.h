@@ -249,6 +249,7 @@ extern bool8 gReceivedRemoteLinkPlayers;
 extern u32 gBerryBlenderKeySendAttempts;
 extern bool8 gLinkVSyncDisabled;
 extern u32 gLinkStatus;
+extern bool8 gLinkLeader;
 
 
 bool8 IsWirelessAdapterConnected(void);
