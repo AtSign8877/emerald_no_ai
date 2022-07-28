@@ -293,7 +293,7 @@ static void Intro_TryShinyAnimShowHealthbox(void)
      && !gBattleSpritesDataPtr->healthBoxesData[gActiveBattler].finishedShinyMonAnim)
         TryShinyAnimation(gActiveBattler, &gEnemyParty[gBattlerPartyIndexes[gActiveBattler]]);
 
-    if (!(gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
+    if (!(gBattleTypeFlags & (BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TWO_PLAYERS))
      && !(gBattleTypeFlags & BATTLE_TYPE_MULTI)
      && IsDoubleBattle()
      && !gBattleSpritesDataPtr->healthBoxesData[gActiveBattler ^ BIT_FLANK].triedShinyMonAnim

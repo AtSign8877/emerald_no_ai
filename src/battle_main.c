@@ -144,7 +144,7 @@ EWRAM_DATA u8 gBattleTextBuff3[TEXT_BUFF_ARRAY_COUNT] = {0};
 // is removed (and none of the buffers above are increased in size)
 // it will instead overflow into useful data.
 EWRAM_DATA static u32 sFlickerArray[25] = {0};
-EWRAM_DATA u32 gBattleTypeFlags = 0;
+EWRAM_DATA u64 gBattleTypeFlags = 0;
 EWRAM_DATA u8 gBattleTerrain = 0;
 EWRAM_DATA u32 gUnusedFirstBattleVar1 = 0; // Never read
 EWRAM_DATA struct MultiPartnerMenuPokemon gMultiPartnerParty[MULTI_PARTY_SIZE] = {0};
@@ -4191,8 +4191,7 @@ static void HandleTurnActionSelectionState(void)
                     }
                     break;
                 case B_ACTION_USE_ITEM:
-                    if (gBattleTypeFlags & (BATTLE_TYPE_LINK
-                                            | BATTLE_TYPE_FRONTIER_NO_PYRAMID
+                    if (gBattleTypeFlags & (BATTLE_TYPE_FRONTIER_NO_PYRAMID
                                             | BATTLE_TYPE_EREADER_TRAINER
                                             | BATTLE_TYPE_RECORDED_LINK))
                     {
@@ -4548,7 +4547,7 @@ static void UpdateBattlerPartyOrdersOnSwitch(void)
     *(gBattleStruct->monToSwitchIntoId + gActiveBattler) = gBattleBufferB[gActiveBattler][1];
     RecordedBattle_SetBattlerAction(gActiveBattler, gBattleBufferB[gActiveBattler][1]);
 
-    if (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI)
+    if ((gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & (BATTLE_TYPE_MULTI)))
     {
         *(gActiveBattler * 3 + (u8*)(gBattleStruct->battlerPartyOrders) + 0) &= 0xF;
         *(gActiveBattler * 3 + (u8*)(gBattleStruct->battlerPartyOrders) + 0) |= (gBattleBufferB[gActiveBattler][2] & 0xF0);
@@ -5186,7 +5185,7 @@ static void WaitForEvoSceneToFinish(void)
 
 static void ReturnFromBattleToOverworld(void)
 {
-    if (!(gBattleTypeFlags & BATTLE_TYPE_LINK))
+    //if (!(gBattleTypeFlags & BATTLE_TYPE_LINK))
     {
         RandomlyGivePartyPokerus(gPlayerParty);
         PartySpreadPokerus(gPlayerParty);

@@ -48,6 +48,7 @@
 #include "constants/trainers.h"
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"
+#include "mgba_printf/mgba.h"
 
 enum {
     TRANSITION_TYPE_NORMAL,
@@ -1271,15 +1272,17 @@ void ClearTrainerFlag(u16 trainerId)
     FlagClear(TRAINER_FLAGS_START + trainerId);
 }
 
-//This function is where we should begin establishing the link/setting the opponent's trainer data
 void BattleSetup_StartTrainerBattle(void)
 {
     u8 transitionType;
+    
     
     if (gNoOfApproachingTrainers == 2)
         gBattleTypeFlags = (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TRAINER);
     else
         gBattleTypeFlags = (BATTLE_TYPE_TRAINER);
+
+    gBattleTypeFlags |= gTrainers[gTrainerBattleOpponent_A].doubleBattle;
 
     transitionType = GetTrainerBattleTransition();
     IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
@@ -1288,11 +1291,21 @@ void BattleSetup_StartTrainerBattle(void)
 
     gBattleTypeFlags |= BATTLE_TYPE_LINK;
     
+    gLinkType = LINKTYPE_SINGLE_BATTLE;
+    gSpecialVar_0x8004 = USING_SINGLE_BATTLE;
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    {
+        gLinkType = LINKTYPE_DOUBLE_BATTLE;
+        gSpecialVar_0x8004 = USING_DOUBLE_BATTLE;
+    }
+    
     if(IsLinkMaster()) {
         gSpecialVar_0x8005 = 1;
     }
     else 
         gSpecialVar_0x8005 = 0;
+
+    MgbaPrintf(MGBA_LOG_INFO, "gBattleTypeFlags: %d", gBattleTypeFlags);
 
     sNoOfPossibleTrainerRetScripts = gNoOfApproachingTrainers;
     gNoOfApproachingTrainers = 0;
@@ -1301,7 +1314,7 @@ void BattleSetup_StartTrainerBattle(void)
     gTrainerBattleOpponent_A_backup = gTrainerBattleOpponent_A;
     gTrainerBattleOpponent_B_backup = gTrainerBattleOpponent_B;
 
-    gSpecialVar_0x8004 = 1;
+    //gSpecialVar_0x8004 = 1;
     ScriptContext1_Stop();
     TriggerLinkedTrainerBattle(transitionType, 0);
     
