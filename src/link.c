@@ -616,7 +616,7 @@ static void ProcessRecvCmds(u8 unused)
                     else
                     {
                         SetBlockReceivedFlag(i);
-                        MgbaPrintf(MGBA_LOG_INFO, "Setting receive flag %d", i);
+                        //MgbaPrintf(MGBA_LOG_INFO, "Setting receive flag %d", i);
                     }
                 }
             }
@@ -937,7 +937,7 @@ static bool32 InitBlockSend(const void *src, size_t size)
 {
     if (sBlockSend.active)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Error sending block: block sending in progress");
+        //MgbaPrintf(MGBA_LOG_INFO, "Error sending block: block sending in progress");
         return FALSE;
     }
     sBlockSend.multiplayerId = GetMultiplayerId();
@@ -958,7 +958,7 @@ static bool32 InitBlockSend(const void *src, size_t size)
     BuildSendCmd(LINKCMD_INIT_BLOCK);
     gLinkCallback = LinkCB_BlockSendBegin;
     sBlockSendDelayCounter = 0;
-    MgbaPrintf(MGBA_LOG_INFO, "Block sent!");
+    //MgbaPrintf(MGBA_LOG_INFO, "Block sent!");
     return TRUE;
 }
 
@@ -973,7 +973,7 @@ static void LinkCB_BlockSend(void)
     int i;
     const u8 *src;
 
-    MgbaPrintf(MGBA_LOG_INFO, "Send Block CB");
+    //MgbaPrintf(MGBA_LOG_INFO, "Send Block CB");
 
     src = sBlockSend.src;
     gSendCmd[0] = LINKCMD_CONT_BLOCK;
@@ -991,7 +991,7 @@ static void LinkCB_BlockSend(void)
 
 static void LinkCB_BlockSendEnd(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Block send end");
+    //MgbaPrintf(MGBA_LOG_INFO, "Block send end");
     gLinkCallback = NULL;
 }
 
@@ -1041,7 +1041,7 @@ u8 BitmaskAllOtherLinkPlayers(void)
 
 bool8 SendBlock(u8 unused, const void *src, u16 size)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "gWirelessCommType: %d", gWirelessCommType);
+    //MgbaPrintf(MGBA_LOG_INFO, "gWirelessCommType: %d", gWirelessCommType);
     if (gWirelessCommType == TRUE)
         return Rfu_InitBlockSend(src, size);
 

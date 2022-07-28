@@ -86,6 +86,7 @@ struct TrainerInfoBlock
 {
     u8 init; //set to false by default and true when sent to not recive blank trainer info by mistake
     u16 trainerId;
+    u16 trainerIdB;
     u16 battleFlags;
 };
 
@@ -2295,10 +2296,16 @@ void CB1_OverworldLink(void)
                 MgbaPrintf(MGBA_LOG_INFO, "Making party with trainer ID: %d", trainerInfo->trainerId);
                 gBattleTypeFlags = trainerInfo->battleFlags;
                 CreateNPCTrainerParty(&gPlayerParty[0], trainerInfo->trainerId, TRUE);
-                ResetBlockReceivedFlag(i);
-                if(IsLinkMaster()) {
-                    gSpecialVar_0x8005 = 1;
+                if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) 
+                {
+                    CreateNPCTrainerParty(&gPlayerParty[PARTY_SIZE/2], trainerInfo->trainerIdB, FALSE);
+                    gBattleTypeFlags &= ~BATTLE_TYPE_TWO_OPPONENTS;
+                    gBattleTypeFlags |= BATTLE_TYPE_TWO_PLAYERS;
                 }
+                
+                ResetBlockReceivedFlag(i);
+                if(IsLinkMaster()) 
+                    gSpecialVar_0x8005 = 1;                
                 else 
                     gSpecialVar_0x8005 = 0;
                 gSpecialVar_0x8004 = 1;
@@ -2703,7 +2710,10 @@ static u16 KeyInterCB_SetReadyAndSendParty(u32 key)
     struct TrainerInfoBlock trainerInfo;
     trainerInfo.init = TRUE;
     trainerInfo.trainerId = gTrainerBattleOpponent_A;
+    trainerInfo.trainerIdB = gTrainerBattleOpponent_B;
     trainerInfo.battleFlags = gBattleTypeFlags;
+    
+    //gBattleTypeFlags &= ~BATTLE_TYPE_TWO_OPPONENTS;
     
     MgbaPrintf(MGBA_LOG_INFO, "Sending over trainer ID %d", trainerInfo.trainerId);
     

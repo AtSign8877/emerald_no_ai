@@ -215,7 +215,7 @@ static void Task_LinkupStart(u8 taskId)
 {
     
     s16 *data = gTasks[taskId].data;
-    MgbaPrintf(MGBA_LOG_INFO, "Link Up Start");
+    //MgbaPrintf(MGBA_LOG_INFO, "Link Up Start");
 
     if (data[0] == 0)
     {
@@ -491,14 +491,14 @@ static void FinishLinkup(u16 *linkupStatus, u32 taskId)
 {
     
     struct TrainerCard *trainerCards = gTrainerCards;
-    MgbaPrintf(MGBA_LOG_INFO, "Finish Link Up");
+    //MgbaPrintf(MGBA_LOG_INFO, "Finish Link Up");
 
     if (*linkupStatus == LINKUP_SUCCESS)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "SUCCESS?");
+        //MgbaPrintf(MGBA_LOG_INFO, "SUCCESS?");
         if (gLinkType == LINKTYPE_BATTLE_TOWER_50 || gLinkType == LINKTYPE_BATTLE_TOWER_OPEN)
         {
-            MgbaPrintf(MGBA_LOG_INFO, "Are we trying a battle tower????");
+            //MgbaPrintf(MGBA_LOG_INFO, "Are we trying a battle tower????");
             if (AreBattleTowerLinkSpeciesSame(trainerCards[0].monSpecies, trainerCards[1].monSpecies))
             {
                 // Unsuccessful battle tower linkup
@@ -516,7 +516,7 @@ static void FinishLinkup(u16 *linkupStatus, u32 taskId)
         }
         else
         {
-            MgbaPrintf(MGBA_LOG_INFO, "Normal Link Success?");
+            //MgbaPrintf(MGBA_LOG_INFO, "Normal Link Success?");
             // Successful linkup
             ClearLinkPlayerCountWindow(gTasks[taskId].tWindowId);
             EnableBothScriptContexts();
@@ -752,9 +752,9 @@ void TryContestEModeLinkup(void)
 
 u8 CreateTask_ReestablishCableClubLink(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Trying to reestablish link");
+    //MgbaPrintf(MGBA_LOG_INFO, "Trying to reestablish link");
     if (FuncIsActiveTask(Task_ReestablishLink) != FALSE) {
-        MgbaPrintf(MGBA_LOG_INFO, "Cancelling reestablish link");
+        //MgbaPrintf(MGBA_LOG_INFO, "Cancelling reestablish link");
         return 0xFF;
     }
 
@@ -783,18 +783,18 @@ u8 CreateTask_ReestablishCableClubLink(void)
         break;
     }
 
-    MgbaPrintf(MGBA_LOG_INFO, "Try to create Reestablish link Task??");
+    //MgbaPrintf(MGBA_LOG_INFO, "Try to create Reestablish link Task??");
     return CreateTask(Task_ReestablishLink, 80);
 }
 
 static void Task_ReestablishLink(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
-    MgbaPrintf(MGBA_LOG_INFO, "in reestablish link");
+    //MgbaPrintf(MGBA_LOG_INFO, "in reestablish link");
 
     if (data[0] == 0)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Trying to Open Link and ResetLinkPlayers");
+        //MgbaPrintf(MGBA_LOG_INFO, "Trying to Open Link and ResetLinkPlayers");
         OpenLink();
         ResetLinkPlayers();
         CreateTask(Task_WaitForLinkPlayerConnection, 80);
@@ -808,7 +808,7 @@ static void Task_ReestablishLink(u8 taskId)
 
 static void Task_ReestablishLinkAwaitConnection(u8 taskId)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Trying to Awaiting Reestablish Link Connection");
+    //MgbaPrintf(MGBA_LOG_INFO, "Trying to Awaiting Reestablish Link Connection");
     if (GetLinkPlayerCount_2() >= 2)
     {
         if (IsLinkMaster() == TRUE)
@@ -829,11 +829,11 @@ static void Task_ReestablishLinkLeader(u8 taskId)
 
 static void Task_ReestablishLinkAwaitConfirmation(u8 taskId)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Trying to Awaiting Reestablish Link Confirmation");
+    //MgbaPrintf(MGBA_LOG_INFO, "Trying to Awaiting Reestablish Link Confirmation");
     if (gReceivedRemoteLinkPlayers == TRUE
      && IsLinkPlayerDataExchangeComplete() == TRUE)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Successfully reconnected");
+        //MgbaPrintf(MGBA_LOG_INFO, "Successfully reconnected");
         CheckLinkPlayersMatchSaved();
         StartSendingKeysToLink();
         DestroyTask(taskId);
@@ -910,7 +910,7 @@ static void Task_StartWiredLinkTrainerBattle(u8 taskId)
         //else
         //    PlayMapChosenOrBattleBGM(MUS_VS_TRAINER);
 
-        SetLinkBattleTypeFlags(gSpecialVar_0x8004);
+        //SetLinkBattleTypeFlags(gSpecialVar_0x8004);
         CleanupOverworldWindowsAndTilemaps();
         gTrainerBattleOpponent_A = TRAINER_LINK_OPPONENT;
         SetMainCallback2(CB2_InitBattle);
@@ -959,7 +959,7 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
         else
             PlayMapChosenOrBattleBGM(MUS_VS_TRAINER);
 
-        SetLinkBattleTypeFlags(gSpecialVar_0x8004);
+        //SetLinkBattleTypeFlags(gSpecialVar_0x8004);
         CleanupOverworldWindowsAndTilemaps();
         gTrainerBattleOpponent_A = TRAINER_LINK_OPPONENT;
         SetMainCallback2(CB2_InitBattle);
@@ -1026,7 +1026,7 @@ static void Task_StartWirelessCableClubBattle(u8 taskId)
             PlayMapChosenOrBattleBGM(MUS_VS_TRAINER);
 
         gLinkPlayers[0].linkType = LINKTYPE_BATTLE;
-        SetLinkBattleTypeFlags(gSpecialVar_0x8004);
+        //SetLinkBattleTypeFlags(gSpecialVar_0x8004);
         CleanupOverworldWindowsAndTilemaps();
         gTrainerBattleOpponent_A = TRAINER_LINK_OPPONENT;
         SetMainCallback2(CB2_InitBattle);
@@ -1182,6 +1182,7 @@ static void Task_EnterCableClubSeat(u8 taskId)
             break;
         case CABLE_SEAT_SUCCESS:
             // Partners linked and ready, switch to relevant link function
+            //MgbaPrintf(MGBA_LOG_INFO, "gBattleTypeFlags: %d", gBattleTypeFlags);
             HideFieldMessageBox();
             task->tState = 0;
             SetStartedCableClubActivity();
@@ -1311,7 +1312,7 @@ void Script_StartWiredTrade(void)
 void ColosseumPlayerSpotTriggered(void) //called via script only
 {
     gLinkType = LINKTYPE_BATTLE;
-    MgbaPrintf(MGBA_LOG_INFO, "ColosseumPlayerSpotTriggered");
+    //MgbaPrintf(MGBA_LOG_INFO, "ColosseumPlayerSpotTriggered");
     if (gWirelessCommType)
         CreateTask_EnterCableClubSeat(Task_StartWirelessCableClubBattle);
     else
@@ -1321,7 +1322,7 @@ void ColosseumPlayerSpotTriggered(void) //called via script only
 void TriggerLinkedTrainerBattle(u8 transition, u16 song)
 {
     gLinkType = LINKTYPE_BATTLE;
-    MgbaPrintf(MGBA_LOG_INFO, "TriggerLinkedTrainerBattle");
+    //MgbaPrintf(MGBA_LOG_INFO, "TriggerLinkedTrainerBattle");
     CreateTask_EnterCableClubSeat_1(Task_StartWiredLinkTrainerBattle, transition, song);
 }
 

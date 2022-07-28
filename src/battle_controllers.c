@@ -415,7 +415,7 @@ static void InitLinkBtlControllers(void)
     }
     else if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI) && gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
     {
-        if (gBattleTypeFlags & BATTLE_TYPE_IS_MASTER)
+        if (gBattleTypeFlags & BATTLE_TYPE_IS_MASTER || IsLinkMaster())
         {
             gBattleMainFunc = BeginBattleIntro;
 
@@ -643,7 +643,7 @@ static void SetBattlePartyIds(void)
             }
         }
 
-        if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
+        if (gBattleTypeFlags & (BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TWO_PLAYERS)) 
             gBattlerPartyIndexes[1] = 0, gBattlerPartyIndexes[3] = 3;
     }
 }
