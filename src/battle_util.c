@@ -35,6 +35,7 @@
 #include "constants/songs.h"
 #include "constants/species.h"
 #include "constants/weather.h"
+#include "mgba_printf/mgba.h"
 
 /*
 NOTE: The data and functions in this file up until (but not including) sSoundMovesTable
@@ -311,6 +312,10 @@ void HandleAction_Switch(void)
 
 void HandleAction_UseItem(void)
 {
+    const u8* itemEffects;
+    u16 itemType;
+    MgbaPrintf(MGBA_LOG_INFO, "Running use item script!");
+    MgbaPrintf(MGBA_LOG_INFO, "gLastUsedItem: %d", gLastUsedItem);
     gBattlerAttacker = gBattlerTarget = gBattlerByTurnOrder[gCurrentTurnActionNumber];
     gBattle_BG0_X = 0;
     gBattle_BG0_Y = 0;
@@ -327,13 +332,21 @@ void HandleAction_UseItem(void)
     }
     else if (GetBattlerSide(gBattlerAttacker) == B_SIDE_PLAYER)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Player uses item");
         gBattlescriptCurrInstr = gBattlescriptsForUsingItem[0]; // BattleScript_PlayerUsesItem
     }
     else
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Opponent uses item");
         gBattleScripting.battler = gBattlerAttacker;
-
-        switch (*(gBattleStruct->AI_itemType + (gBattlerAttacker >> 1)))
+        if (gLastUsedItem == ITEM_ENIGMA_BERRY)
+            itemEffects = gSaveBlock1Ptr->enigmaBerry.itemEffect;
+        else
+            itemEffects = gItemEffectTable[gLastUsedItem - ITEM_POTION];
+                 
+        itemType = GetAI_ItemType(gLastUsedItem, itemEffects);
+                 
+        switch (itemType)
         {
         case AI_ITEM_FULL_RESTORE:
         case AI_ITEM_HEAL_HP:
@@ -395,7 +408,7 @@ void HandleAction_UseItem(void)
             break;
         }
 
-        gBattlescriptCurrInstr = gBattlescriptsForUsingItem[*(gBattleStruct->AI_itemType + gBattlerAttacker / 2)];
+        gBattlescriptCurrInstr = gBattlescriptsForUsingItem[itemType];
     }
     gCurrentActionFuncId = B_ACTION_EXEC_SCRIPT;
 }
@@ -850,9 +863,9 @@ void MarkBattlerForControllerExec(u8 battlerId)
 void MarkBattlerReceivedLinkData(u8 battlerId)
 {
     s32 i;
-
-    for (i = 0; i < GetLinkPlayerCount(); i++)
-        gBattleControllerExecFlags |= gBitTable[battlerId] << (i << 2);
+    MgbaPrintf(MGBA_LOG_INFO, "Battler Id %d???", battlerId);
+    for (i = 0; i < min(2, GetLinkPlayerCount()); i++)
+        gBattleControllerExecFlags |= gBitTable[battlerId] << (i << 2); //this is where the flag should be  getting set, though it never clears...
 
     gBattleControllerExecFlags &= ~((1 << 28) << battlerId);
 }

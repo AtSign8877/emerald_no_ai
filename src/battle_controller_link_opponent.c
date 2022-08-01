@@ -28,6 +28,7 @@
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "recorded_battle.h"
+#include "mgba_printf/mgba.h"
 
 static void LinkOpponentHandleGetMonData(void);
 static void LinkOpponentHandleGetRawMonData(void);
@@ -51,6 +52,7 @@ static void LinkOpponentHandleChooseAction(void);
 static void LinkOpponentHandleYesNoBox(void);
 static void LinkOpponentHandleChooseMove(void);
 static void LinkOpponentHandleChooseItem(void);
+static void LinkOpponentHandleChooseItemFromBag(void);
 static void LinkOpponentHandleChoosePokemon(void);
 static void LinkOpponentHandleCmd23(void);
 static void LinkOpponentHandleHealthBarUpdate(void);
@@ -88,7 +90,7 @@ static void LinkOpponentHandleEndLinkBattle(void);
 static void LinkOpponentCmdEnd(void);
 
 static void LinkOpponentBufferRunCommand(void);
-static void LinkOpponentBufferExecCompleted(void);
+//static void LinkOpponentBufferExecCompleted(void);
 static void SwitchIn_HandleSoundAndEnd(void);
 static u32 CopyLinkOpponentMonData(u8 monId, u8 *dst);
 static void SetLinkOpponentMonData(u8 monId);
@@ -157,6 +159,7 @@ static void (*const sLinkOpponentBufferCommands[CONTROLLER_CMDS_COUNT])(void) =
     [CONTROLLER_LINKSTANDBYMSG]           = LinkOpponentHandleLinkStandbyMsg,
     [CONTROLLER_RESETACTIONMOVESELECTION] = LinkOpponentHandleResetActionMoveSelection,
     [CONTROLLER_ENDLINKBATTLE]            = LinkOpponentHandleEndLinkBattle,
+    [CONTROLLER_USEITEMFROMBAG]           = LinkOpponentHandleChooseItemFromBag,    
     [CONTROLLER_TERMINATOR_NOP]           = LinkOpponentCmdEnd
 };
 
@@ -182,6 +185,7 @@ static void LinkOpponentBufferRunCommand(void)
 
 static void CompleteOnBattlerSpriteCallbackDummy(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Waiting for battler callback sprite to be dummy");
     if (gSprites[gBattlerSpriteIds[gActiveBattler]].callback == SpriteCallbackDummy)
         LinkOpponentBufferExecCompleted();
 }
@@ -518,15 +522,14 @@ static void CompleteOnFinishedBattleAnimation(void)
         LinkOpponentBufferExecCompleted();
 }
 
-static void LinkOpponentBufferExecCompleted(void)
+void LinkOpponentBufferExecCompleted(void)
 {
     gBattlerControllerFuncs[gActiveBattler] = LinkOpponentBufferRunCommand;
     if (gBattleTypeFlags & BATTLE_TYPE_LINK)
     {
         u8 playerId = GetMultiplayerId();
-
         PrepareBufferDataTransferLink(2, 4, &playerId);
-        gBattleBufferA[gActiveBattler][0] = CONTROLLER_TERMINATOR_NOP;
+        gBattleBufferA[gActiveBattler][0] = CONTROLLER_TERMINATOR_NOP;      
     }
     else
     {
@@ -1260,13 +1263,29 @@ static void LinkOpponentHandleDrawTrainerPic(void)
             else
             {
                 trainerPicId = PlayerGenderToFrontTrainerPicId(gLinkPlayers[GetBattlerMultiplayerId(gActiveBattler)].gender);
+                if (gTrainerBattleOpponent_A_backup) trainerPicId = gTrainers[gTrainerBattleOpponent_A_backup].trainerPic;
             }
         }
+    }
+    else if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
+    {
+        if ((GetBattlerPosition(gActiveBattler) & BIT_FLANK) != 0) // second mon
+            xPos = 152;
+        else // first mon
+            xPos = 200;
+        if (gActiveBattler == 1)
+            trainerPicId = gTrainers[gTrainerBattleOpponent_A_backup].trainerPic;
+        else
+            trainerPicId = gTrainers[gTrainerBattleOpponent_B_backup].trainerPic;
     }
     else
     {
         xPos = 176;
-        if (gTrainerBattleOpponent_A == TRAINER_UNION_ROOM)
+        if (gTrainerBattleOpponent_A_backup) 
+        {
+            trainerPicId = gTrainers[gTrainerBattleOpponent_A_backup].trainerPic;
+        }
+        else if (gTrainerBattleOpponent_A == TRAINER_UNION_ROOM)
         {
             trainerPicId = GetUnionRoomTrainerPic();
         }
@@ -1495,6 +1514,13 @@ static void LinkOpponentHandleChooseMove(void)
 
 static void LinkOpponentHandleChooseItem(void)
 {
+    LinkOpponentBufferExecCompleted();
+}
+
+static void LinkOpponentHandleChooseItemFromBag(void)
+{
+    MgbaPrintf(MGBA_LOG_INFO, "Link opponent used item from bag!");
+    BtlController_EmitOneReturnValue(BUFFER_B, *(gBattleStruct->chosenItem + (gActiveBattler / 2) * 2));
     LinkOpponentBufferExecCompleted();
 }
 

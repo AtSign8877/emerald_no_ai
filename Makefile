@@ -436,3 +436,10 @@ libagbsyscall:
 
 $(SYM): $(ELF)
 	$(OBJDUMP) -t $< | sort -u | grep -E "^0[2389]" | $(PERL) -p -e 's/^(\w{8}) (\w).{6} \S+\t(\w{8}) (\S+)$$/\1 \2 \3 \4/g' > $@
+
+SYMTAB := pokeemerald_syms.dump
+
+symtab: $(SYMTAB)
+
+$(SYMTAB): $(ELF)
+	arm-none-eabi-objdump -t $< | perl -p -e 's/^([0-9a-f]{8}) (.).{4}(.)(.) ([^\t]+)\t0*([0-9a-f]{1,8}) (\S+)$$/0x\1 \2 \7 (size: 0x\6)/g' | sort -u > $@

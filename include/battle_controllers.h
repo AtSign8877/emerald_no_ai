@@ -187,6 +187,7 @@ enum
     CONTROLLER_RESETACTIONMOVESELECTION,
     CONTROLLER_ENDLINKBATTLE,
     /*new controllers should go here*/
+    CONTROLLER_USEITEMFROMBAG,
     CONTROLLER_TERMINATOR_NOP,
     CONTROLLER_CMDS_COUNT
 };
@@ -270,7 +271,9 @@ void Task_PlayerController_RestoreBgmAfterCry(u8 taskId);
 void ActionSelectionCreateCursorAt(u8 cursorPos, u8 unused);
 void ActionSelectionDestroyCursorAt(u8 cursorPos);
 void InitMoveSelectionsVarsAndStrings(void);
+void PlayerBufferExecCompleted(void);
 
+void BtlController_EmitUseItemFromBag(u8 bufferId, u16 item);
 // recorded player controller
 void SetControllerToRecordedPlayer(void);
 
@@ -291,6 +294,7 @@ void SetControllerToRecordedOpponent(void);
 
 // link opponent
 void SetControllerToLinkOpponent(void);
+void LinkOpponentBufferExecCompleted(void);
 
 // link partner
 void SetControllerToLinkPartner(void);

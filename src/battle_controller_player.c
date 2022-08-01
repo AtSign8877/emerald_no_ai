@@ -35,6 +35,7 @@
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "constants/rgb.h"
+#include "mgba_printf/mgba.h"
 
 static void PlayerHandleGetMonData(void);
 static void PlayerHandleSetMonData(void);
@@ -197,7 +198,7 @@ void SetControllerToPlayer(void)
     gPlayerDpadHoldFrames = 0;
 }
 
-static void PlayerBufferExecCompleted(void)
+void PlayerBufferExecCompleted(void)
 {
     gBattlerControllerFuncs[gActiveBattler] = PlayerBufferRunCommand;
     if (gBattleTypeFlags & BATTLE_TYPE_LINK)
@@ -2543,7 +2544,7 @@ static void PlayerDoMoveAnimation(void)
 static void PlayerHandlePrintString(void)
 {
     u16 *stringId;
-
+    MgbaPrintf(MGBA_LOG_INFO, "Player controller print string success!");
     gBattle_BG0_X = 0;
     gBattle_BG0_Y = 0;
     stringId = (u16*)(&gBattleBufferA[gActiveBattler][2]);
@@ -2556,6 +2557,7 @@ static void PlayerHandlePrintString(void)
 
 static void PlayerHandlePrintSelectionString(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Attempting player controller print string");
     if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER)
         PlayerHandlePrintString();
     else

@@ -651,6 +651,8 @@ u8 BattleSetup_GetTerrainId(void)
     if (MetatileBehavior_IsSandOrDeepSand(tileBehavior))
         return BATTLE_TERRAIN_SAND;
 
+    MgbaPrintf(MGBA_LOG_INFO, "Metatile behaviour: %d,  Map Type: %d", tileBehavior, gMapHeader.mapType);
+
     switch (gMapHeader.mapType)
     {
     case MAP_TYPE_TOWN:

@@ -2764,8 +2764,6 @@ static u16 KeyInterCB_SetReadyAndSendParty(u32 key)
     trainerInfo.trainerIdB = gTrainerBattleOpponent_B;
     trainerInfo.battleFlags = gBattleTypeFlags;
     
-    //gBattleTypeFlags &= ~BATTLE_TYPE_TWO_OPPONENTS;
-    
     MgbaPrintf(MGBA_LOG_INFO, "Sending over trainer ID %d", trainerInfo.trainerId);
     
     SendBlock(-1, &trainerInfo, sizeof(trainerInfo));

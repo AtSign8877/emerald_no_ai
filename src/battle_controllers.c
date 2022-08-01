@@ -13,6 +13,7 @@
 #include "task.h"
 #include "util.h"
 #include "constants/abilities.h"
+#include "mgba_printf/mgba.h"
 
 static EWRAM_DATA u8 sLinkSendTaskId = 0;
 static EWRAM_DATA u8 sLinkReceiveTaskId = 0;
@@ -709,6 +710,8 @@ enum
     LINK_BUFF_DATA,
 };
 
+#define tBufferOffset data[15]
+
 void PrepareBufferDataTransferLink(u8 bufferId, u16 size, u8 *data)
 {
     s32 alignedSize;
@@ -778,18 +781,18 @@ static void Task_HandleSendLinkBuffersData(u8 taskId)
         }
         break;
     case 3:
-        if (gTasks[taskId].data[15] != gTasks[taskId].data[14])
+        if (gTasks[taskId].tBufferOffset != gTasks[taskId].data[14])
         {
             if (gTasks[taskId].data[13] == 0)
             {
-                if (gTasks[taskId].data[15] > gTasks[taskId].data[14]
-                 && gTasks[taskId].data[15] == gTasks[taskId].data[12])
+                if (gTasks[taskId].tBufferOffset > gTasks[taskId].data[14]
+                 && gTasks[taskId].tBufferOffset == gTasks[taskId].data[12])
                 {
                     gTasks[taskId].data[12] = 0;
-                    gTasks[taskId].data[15] = 0;
+                    gTasks[taskId].tBufferOffset = 0;
                 }
-                blockSize = (gLinkBattleSendBuffer[gTasks[taskId].data[15] + LINK_BUFF_SIZE_LO] | (gLinkBattleSendBuffer[gTasks[taskId].data[15] + LINK_BUFF_SIZE_HI] << 8)) + LINK_BUFF_DATA;
-                SendBlock(BitmaskAllOtherLinkPlayers(), &gLinkBattleSendBuffer[gTasks[taskId].data[15]], blockSize);
+                blockSize = (gLinkBattleSendBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_SIZE_LO] | (gLinkBattleSendBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_SIZE_HI] << 8)) + LINK_BUFF_DATA;
+                SendBlock(BitmaskAllOtherLinkPlayers(), &gLinkBattleSendBuffer[gTasks[taskId].tBufferOffset], blockSize);
                 gTasks[taskId].data[11]++;
             }
             else
@@ -802,9 +805,9 @@ static void Task_HandleSendLinkBuffersData(u8 taskId)
     case 4:
         if (IsLinkTaskFinished())
         {
-            blockSize = gLinkBattleSendBuffer[gTasks[taskId].data[15] + LINK_BUFF_SIZE_LO] | (gLinkBattleSendBuffer[gTasks[taskId].data[15] + LINK_BUFF_SIZE_HI] << 8);
+            blockSize = gLinkBattleSendBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_SIZE_LO] | (gLinkBattleSendBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_SIZE_HI] << 8);
             gTasks[taskId].data[13] = 1;
-            gTasks[taskId].data[15] = gTasks[taskId].data[15] + blockSize + LINK_BUFF_DATA;
+            gTasks[taskId].tBufferOffset = gTasks[taskId].tBufferOffset + blockSize + LINK_BUFF_DATA;
             gTasks[taskId].data[11] = 3;
         }
         break;
@@ -863,45 +866,55 @@ static void Task_HandleCopyReceivedLinkBuffersData(u8 taskId)
     u8 battlerId;
     u8 var;
 
-    if (gTasks[taskId].data[15] != gTasks[taskId].data[14])
+    if (gTasks[taskId].tBufferOffset != gTasks[taskId].data[14])
     {
-        if (gTasks[taskId].data[15] > gTasks[taskId].data[14]
-         && gTasks[taskId].data[15] == gTasks[taskId].data[12])
+        if (gTasks[taskId].tBufferOffset > gTasks[taskId].data[14]
+         && gTasks[taskId].tBufferOffset == gTasks[taskId].data[12])
         {
             gTasks[taskId].data[12] = 0;
-            gTasks[taskId].data[15] = 0;
+            gTasks[taskId].tBufferOffset = 0;
         }
-        battlerId = gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_ACTIVE_BATTLER];
-        blockSize = gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_SIZE_LO] | (gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_SIZE_HI] << 8);
+        battlerId = gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_ACTIVE_BATTLER];
+        blockSize = gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_SIZE_LO] | (gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_SIZE_HI] << 8);
 
-        switch (gLinkBattleRecvBuffer[gTasks[taskId].data[15] + 0])
+        switch (gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + 0])
         {
         case 0:
             if (gBattleControllerExecFlags & gBitTable[battlerId])
                 return;
 
-            memcpy(gBattleBufferA[battlerId], &gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_DATA], blockSize);
+            memcpy(gBattleBufferA[battlerId], &gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_DATA], blockSize);
             MarkBattlerReceivedLinkData(battlerId);
 
             if (!(gBattleTypeFlags & BATTLE_TYPE_IS_MASTER))
             {
-                gBattlerAttacker = gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_ATTACKER];
-                gBattlerTarget = gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_TARGET];
-                gAbsentBattlerFlags = gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_ABSENT_BATTLER_FLAGS];
-                gEffectBattler = gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_EFFECT_BATTLER];
+                gBattlerAttacker = gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_ATTACKER];
+                gBattlerTarget = gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_TARGET];
+                gAbsentBattlerFlags = gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_ABSENT_BATTLER_FLAGS];
+                gEffectBattler = gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_EFFECT_BATTLER];
             }
             break;
         case 1:
-            memcpy(gBattleBufferB[battlerId], &gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_DATA], blockSize);
+            memcpy(gBattleBufferB[battlerId], &gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_DATA], blockSize);
             break;
         case 2:
-            var = gLinkBattleRecvBuffer[gTasks[taskId].data[15] + LINK_BUFF_DATA];
-            gBattleControllerExecFlags &= ~(gBitTable[battlerId] << (var * 4));
+            var = gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_DATA];
+            MgbaPrintf(MGBA_LOG_INFO, "Clearing flag at shift %d???", var*4);
+            gBattleControllerExecFlags &= ~(gBitTable[battlerId] << (var * 4)); //potentially where the flag is supposed to be cleared at 1 << 7
             break;
         }
 
-        gTasks[taskId].data[15] = gTasks[taskId].data[15] + blockSize + LINK_BUFF_DATA;
+        gTasks[taskId].tBufferOffset = gTasks[taskId].tBufferOffset + blockSize + LINK_BUFF_DATA;
     }
+}
+
+void BtlController_EmitUseItemFromBag(u8 bufferId, u16 itemId)
+{
+    sBattleBuffersTransferData[0] = CONTROLLER_USEITEMFROMBAG;
+    sBattleBuffersTransferData[1] = B_ACTION_USE_ITEM;
+    sBattleBuffersTransferData[2] = itemId;
+    sBattleBuffersTransferData[3] = (itemId & 0xFF00) >> 8;
+    PrepareBufferDataTransfer(bufferId, sBattleBuffersTransferData, 4);
 }
 
 void BtlController_EmitGetMonData(u8 bufferId, u8 requestId, u8 monToCheck)

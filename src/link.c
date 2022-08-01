@@ -1952,6 +1952,7 @@ u32 LinkMain1(u8 *shouldAdvanceLinkState, u16 *sendCmd, u16 (*recvCmds)[CMD_LENG
     *shouldAdvanceLinkState = 0;
     retVal = gLink.localId;
     retVal |= (gLink.playerCount << LINK_STAT_PLAYER_COUNT_SHIFT);
+    
     if (gLink.isMaster == LINK_MASTER)
     {
         retVal |= LINK_STAT_MASTER;

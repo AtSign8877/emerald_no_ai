@@ -10,6 +10,7 @@
 #include "task.h"
 #include "trig.h"
 #include "constants/trainers.h"
+#include "mgba_printf/mgba.h"
 
 static EWRAM_DATA u16 sBgCnt = 0;
 
@@ -104,7 +105,11 @@ int GetAnimBgAttribute(u8 bgId, u8 attributeId)
 
 void HandleIntroSlide(u8 terrain)
 {
+    
+    
     u8 taskId;
+
+    MgbaPrintf(MGBA_LOG_INFO, "HandleIntroSlide terrain: %d", terrain);
 
     if ((gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) && gPartnerTrainerId != TRAINER_STEVEN_PARTNER)
     {
@@ -112,7 +117,7 @@ void HandleIntroSlide(u8 terrain)
     }
     else if (gBattleTypeFlags & BATTLE_TYPE_LINK)
     {
-        taskId = CreateTask(BattleIntroSlideLink, 0);
+        taskId = CreateTask(sBattleIntroSlideFuncs[terrain], 0);
     }
     else if (gBattleTypeFlags & BATTLE_TYPE_FRONTIER)
     {
@@ -360,7 +365,7 @@ static void BattleIntroSlide3(u8 taskId)
         SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(8, 8));
         SetGpuReg(REG_OFFSET_BLDY, 0);
         gTasks[taskId].data[4] = BLDALPHA_BLEND(8, 8);
-        if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK))
+        if (gBattleTypeFlags & (BATTLE_TYPE_RECORDED_LINK))
         {
             gTasks[taskId].data[2] = 16;
             gTasks[taskId].tState++;

@@ -322,7 +322,6 @@ static void BuildNormalStartMenu(void)
     AddStartMenuAction(MENU_ACTION_SAVE);
     AddStartMenuAction(MENU_ACTION_OPTION);
     AddStartMenuAction(MENU_ACTION_LINK);
-    AddStartMenuAction(MENU_ACTION_BATTLE);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
 
@@ -335,7 +334,6 @@ static void BuildSafariZoneStartMenu(void)
     AddStartMenuAction(MENU_ACTION_PLAYER);
     AddStartMenuAction(MENU_ACTION_OPTION);
     AddStartMenuAction(MENU_ACTION_LINK);
-    AddStartMenuAction(MENU_ACTION_BATTLE);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
 

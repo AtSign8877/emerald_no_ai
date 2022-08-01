@@ -2,6 +2,7 @@
 #include "malloc.h"
 #include "battle.h"
 #include "battle_anim.h"
+#include "battle_ai_switch_items.h"
 #include "battle_controllers.h"
 #include "battle_gfx_sfx_util.h"
 #include "battle_interface.h"
@@ -1213,6 +1214,7 @@ static s8* GetCurrentPartySlotPtr(void)
 
 static void HandleChooseMonSelection(u8 taskId, s8 *slotPtr)
 {
+    const u8* itemEffects;
     if (*slotPtr == PARTY_SIZE)
     {
         gPartyMenu.task(taskId);
@@ -1232,8 +1234,25 @@ static void HandleChooseMonSelection(u8 taskId, s8 *slotPtr)
             if (IsSelectedMonNotEgg((u8*)slotPtr))
             {
                 if (gPartyMenu.menuType == PARTY_MENU_TYPE_IN_BATTLE)
+                {
                     sPartyMenuInternal->exitCallback = CB2_SetUpExitToBattleScreen;
+                    BtlController_EmitUseItemFromBag(BUFFER_B, gSpecialVar_ItemId);
+                    if (!(*slotPtr))
+                    {
+                        *(gBattleStruct->chosenItem + (gActiveBattler / 2) * 2) = gSpecialVar_ItemId;
+                        gPartyMenuUseExitCallback = TRUE;
+                        gTasks[taskId].func = Task_ClosePartyMenuAfterText;
+                    }
+                    else 
+                    {
+                        PartyMenuRemoveWindow(&sPartyMenuInternal->windowId[1]);
+                        gItemUseCB(taskId, Task_ClosePartyMenuAfterText);
+                    }
 
+                    PlayerBufferExecCompleted();
+                    return;
+                }
+                
                 PartyMenuRemoveWindow(&sPartyMenuInternal->windowId[1]);
                 gItemUseCB(taskId, Task_ClosePartyMenuAfterText);
             }

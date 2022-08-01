@@ -657,8 +657,8 @@ static void CB2_InitBattleInternal(void)
     gBattle_BG3_Y = 0;
 
     gBattleTerrain = BattleSetup_GetTerrainId();
-    if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
-        gBattleTerrain = BATTLE_TERRAIN_BUILDING;
+
+    MgbaPrintf(MGBA_LOG_INFO, "Battle Terrain: %d", gBattleTerrain);
 
     InitBattleBgsVideo();
     LoadBattleTextboxAndBackground();
@@ -976,7 +976,7 @@ static void CB2_HandleStartBattle(void)
                     // 0x300
                     *(&gBattleStruct->multiBuffer.linkBattlerHeader.versionSignatureLo) = 0;
                     *(&gBattleStruct->multiBuffer.linkBattlerHeader.versionSignatureHi) = 3;
-                    BufferPartyVsScreenHealth_AtStart();
+                    //BufferPartyVsScreenHealth_AtStart();
                     SetPlayerBerryDataInBattleStruct();
 
                     if (gTrainerBattleOpponent_A == TRAINER_UNION_ROOM)
@@ -1008,12 +1008,12 @@ static void CB2_HandleStartBattle(void)
             ResetBlockReceivedFlags();
             FindLinkBattleMaster(2, playerMultiplayerId);
             SetAllPlayersBerryData();
-            taskId = CreateTask(InitLinkBattleVsScreen, 0);
+            /*taskId = CreateTask(InitLinkBattleVsScreen, 0);
             gTasks[taskId].data[1] = 0x10E;
             gTasks[taskId].data[2] = 0x5A;
             gTasks[taskId].data[5] = 0;
             gTasks[taskId].data[3] = gBattleStruct->multiBuffer.linkBattlerHeader.vsScreenHealthFlagsLo | (gBattleStruct->multiBuffer.linkBattlerHeader.vsScreenHealthFlagsHi << 8);
-            gTasks[taskId].data[4] = gBlockRecvBuffer[enemyMultiplayerId][1];
+            gTasks[taskId].data[4] = gBlockRecvBuffer[enemyMultiplayerId][1];*/
             RecordedBattle_SetFrontierPassFlagFromHword(gBlockRecvBuffer[playerMultiplayerId][1]);
             RecordedBattle_SetFrontierPassFlagFromHword(gBlockRecvBuffer[enemyMultiplayerId][1]);
             SetDeoxysStats();
@@ -3020,6 +3020,7 @@ void BeginBattleIntro(void)
 
 static void BattleMainCB1(void)
 {
+    //MgbaPrintf(MGBA_LOG_INFO, "Current battle main func: %d", gBattleMainFunc);
     gBattleMainFunc();
 
     for (gActiveBattler = 0; gActiveBattler < gBattlersCount; gActiveBattler++)
@@ -3666,14 +3667,15 @@ static void BattleIntroOpponent1SendsOutMonAnimation(void)
 
 static void BattleIntroRecordMonsToDex(void)
 {
+    //MgbaPrintf(MGBA_LOG_INFO, "BattleIntroRecordMonsToDex; Controller flags: %d", gBattleControllerExecFlags);
     if (gBattleControllerExecFlags == 0)
     {
         for (gActiveBattler = 0; gActiveBattler < gBattlersCount; gActiveBattler++)
         {
+            MgbaPrintf(MGBA_LOG_INFO, "Active battler, %d", gActiveBattler);
             if (GetBattlerSide(gActiveBattler) == B_SIDE_OPPONENT
              && !(gBattleTypeFlags & (BATTLE_TYPE_EREADER_TRAINER
                                       | BATTLE_TYPE_FRONTIER
-                                      | BATTLE_TYPE_LINK
                                       | BATTLE_TYPE_RECORDED_LINK
                                       | BATTLE_TYPE_TRAINER_HILL)))
             {
@@ -4204,6 +4206,7 @@ static void HandleTurnActionSelectionState(void)
                     }
                     else
                     {
+                        MgbaPrintf(MGBA_LOG_INFO, "Attempting use item- Buffer A");
                         BtlController_EmitChooseItem(BUFFER_A, gBattleStruct->battlerPartyOrders[gActiveBattler]);
                         MarkBattlerForControllerExec(gActiveBattler);
                     }
@@ -4377,11 +4380,14 @@ static void HandleTurnActionSelectionState(void)
                 case B_ACTION_USE_ITEM:
                     if ((gBattleBufferB[gActiveBattler][1] | (gBattleBufferB[gActiveBattler][2] << 8)) == 0)
                     {
+                        MgbaPrintf(MGBA_LOG_INFO, "Attempting use item- Buffer B1");
                         gBattleCommunication[gActiveBattler] = STATE_BEFORE_ACTION_CHOSEN;
                     }
                     else
                     {
+                        MgbaPrintf(MGBA_LOG_INFO, "Attempting use item- Buffer B2");
                         gLastUsedItem = (gBattleBufferB[gActiveBattler][1] | (gBattleBufferB[gActiveBattler][2] << 8));
+                        MgbaPrintf(MGBA_LOG_INFO, "Item id: %d", gLastUsedItem);
                         gBattleCommunication[gActiveBattler]++;
                     }
                     break;
@@ -4732,6 +4738,7 @@ static void SetActionsAndBattlersTurnOrder(void)
         for (gActiveBattler = 0; gActiveBattler < gBattlersCount; gActiveBattler++)
         {
             gActionsByTurnOrder[turnOrderId] = gChosenActionByBattler[gActiveBattler];
+            //MgbaPrintf(MGBA_LOG_INFO, "Setting action for player %d to %d", gActiveBattler, gChosenActionByBattler[gActiveBattler]);
             gBattlerByTurnOrder[turnOrderId] = gActiveBattler;
             turnOrderId++;
         }
