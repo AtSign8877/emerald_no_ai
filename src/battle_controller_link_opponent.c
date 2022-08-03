@@ -185,7 +185,7 @@ static void LinkOpponentBufferRunCommand(void)
 
 static void CompleteOnBattlerSpriteCallbackDummy(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Waiting for battler callback sprite to be dummy");
+    MgbaPrintf(MGBA_LOG_INFO, "Waiting for battler callback sprite to be dummy!");
     if (gSprites[gBattlerSpriteIds[gActiveBattler]].callback == SpriteCallbackDummy)
         LinkOpponentBufferExecCompleted();
 }
@@ -200,6 +200,7 @@ static void FreeTrainerSpriteAfterSlide(void)
 {
     if (gSprites[gBattlerSpriteIds[gActiveBattler]].callback == SpriteCallbackDummy)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Freeing sprite after slide!");
         FreeTrainerFrontPicPalette(gSprites[gBattlerSpriteIds[gActiveBattler]].oam.affineParam);
         FreeSpriteOamMatrix(&gSprites[gBattlerSpriteIds[gActiveBattler]]);
         DestroySprite(&gSprites[gBattlerSpriteIds[gActiveBattler]]);
@@ -524,10 +525,12 @@ static void CompleteOnFinishedBattleAnimation(void)
 
 void LinkOpponentBufferExecCompleted(void)
 {
+    u8 playerId;
     gBattlerControllerFuncs[gActiveBattler] = LinkOpponentBufferRunCommand;
     if (gBattleTypeFlags & BATTLE_TYPE_LINK)
     {
-        u8 playerId = GetMultiplayerId();
+        MgbaPrintf(MGBA_LOG_INFO, "Resetting Opponent Buffer!");
+        playerId = GetMultiplayerId();
         PrepareBufferDataTransferLink(2, 4, &playerId);
         gBattleBufferA[gActiveBattler][0] = CONTROLLER_TERMINATOR_NOP;      
     }
