@@ -3654,7 +3654,7 @@ static void BattleIntroOpponent1SendsOutMonAnimation(void)
         {
             BtlController_EmitIntroTrainerBallThrow(BUFFER_A);
             MarkBattlerForControllerExec(gActiveBattler);
-            if (gBattleTypeFlags & (BATTLE_TYPE_MULTI | BATTLE_TYPE_TWO_OPPONENTS))
+            if (gBattleTypeFlags & (BATTLE_TYPE_MULTI))
             {
                 gBattleMainFunc = BattleIntroOpponent2SendsOutMonAnimation;
                 return;
