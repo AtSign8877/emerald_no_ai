@@ -73,6 +73,7 @@
 #include "constants/party_menu.h"
 #include "constants/rgb.h"
 #include "constants/songs.h"
+#include "mgba_printf/mgba.h"
 
 #define PARTY_PAL_SELECTED     (1 << 0)
 #define PARTY_PAL_FAINTED      (1 << 1)
@@ -5741,24 +5742,23 @@ static bool8 TrySwitchInPokemon(void)
     u8 slot = GetCursorSelectionMonId();
     u8 newSlot;
     u8 i;
-
+    
     if ((gBattleTypeFlags & BATTLE_TYPE_TWO_PLAYERS) && 
-        !(GetBattlerPosition(gActiveBattler) == B_POSITION_PLAYER_LEFT && (slot == 2 || slot == 3)) && 
-        !(GetBattlerPosition(gActiveBattler) == B_POSITION_PLAYER_RIGHT && (slot == 4 || slot == 5)))
+        !(gBattlerInMenuId == 1 && (slot == 2 || slot == 3)) && 
+        !(gBattlerInMenuId == 3 && (slot == 4 || slot == 5)))
     {
-        
         StringCopy(gStringVar1, GetTrainerPartnerName());
         StringExpandPlaceholders(gStringVar4, gText_CantSwitchWithAlly);
         return FALSE;
     }
 
     // In a multi battle, slots 1, 4, and 5 are the partner's pokemon
-    if ((IsMultiBattle() == TRUE) && (slot == 1 || slot == 4 || slot == 5))
+    /*if ((IsMultiBattle() == TRUE) && (slot == 1 || slot == 4 || slot == 5))
     {
         StringCopy(gStringVar1, GetTrainerPartnerName());
         StringExpandPlaceholders(gStringVar4, gText_CantSwitchWithAlly);
         return FALSE;
-    }
+    }*/
     if (GetMonData(&gPlayerParty[slot], MON_DATA_HP) == 0)
     {
         GetMonNickname(&gPlayerParty[slot], gStringVar1);
