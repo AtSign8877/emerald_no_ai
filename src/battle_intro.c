@@ -104,12 +104,8 @@ int GetAnimBgAttribute(u8 bgId, u8 attributeId)
 #define tTerrain data[1]
 
 void HandleIntroSlide(u8 terrain)
-{
-    
-    
+{  
     u8 taskId;
-
-    MgbaPrintf(MGBA_LOG_INFO, "HandleIntroSlide terrain: %d", terrain);
 
     if ((gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) && gPartnerTrainerId != TRAINER_STEVEN_PARTNER)
     {

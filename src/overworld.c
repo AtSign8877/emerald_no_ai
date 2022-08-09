@@ -88,6 +88,7 @@ struct TrainerInfoBlock
     u16 trainerId;
     u16 trainerIdB;
     u16 battleFlags;
+    u8 terrain;
 };
 
 
@@ -2344,7 +2345,7 @@ void CB1_OverworldLink(void)
                 trainerInfo = (struct TrainerInfoBlock*) gBlockRecvBuffer[i];
                 if (!trainerInfo->init) continue;
                 trainerInfo->init = FALSE;
-                MgbaPrintf(MGBA_LOG_INFO, "Making party with trainer ID: %d", trainerInfo->trainerId);
+                gBattleTerrain = trainerInfo->terrain;
                 gBattleTypeFlags = trainerInfo->battleFlags;
                 CreateNPCTrainerParty(&gPlayerParty[0], trainerInfo->trainerId, TRUE);
                 gTrainerBattleOpponent_A_backup = trainerInfo->trainerId;
@@ -2765,6 +2766,7 @@ static u16 KeyInterCB_SetReadyAndSendParty(u32 key)
     trainerInfo.trainerId = gTrainerBattleOpponent_A;
     trainerInfo.trainerIdB = gTrainerBattleOpponent_B;
     trainerInfo.battleFlags = gBattleTypeFlags;
+    trainerInfo.terrain = gBattleTerrain;
     
     MgbaPrintf(MGBA_LOG_INFO, "Sending over trainer ID %d", trainerInfo.trainerId);
     

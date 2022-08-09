@@ -658,8 +658,6 @@ static void CB2_InitBattleInternal(void)
 
     gBattleTerrain = BattleSetup_GetTerrainId();
 
-    MgbaPrintf(MGBA_LOG_INFO, "Battle Terrain: %d", gBattleTerrain);
-
     InitBattleBgsVideo();
     LoadBattleTextboxAndBackground();
     ResetSpriteData();
