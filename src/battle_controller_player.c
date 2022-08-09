@@ -2965,6 +2965,28 @@ static void PlayerHandleIntroTrainerBallThrow(void)
     LoadCompressedPalette(gTrainerBackPicPaletteTable[gSaveBlock2Ptr->playerGender].data, 0x100 + paletteNum * 16, 32);
     gSprites[gBattlerSpriteIds[gActiveBattler]].oam.paletteNum = paletteNum;
 
+    if (gBattleTypeFlags & BATTLE_TYPE_TWO_PLAYERS)
+    {
+        gActiveBattler = (gActiveBattler + 2) % 4;
+        
+        SetSpritePrimaryCoordsFromSecondaryCoords(&gSprites[gBattlerSpriteIds[gActiveBattler]]);
+
+        gSprites[gBattlerSpriteIds[gActiveBattler]].data[0] = 50;
+        gSprites[gBattlerSpriteIds[gActiveBattler]].data[2] = -40;
+        gSprites[gBattlerSpriteIds[gActiveBattler]].data[4] = gSprites[gBattlerSpriteIds[gActiveBattler]].y;
+        gSprites[gBattlerSpriteIds[gActiveBattler]].callback = StartAnimLinearTranslation;
+        gSprites[gBattlerSpriteIds[gActiveBattler]].sBattlerId = gActiveBattler;
+
+        StoreSpriteCallbackInData6(&gSprites[gBattlerSpriteIds[gActiveBattler]], SpriteCB_FreePlayerSpriteLoadMonSprite);
+        StartSpriteAnim(&gSprites[gBattlerSpriteIds[gActiveBattler]], 1);
+        
+        paletteNum = AllocSpritePalette(0xD6F8);
+        LoadCompressedPalette(gTrainerBackPicPaletteTable[gSaveBlock2Ptr->playerGender].data, 0x100 + paletteNum * 16, 32);
+        gSprites[gBattlerSpriteIds[gActiveBattler]].oam.paletteNum = paletteNum;
+        
+        gActiveBattler = (gActiveBattler + 2) % 4;
+    }
+
     taskId = CreateTask(Task_StartSendOutAnim, 5);
     gTasks[taskId].tBattlerId = gActiveBattler;
 
