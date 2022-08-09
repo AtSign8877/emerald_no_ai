@@ -2347,8 +2347,10 @@ void CB1_OverworldLink(void)
                 MgbaPrintf(MGBA_LOG_INFO, "Making party with trainer ID: %d", trainerInfo->trainerId);
                 gBattleTypeFlags = trainerInfo->battleFlags;
                 CreateNPCTrainerParty(&gPlayerParty[0], trainerInfo->trainerId, TRUE);
+                gTrainerBattleOpponent_A_backup = trainerInfo->trainerId;
                 if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) 
                 {
+                    gTrainerBattleOpponent_B_backup = trainerInfo->trainerIdB;
                     CreateNPCTrainerParty(&gPlayerParty[PARTY_SIZE/2], trainerInfo->trainerIdB, FALSE);
                     gBattleTypeFlags &= ~BATTLE_TYPE_TWO_OPPONENTS;
                     gBattleTypeFlags |= BATTLE_TYPE_TWO_PLAYERS;

@@ -1266,7 +1266,7 @@ static void LinkOpponentHandleDrawTrainerPic(void)
             else
             {
                 trainerPicId = PlayerGenderToFrontTrainerPicId(gLinkPlayers[GetBattlerMultiplayerId(gActiveBattler)].gender);
-                if (gTrainerBattleOpponent_A_backup) trainerPicId = gTrainers[gTrainerBattleOpponent_A_backup].trainerPic;
+                if (IsLinkMaster()) trainerPicId = gTrainers[gTrainerBattleOpponent_A_backup].trainerPic;
             }
         }
     }
@@ -1284,7 +1284,7 @@ static void LinkOpponentHandleDrawTrainerPic(void)
     else
     {
         xPos = 176;
-        if (gTrainerBattleOpponent_A_backup) 
+        if (IsLinkMaster()) 
         {
             trainerPicId = gTrainers[gTrainerBattleOpponent_A_backup].trainerPic;
         }

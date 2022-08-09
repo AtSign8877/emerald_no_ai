@@ -6667,6 +6667,11 @@ const u8 *GetTrainerPartnerName(void)
             return gStringVar1;
         }
     }
+    else if (gBattleTypeFlags & BATTLE_TYPE_TWO_PLAYERS)
+    {
+        if (gBattlerInMenuId == 3) return gTrainers[gTrainerBattleOpponent_A_backup].trainerName;
+        return gTrainers[gTrainerBattleOpponent_B_backup].trainerName;
+    }
     else
     {
         u8 id = GetMultiplayerId();

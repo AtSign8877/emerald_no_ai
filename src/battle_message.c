@@ -2099,7 +2099,7 @@ void BufferStringBattle(u16 stringID)
                 }
                 else
                 {
-                    if (gTrainerBattleOpponent_A_backup)
+                    if (IsLinkMaster())
                         stringPtr = sText_Trainer1WantsToBattle;
                     else if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
                         stringPtr = sText_LinkTrainerWantsToBattlePause;
@@ -2168,7 +2168,7 @@ void BufferStringBattle(u16 stringID)
             }
             else
             {
-                if (gTrainerBattleOpponent_A_backup)
+                if (IsLinkMaster())
                     stringPtr = sText_Trainer1SentOutPkmn;
                 else if (gTrainerBattleOpponent_A == TRAINER_UNION_ROOM)
                     stringPtr = sText_Trainer1SentOutPkmn;
@@ -2627,13 +2627,13 @@ u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst)
                     toCpy = gTrainerClassNames[GetEreaderTrainerClassId()];
                 else
                 {
-                    if(gTrainerBattleOpponent_A_backup) toCpy = gTrainerClassNames[gTrainers[gTrainerBattleOpponent_A_backup].trainerClass];
+                    if(IsLinkMaster()) toCpy = gTrainerClassNames[gTrainers[gTrainerBattleOpponent_A_backup].trainerClass];
                     else toCpy = gTrainerClassNames[gTrainers[gTrainerBattleOpponent_A].trainerClass];
                 }
                 break;
             case B_TXT_TRAINER1_NAME: // trainer1 name
                 if (gBattleTypeFlags & BATTLE_TYPE_LINK) {
-                    if (gTrainerBattleOpponent_A_backup) toCpy = gTrainers[gTrainerBattleOpponent_A_backup].trainerName;
+                    if (IsLinkMaster()) toCpy = gTrainers[gTrainerBattleOpponent_A_backup].trainerName;
                     else toCpy = gTrainers[gTrainerBattleOpponent_A].trainerName;
                 }
                 if (gBattleTypeFlags & BATTLE_TYPE_SECRET_BASE)
@@ -2770,7 +2770,7 @@ u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst)
                     toCpy = gTrainerClassNames[GetTrainerHillOpponentClass(gTrainerBattleOpponent_B)];
                 else 
                 {
-                    if(gTrainerBattleOpponent_B_backup) toCpy = gTrainerClassNames[gTrainers[gTrainerBattleOpponent_B_backup].trainerClass];
+                    if(IsLinkMaster()) toCpy = gTrainerClassNames[gTrainers[gTrainerBattleOpponent_B_backup].trainerClass];
                     else toCpy = gTrainerClassNames[gTrainers[gTrainerBattleOpponent_B].trainerClass];
                 }
                 break;
@@ -2787,7 +2787,7 @@ u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst)
                 }
                 else
                 {
-                    if (gTrainerBattleOpponent_B_backup) toCpy = gTrainers[gTrainerBattleOpponent_B_backup].trainerName;
+                    if (IsLinkMaster()) toCpy = gTrainers[gTrainerBattleOpponent_B_backup].trainerName;
                     else toCpy = gTrainers[gTrainerBattleOpponent_B].trainerName;
                 }
                 break;
