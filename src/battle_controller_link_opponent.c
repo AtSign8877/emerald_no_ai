@@ -1734,6 +1734,22 @@ static void LinkOpponentHandleIntroTrainerBallThrow(void)
 
     StoreSpriteCallbackInData6(&gSprites[gBattlerSpriteIds[gActiveBattler]], SpriteCB_FreeOpponentSprite);
 
+    if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
+    {
+        gActiveBattler = (gActiveBattler + 2) % 4;
+        
+        SetSpritePrimaryCoordsFromSecondaryCoords(&gSprites[gBattlerSpriteIds[gActiveBattler]]);
+
+        gSprites[gBattlerSpriteIds[gActiveBattler]].data[0] = 35;
+        gSprites[gBattlerSpriteIds[gActiveBattler]].data[2] = 280;
+        gSprites[gBattlerSpriteIds[gActiveBattler]].data[4] = gSprites[gBattlerSpriteIds[gActiveBattler]].y;
+        gSprites[gBattlerSpriteIds[gActiveBattler]].callback = StartAnimLinearTranslation;
+
+        StoreSpriteCallbackInData6(&gSprites[gBattlerSpriteIds[gActiveBattler]], SpriteCB_FreeOpponentSprite);
+        
+        gActiveBattler = (gActiveBattler + 2) % 4;
+    }
+
     taskId = CreateTask(Task_StartSendOutAnim, 5);
     gTasks[taskId].data[0] = gActiveBattler;
 
