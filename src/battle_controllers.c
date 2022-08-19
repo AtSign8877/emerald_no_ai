@@ -901,7 +901,6 @@ static void Task_HandleCopyReceivedLinkBuffersData(u8 taskId)
             break;
         case 2:
             var = gLinkBattleRecvBuffer[gTasks[taskId].tBufferOffset + LINK_BUFF_DATA]; //usually if not always a player Id
-            MgbaPrintf(MGBA_LOG_INFO, "Clearing flag at shift %d???", battlerId + var*4);
             gBattleControllerExecFlags &= ~(gBitTable[battlerId] << (var * 4)); //where the flag is supposed to be cleared at 1 << 7
             break;
         }

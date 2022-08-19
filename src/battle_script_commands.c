@@ -52,6 +52,7 @@
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "link.h"
+#include "mgba_printf/mgba.h"
 
 extern const u8* const gBattleScriptsForMoveEffects[];
 
@@ -4575,6 +4576,8 @@ static void Cmd_getswitchedmondata(void)
 {
     if (gBattleControllerExecFlags)
         return;
+
+    MgbaPrintf(MGBA_LOG_INFO, "Getting switched mon data!");
 
     gActiveBattler = GetBattlerForBattleScript(gBattlescriptCurrInstr[1]);
 

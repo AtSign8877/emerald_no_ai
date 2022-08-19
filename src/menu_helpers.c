@@ -315,7 +315,6 @@ static bool8 IsActiveOverworldLinkBusy(void)
 bool8 MenuHelpers_ShouldWaitForLinkRecv(void)
 {
     if (IsActiveOverworldLinkBusy() == TRUE || IsLinkRecvQueueAtOverworldMax() == TRUE ) {
-        //MgbaPrintf(MGBA_LOG_INFO, "Should wait for link Recv");
         return TRUE;
     }
     else

@@ -314,8 +314,6 @@ void HandleAction_UseItem(void)
 {
     const u8* itemEffects;
     u16 itemType;
-    MgbaPrintf(MGBA_LOG_INFO, "Running use item script!");
-    MgbaPrintf(MGBA_LOG_INFO, "gLastUsedItem: %d", gLastUsedItem);
     gBattlerAttacker = gBattlerTarget = gBattlerByTurnOrder[gCurrentTurnActionNumber];
     gBattle_BG0_X = 0;
     gBattle_BG0_Y = 0;
@@ -863,7 +861,6 @@ void MarkBattlerForControllerExec(u8 battlerId)
 void MarkBattlerReceivedLinkData(u8 battlerId)
 {
     s32 i;
-    MgbaPrintf(MGBA_LOG_INFO, "Battler Id %d???", battlerId);
     for (i = 0; i < min(2, GetLinkPlayerCount()); i++)
         gBattleControllerExecFlags |= gBitTable[battlerId] << (i << 2); //this is where the flag should be  getting set, though it never clears...
 

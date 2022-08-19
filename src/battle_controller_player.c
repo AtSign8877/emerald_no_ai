@@ -1587,6 +1587,8 @@ static void PlayerHandleGetMonData(void)
     u8 monToCheck;
     s32 i;
 
+    MgbaPrintf(MGBA_LOG_INFO, "Player getting mon data for active battler: %d", gActiveBattler);
+
     if (gBattleBufferA[gActiveBattler][2] == 0)
     {
         size += CopyPlayerMonData(gBattlerPartyIndexes[gActiveBattler], monData);
@@ -2787,6 +2789,13 @@ static void PlayerHandleStatusXor(void)
 
 static void PlayerHandleDataTransfer(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Handling data transfer for active mon: %d", gActiveBattler);
+    MgbaPrintf(MGBA_LOG_INFO, "Party index: %d", gBattlerPartyIndexes[gActiveBattler]);
+    
+    if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER)
+    {
+        memcpy(&gEnemyParty[gBattlerPartyIndexes[gActiveBattler]], &gBattleBufferB[gActiveBattler][5], gBattleBufferB[gActiveBattler][3] + (gBattleBufferB[gActiveBattler][4] >> 4));
+    }
     PlayerBufferExecCompleted();
 }
 

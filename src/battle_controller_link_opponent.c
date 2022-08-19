@@ -185,7 +185,6 @@ static void LinkOpponentBufferRunCommand(void)
 
 static void CompleteOnBattlerSpriteCallbackDummy(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Waiting for battler callback sprite to be dummy!");
     if (gSprites[gBattlerSpriteIds[gActiveBattler]].callback == SpriteCallbackDummy)
         LinkOpponentBufferExecCompleted();
 }
@@ -200,7 +199,6 @@ static void FreeTrainerSpriteAfterSlide(void)
 {
     if (gSprites[gBattlerSpriteIds[gActiveBattler]].callback == SpriteCallbackDummy)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Freeing sprite after slide!");
         FreeTrainerFrontPicPalette(gSprites[gBattlerSpriteIds[gActiveBattler]].oam.affineParam);
         FreeSpriteOamMatrix(&gSprites[gBattlerSpriteIds[gActiveBattler]]);
         DestroySprite(&gSprites[gBattlerSpriteIds[gActiveBattler]]);
@@ -529,7 +527,6 @@ void LinkOpponentBufferExecCompleted(void)
     gBattlerControllerFuncs[gActiveBattler] = LinkOpponentBufferRunCommand;
     if (gBattleTypeFlags & BATTLE_TYPE_LINK)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Resetting Opponent Buffer!");
         playerId = GetMultiplayerId();
         PrepareBufferDataTransferLink(2, 4, &playerId);
         gBattleBufferA[gActiveBattler][0] = CONTROLLER_TERMINATOR_NOP;      
@@ -546,6 +543,8 @@ static void LinkOpponentHandleGetMonData(void)
     u32 size = 0;
     u8 monToCheck;
     s32 i;
+
+    MgbaPrintf(MGBA_LOG_INFO, "Link Opponent getting mon data for active battler: %d", gActiveBattler);
 
     if (gBattleBufferA[gActiveBattler][2] == 0)
     {
@@ -1522,7 +1521,6 @@ static void LinkOpponentHandleChooseItem(void)
 
 static void LinkOpponentHandleChooseItemFromBag(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Link opponent used item from bag!");
     BtlController_EmitOneReturnValue(BUFFER_B, *(gBattleStruct->chosenItem + (gActiveBattler / 2) * 2));
     LinkOpponentBufferExecCompleted();
 }
@@ -1596,6 +1594,14 @@ static void LinkOpponentHandleStatusXor(void)
 
 static void LinkOpponentHandleDataTransfer(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Handling link opponent data transfer?");
+    MgbaPrintf(MGBA_LOG_INFO, "Handling data transfer for active mon: %d", gActiveBattler);
+    MgbaPrintf(MGBA_LOG_INFO, "Party index: %d", gBattlerPartyIndexes[gActiveBattler]);
+    
+    if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER)
+    {
+        memcpy(&gEnemyParty[gBattlerPartyIndexes[gActiveBattler]], &gBattleBufferB[gActiveBattler][5], gBattleBufferB[gActiveBattler][3] + (gBattleBufferB[gActiveBattler][4] >> 4));
+    }
     LinkOpponentBufferExecCompleted();
 }
 

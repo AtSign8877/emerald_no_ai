@@ -1952,13 +1952,10 @@ u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 firstTrain
     if (trainerNum == TRAINER_SECRET_BASE)
         return 0;
 
-    MgbaPrintf(MGBA_LOG_INFO, "Battle Type Flags: %d", gBattleTypeFlags);
-
     if (gBattleTypeFlags & BATTLE_TYPE_TRAINER && !(gBattleTypeFlags & (BATTLE_TYPE_FRONTIER
                                                                         | BATTLE_TYPE_EREADER_TRAINER
                                                                         | BATTLE_TYPE_TRAINER_HILL)))
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Reached trainer data creation");
         if (firstTrainer == TRUE) {
             s32 i;
             for (i = 0; i < PARTY_SIZE; i++)
@@ -3018,7 +3015,6 @@ void BeginBattleIntro(void)
 
 static void BattleMainCB1(void)
 {
-    //MgbaPrintf(MGBA_LOG_INFO, "Current battle main func: %d", gBattleMainFunc);
     gBattleMainFunc();
 
     for (gActiveBattler = 0; gActiveBattler < gBattlersCount; gActiveBattler++)
@@ -3665,12 +3661,10 @@ static void BattleIntroOpponent1SendsOutMonAnimation(void)
 
 static void BattleIntroRecordMonsToDex(void)
 {
-    //MgbaPrintf(MGBA_LOG_INFO, "BattleIntroRecordMonsToDex; Controller flags: %d", gBattleControllerExecFlags);
     if (gBattleControllerExecFlags == 0)
     {
         for (gActiveBattler = 0; gActiveBattler < gBattlersCount; gActiveBattler++)
         {
-            MgbaPrintf(MGBA_LOG_INFO, "Active battler, %d", gActiveBattler);
             if (GetBattlerSide(gActiveBattler) == B_SIDE_OPPONENT
              && !(gBattleTypeFlags & (BATTLE_TYPE_EREADER_TRAINER
                                       | BATTLE_TYPE_FRONTIER
