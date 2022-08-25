@@ -1269,6 +1269,8 @@ void BtlController_EmitStatusXor(u8 bufferId, u8 b)
 void BtlController_EmitDataTransfer(u8 bufferId, u16 size, void *data)
 {
     s32 i;
+    
+    MgbaPrintf(MGBA_LOG_INFO, "Emitting data transfer with size %d", size);
 
     sBattleBuffersTransferData[0] = CONTROLLER_DATATRANSFER;
     sBattleBuffersTransferData[1] = CONTROLLER_DATATRANSFER;
@@ -1276,6 +1278,7 @@ void BtlController_EmitDataTransfer(u8 bufferId, u16 size, void *data)
     sBattleBuffersTransferData[3] = (size & 0xFF00) >> 8;
     for (i = 0; i < size; i++)
         sBattleBuffersTransferData[4 + i] = *(u8*)(data++);
+    MgbaPrintf(MGBA_LOG_INFO, "Species at time of emit: %d", (u16)*((u16*) &sBattleBuffersTransferData[4]));
     PrepareBufferDataTransfer(bufferId, sBattleBuffersTransferData, size + 4);
 }
 

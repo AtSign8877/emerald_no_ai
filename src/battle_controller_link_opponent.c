@@ -483,7 +483,7 @@ static void SwitchIn_ShowHealthbox(void)
         FreeSpritePaletteByTag(ANIM_TAG_GOLD_STARS);
 
         StartSpriteAnim(&gSprites[gBattlerSpriteIds[gActiveBattler]], 0);
-
+        MgbaPrintf(MGBA_LOG_INFO, "Link opponent switch in healthbar show!");
         UpdateHealthboxAttribute(gHealthboxSpriteIds[gActiveBattler], &gEnemyParty[gBattlerPartyIndexes[gActiveBattler]], HEALTHBOX_ALL);
         StartHealthboxSlideIn(gActiveBattler);
         SetHealthboxSpriteVisible(gHealthboxSpriteIds[gActiveBattler]);
@@ -597,6 +597,7 @@ static u32 CopyLinkOpponentMonData(u8 monId, u8 *dst)
         battleMon.status1 = GetMonData(&gEnemyParty[monId], MON_DATA_STATUS);
         battleMon.level = GetMonData(&gEnemyParty[monId], MON_DATA_LEVEL);
         battleMon.hp = GetMonData(&gEnemyParty[monId], MON_DATA_HP);
+        MgbaPrintf(MGBA_LOG_INFO, "Copied hp val: %d", battleMon.hp);
         battleMon.maxHP = GetMonData(&gEnemyParty[monId], MON_DATA_MAX_HP);
         battleMon.attack = GetMonData(&gEnemyParty[monId], MON_DATA_ATK);
         battleMon.defense = GetMonData(&gEnemyParty[monId], MON_DATA_DEF);
@@ -1594,13 +1595,21 @@ static void LinkOpponentHandleStatusXor(void)
 
 static void LinkOpponentHandleDataTransfer(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Handling link opponent data transfer?");
-    MgbaPrintf(MGBA_LOG_INFO, "Handling data transfer for active mon: %d", gActiveBattler);
-    MgbaPrintf(MGBA_LOG_INFO, "Party index: %d", gBattlerPartyIndexes[gActiveBattler]);
+    u16 size;
+    u16 partyIndex;
     
-    if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER)
+    size = gBattleBufferA[gActiveBattler][2] + (gBattleBufferA[gActiveBattler][3] << 8);
+    partyIndex = size - sizeof(struct Pokemon);
+    
+    MgbaPrintf(MGBA_LOG_INFO, "Handling link opponent data transfer?");
+    MgbaPrintf(MGBA_LOG_INFO, "Party index: %d", partyIndex);
+    
+    if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER && gBattleBufferA[gActiveBattler][0] == CONTROLLER_DATATRANSFER)
     {
-        memcpy(&gEnemyParty[gBattlerPartyIndexes[gActiveBattler]], &gBattleBufferB[gActiveBattler][5], gBattleBufferB[gActiveBattler][3] + (gBattleBufferB[gActiveBattler][4] >> 4));
+        MgbaPrintf(MGBA_LOG_INFO, "Reached copying (link opponent)");
+        memcpy(&gEnemyParty[partyIndex], &gBattleBufferA[gActiveBattler][4], sizeof(struct Pokemon));
+        gBattleBufferA[gActiveBattler][1] = REQUEST_ALL_BATTLE;
+        CopyLinkOpponentMonData(partyIndex, (u8*) &gBattleMons[gActiveBattler]);
     }
     LinkOpponentBufferExecCompleted();
 }

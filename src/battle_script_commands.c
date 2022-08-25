@@ -1743,6 +1743,8 @@ static void Cmd_attackanimation(void)
     if (gBattleControllerExecFlags)
         return;
 
+    MgbaPrintf(MGBA_LOG_INFO, "hp at the start of attackanimation %d", gBattleMons[gActiveBattler].hp);
+
     if ((gHitMarker & HITMARKER_NO_ANIMATIONS) && (gCurrentMove != MOVE_TRANSFORM && gCurrentMove != MOVE_SUBSTITUTE))
     {
         BattleScriptPush(gBattlescriptCurrInstr + 1);
@@ -1803,6 +1805,8 @@ static void Cmd_healthbarupdate(void)
     if (gBattleControllerExecFlags)
         return;
 
+    MgbaPrintf(MGBA_LOG_INFO, "hp at the start of healthbarupdate %d", gBattleMons[GetBattlerForBattleScript(gBattlescriptCurrInstr[1])].hp);
+
     if (!(gMoveResultFlags & MOVE_RESULT_NO_EFFECT))
     {
         gActiveBattler = GetBattlerForBattleScript(gBattlescriptCurrInstr[1]);
@@ -1841,6 +1845,8 @@ static void Cmd_datahpupdate(void)
     if (gBattleControllerExecFlags)
         return;
 
+    MgbaPrintf(MGBA_LOG_INFO, "hp at the start of datahpupdate %d", gBattleMons[GetBattlerForBattleScript(gBattlescriptCurrInstr[1])].hp);
+
     if (gBattleStruct->dynamicMoveType == 0)
         moveType = gBattleMoves[gCurrentMove].type;
     else if (!(gBattleStruct->dynamicMoveType & F_DYNAMIC_TYPE_1))
@@ -1878,6 +1884,8 @@ static void Cmd_datahpupdate(void)
         }
         else
         {
+            MgbaPrintf(MGBA_LOG_INFO, "hp pre-damage calcs %d", gBattleMons[gActiveBattler].hp);
+            
             gHitMarker &= ~HITMARKER_IGNORE_SUBSTITUTE;
             if (gBattleMoveDamage < 0) // hp goes up
             {
@@ -1947,6 +1955,7 @@ static void Cmd_datahpupdate(void)
                 }
             }
             gHitMarker &= ~HITMARKER_PASSIVE_DAMAGE;
+            MgbaPrintf(MGBA_LOG_INFO, "Damage emit- setting hp to %d", gBattleMons[gActiveBattler].hp);
             BtlController_EmitSetMonData(BUFFER_A, REQUEST_HP_BATTLE, 0, sizeof(gBattleMons[gActiveBattler].hp), &gBattleMons[gActiveBattler].hp);
             MarkBattlerForControllerExec(gActiveBattler);
         }
@@ -4602,8 +4611,11 @@ static void Cmd_switchindataupdate(void)
     oldData = gBattleMons[gActiveBattler];
     monData = (u8*)(&gBattleMons[gActiveBattler]);
 
-    for (i = 0; i < sizeof(struct BattlePokemon); i++)
-        monData[i] = gBattleBufferB[gActiveBattler][4 + i];
+    for (i = 0; i < sizeof(struct BattlePokemon); i++) 
+    {
+        if (i == 0x28) continue; //hp
+        //monData[i] = gBattleBufferB[gActiveBattler][4 + i];
+    }
 
     gBattleMons[gActiveBattler].type1 = gBaseStats[gBattleMons[gActiveBattler].species].type1;
     gBattleMons[gActiveBattler].type2 = gBaseStats[gBattleMons[gActiveBattler].species].type2;
@@ -5529,6 +5541,9 @@ static void Cmd_yesnoboxstoplearningmove(void)
 static void Cmd_hitanimation(void)
 {
     gActiveBattler = GetBattlerForBattleScript(gBattlescriptCurrInstr[1]);
+
+    MgbaPrintf(MGBA_LOG_INFO, "hp at the start of hitanimation %d", gBattleMons[GetBattlerForBattleScript(gBattlescriptCurrInstr[1])].hp);
+
 
     if (gMoveResultFlags & MOVE_RESULT_NO_EFFECT)
     {

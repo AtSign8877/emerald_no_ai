@@ -2356,7 +2356,7 @@ void CB1_OverworldLink(void)
                     gBattleTypeFlags &= ~BATTLE_TYPE_TWO_OPPONENTS;
                     gBattleTypeFlags |= BATTLE_TYPE_TWO_PLAYERS;
                 }
-                
+                gBattleSetupFlag = 1;
                 ResetBlockReceivedFlag(i);
                 if(IsLinkMaster()) 
                     gSpecialVar_0x8005 = 1;                

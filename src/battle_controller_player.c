@@ -1591,10 +1591,12 @@ static void PlayerHandleGetMonData(void)
 
     if (gBattleBufferA[gActiveBattler][2] == 0)
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Copying all with monId being %d", gBattlerPartyIndexes[gActiveBattler]);
         size += CopyPlayerMonData(gBattlerPartyIndexes[gActiveBattler], monData);
     }
     else
     {
+        MgbaPrintf(MGBA_LOG_INFO, "Copying partial");
         monToCheck = gBattleBufferA[gActiveBattler][2];
         for (i = 0; i < PARTY_SIZE; i++)
         {
@@ -1603,8 +1605,29 @@ static void PlayerHandleGetMonData(void)
             monToCheck >>= 1;
         }
     }
-    BtlController_EmitDataTransfer(BUFFER_B, size, monData);
-    PlayerBufferExecCompleted();
+    
+    //BtlController_EmitDataTransfer(BUFFER_B, size, monData);
+    
+    if (gBattleBufferA[gActiveBattler][1] == REQUEST_ALL_BATTLE && !gBattleSetupFlag && (gBattleTypeFlags & BATTLE_TYPE_LINK))
+    {
+        PlayerBufferExecCompleted();
+        
+        MgbaPrintf(MGBA_LOG_INFO, "Copying party index from slot %d", gBattlerPartyIndexes[gActiveBattler]);
+        
+        gBattleBufferA[gActiveBattler][1] = REQUEST_ALL_BATTLE;
+        CopyPlayerMonData(gBattlerPartyIndexes[gActiveBattler], (u8*) &gBattleMons[gActiveBattler]);
+        
+        MgbaPrintf(MGBA_LOG_INFO, "Sanity check for hp: %d", gBattleMons[gActiveBattler].hp);
+        
+        BtlController_EmitDataTransfer(BUFFER_A, sizeof(struct Pokemon) + gBattlerPartyIndexes[gActiveBattler], &gPlayerParty[gBattlerPartyIndexes[gActiveBattler]]);
+        MarkBattlerForControllerExec(gActiveBattler);
+    }
+    else 
+    {
+        BtlController_EmitDataTransfer(BUFFER_B, size, monData);
+        PlayerBufferExecCompleted();
+    }
+        
 }
 
 static u32 CopyPlayerMonData(u8 monId, u8 *dst)
@@ -1640,6 +1663,7 @@ static u32 CopyPlayerMonData(u8 monId, u8 *dst)
         battleMon.status1 = GetMonData(&gPlayerParty[monId], MON_DATA_STATUS);
         battleMon.level = GetMonData(&gPlayerParty[monId], MON_DATA_LEVEL);
         battleMon.hp = GetMonData(&gPlayerParty[monId], MON_DATA_HP);
+        MgbaPrintf(MGBA_LOG_INFO, "Hp at time of copy: %d", battleMon.hp);
         battleMon.maxHP = GetMonData(&gPlayerParty[monId], MON_DATA_MAX_HP);
         battleMon.attack = GetMonData(&gPlayerParty[monId], MON_DATA_ATK);
         battleMon.defense = GetMonData(&gPlayerParty[monId], MON_DATA_DEF);
@@ -2580,6 +2604,8 @@ static void PlayerHandleChooseAction(void)
 {
     s32 i;
 
+    gBattleSetupFlag = 0;
+
     gBattlerControllerFuncs[gActiveBattler] = HandleChooseActionAfterDma3;
     BattleTv_ClearExplosionFaintCause();
     BattlePutTextOnWindow(gText_BattleMenu, B_WIN_ACTION_MENU);
@@ -2789,12 +2815,13 @@ static void PlayerHandleStatusXor(void)
 
 static void PlayerHandleDataTransfer(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Handling data transfer for active mon: %d", gActiveBattler);
+    MgbaPrintf(MGBA_LOG_INFO, "Handling data transfer for active mon: %d and species: %d", gActiveBattler, (u16)*((u16*) &gBattleBufferA[gActiveBattler][4]));
     MgbaPrintf(MGBA_LOG_INFO, "Party index: %d", gBattlerPartyIndexes[gActiveBattler]);
     
-    if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER)
+    if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER && gBattleBufferA[gActiveBattler][0] == CONTROLLER_DATATRANSFER)
     {
-        memcpy(&gEnemyParty[gBattlerPartyIndexes[gActiveBattler]], &gBattleBufferB[gActiveBattler][5], gBattleBufferB[gActiveBattler][3] + (gBattleBufferB[gActiveBattler][4] >> 4));
+        MgbaPrintf(MGBA_LOG_INFO, "Copying reached!");
+        memcpy(&gEnemyParty[gBattlerPartyIndexes[gActiveBattler]], &gBattleBufferA[gActiveBattler][4], gBattleBufferA[gActiveBattler][2] + (gBattleBufferA[gActiveBattler][3] << 8));
     }
     PlayerBufferExecCompleted();
 }

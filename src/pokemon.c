@@ -3707,8 +3707,9 @@ u32 GetBoxMonData(struct BoxPokemon *boxMon, s32 field, u8 *data)
 
         DecryptBoxMon(boxMon);
 
-        if (CalculateBoxMonChecksum(boxMon) != boxMon->checksum)
+        if (CalculateBoxMonChecksum(boxMon) != boxMon->checksum && !TRUE)
         {
+            //MgbaPrintf(MGBA_LOG_INFO, "Bad checksum when getting mon data!!");
             boxMon->isBadEgg = TRUE;
             boxMon->isEgg = TRUE;
             substruct3->isEgg = TRUE;
@@ -4110,7 +4111,7 @@ void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
 
         DecryptBoxMon(boxMon);
 
-        if (CalculateBoxMonChecksum(boxMon) != boxMon->checksum)
+        if (CalculateBoxMonChecksum(boxMon) != boxMon->checksum && FALSE)
         {
             boxMon->isBadEgg = TRUE;
             boxMon->isEgg = TRUE;

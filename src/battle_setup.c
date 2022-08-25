@@ -110,6 +110,7 @@ EWRAM_DATA static u8 *sTrainerABattleScriptRetAddr = NULL;
 EWRAM_DATA static u8 *sTrainerBBattleScriptRetAddr = NULL;
 EWRAM_DATA static bool8 sShouldCheckTrainerBScript = FALSE;
 EWRAM_DATA static u8 sNoOfPossibleTrainerRetScripts = 0;
+EWRAM_DATA bool8 gBattleSetupFlag = 0;
 
 // The first transition is used if the enemy pokemon are lower level than our pokemon.
 // Otherwise, the second transition is used.
@@ -1289,6 +1290,8 @@ void BattleSetup_StartTrainerBattle(void)
 
     gBattleTypeFlags |= gTrainers[gTrainerBattleOpponent_A].doubleBattle;
 
+    gBattleSetupFlag = 1;
+
     transitionType = GetTrainerBattleTransition();
     IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
     IncrementGameStat(GAME_STAT_TRAINER_BATTLES);
@@ -1309,8 +1312,6 @@ void BattleSetup_StartTrainerBattle(void)
     }
     else 
         gSpecialVar_0x8005 = 0;
-
-    MgbaPrintf(MGBA_LOG_INFO, "gBattleTypeFlags: %d", gBattleTypeFlags);
 
     sNoOfPossibleTrainerRetScripts = gNoOfApproachingTrainers;
     gNoOfApproachingTrainers = 0;

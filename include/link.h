@@ -329,6 +329,7 @@ extern u8 gBlockRequestType;
 extern u8 gLastSendQueueCount;
 extern u8 gLastRecvQueueCount;
 extern u16 gLinkSavedIme;
+extern bool8 gBattleSetupFlag;
 extern struct LinkPlayer gLocalLinkPlayer;
 
 bool32 Link_AnyPartnersPlayingRubyOrSapphire(void);
