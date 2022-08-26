@@ -107,6 +107,8 @@ void HandleIntroSlide(u8 terrain)
 {  
     u8 taskId;
 
+    MgbaPrintf(MGBA_LOG_INFO, "Handling Intro slide with terrain %d", terrain);
+
     if ((gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) && gPartnerTrainerId != TRAINER_STEVEN_PARTNER)
     {
         taskId = CreateTask(BattleIntroSlidePartner, 0);

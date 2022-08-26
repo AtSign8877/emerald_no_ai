@@ -648,6 +648,8 @@ u8 BattleSetup_GetTerrainId(void)
     PlayerGetDestCoords(&x, &y);
     tileBehavior = MapGridGetMetatileBehaviorAt(x, y);
 
+    MgbaPrintf(MGBA_LOG_INFO, "Metatile behaviour: %d,  Map Type: %d", tileBehavior, gMapHeader.mapType);
+
     if (MetatileBehavior_IsTallGrass(tileBehavior))
         return BATTLE_TERRAIN_GRASS;
     if (MetatileBehavior_IsLongGrass(tileBehavior))
@@ -655,7 +657,7 @@ u8 BattleSetup_GetTerrainId(void)
     if (MetatileBehavior_IsSandOrDeepSand(tileBehavior))
         return BATTLE_TERRAIN_SAND;
 
-    MgbaPrintf(MGBA_LOG_INFO, "Metatile behaviour: %d,  Map Type: %d", tileBehavior, gMapHeader.mapType);
+    
 
     switch (gMapHeader.mapType)
     {

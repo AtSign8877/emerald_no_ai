@@ -89,6 +89,7 @@ struct TrainerInfoBlock
     u16 trainerIdB;
     u16 battleFlags;
     u8 terrain;
+    u8 scene; //this mostly matters for special areas like gyms, e4 rooms, and legendary areas
 };
 
 
@@ -198,6 +199,7 @@ static u8 sPlayerLinkStates[MAX_LINK_PLAYERS];
 static u16 (*sPlayerKeyInterceptCallback)(u32);
 static bool8 sReceivingFromLink;
 static u8 sRfuKeepAliveTimer;
+static u8 sBattleScene;
 
 u16 *gOverworldTilemapBuffer_Bg2;
 u16 *gOverworldTilemapBuffer_Bg1;
@@ -1402,6 +1404,7 @@ u8 GetCurrentRegionMapSectionId(void)
 
 u8 GetCurrentMapBattleScene(void)
 {
+    if (!IsLinkMaster()) return sBattleScene;
     return Overworld_GetMapHeaderByGroupAndId(gSaveBlock1Ptr->location.mapGroup, gSaveBlock1Ptr->location.mapNum)->battleType;
 }
 
@@ -2346,6 +2349,8 @@ void CB1_OverworldLink(void)
                 if (!trainerInfo->init) continue;
                 trainerInfo->init = FALSE;
                 gBattleTerrain = trainerInfo->terrain;
+                sBattleScene = trainerInfo->scene;
+                MgbaPrintf(MGBA_LOG_INFO, "Gotten terrain ID: %d", gBattleTerrain);
                 gBattleTypeFlags = trainerInfo->battleFlags;
                 CreateNPCTrainerParty(&gPlayerParty[0], trainerInfo->trainerId, TRUE);
                 gTrainerBattleOpponent_A_backup = trainerInfo->trainerId;
@@ -2766,9 +2771,9 @@ static u16 KeyInterCB_SetReadyAndSendParty(u32 key)
     trainerInfo.trainerId = gTrainerBattleOpponent_A;
     trainerInfo.trainerIdB = gTrainerBattleOpponent_B;
     trainerInfo.battleFlags = gBattleTypeFlags;
+    gBattleTerrain = BattleSetup_GetTerrainId();
     trainerInfo.terrain = gBattleTerrain;
-    
-    MgbaPrintf(MGBA_LOG_INFO, "Sending over trainer ID %d", trainerInfo.trainerId);
+    trainerInfo.scene = GetCurrentMapBattleScene();
     
     SendBlock(-1, &trainerInfo, sizeof(trainerInfo));
     
