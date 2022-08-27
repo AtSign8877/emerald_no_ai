@@ -2191,7 +2191,7 @@ void BufferStringBattle(u16 stringID)
         }
         else
         {
-            if (gTrainerBattleOpponent_A == TRAINER_LINK_OPPONENT || gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK)
+            if ((gTrainerBattleOpponent_A == TRAINER_LINK_OPPONENT && !IsLinkMaster()) || gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK)
             {
                 if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
                     stringPtr = sText_LinkTrainer2WithdrewPkmn;
@@ -2231,7 +2231,7 @@ void BufferStringBattle(u16 stringID)
                 {
                     if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
                         stringPtr = sText_LinkTrainerMultiSentOutPkmn;
-                    else if (gTrainerBattleOpponent_A == TRAINER_UNION_ROOM)
+                    else if (gTrainerBattleOpponent_A == TRAINER_UNION_ROOM || IsLinkMaster())
                         stringPtr = sText_Trainer1SentOutPkmn2;
                     else
                         stringPtr = sText_LinkTrainerSentOutPkmn2;
@@ -2321,10 +2321,16 @@ void BufferStringBattle(u16 stringID)
                 switch (gBattleTextBuff1[0])
                 {
                 case B_OUTCOME_WON:
-                    stringPtr = sText_PlayerDefeatedLinkTrainer;
+                    if (!IsLinkMaster())
+                        stringPtr = sText_PlayerDefeatedLinkTrainer;
+                    else 
+                        stringPtr = sText_PlayerDefeatedLinkTrainerTrainer1;
                     break;
                 case B_OUTCOME_LOST:
-                    stringPtr = sText_PlayerLostAgainstLinkTrainer;
+                    if (!IsLinkMaster())
+                        stringPtr = sText_PlayerLostAgainstLinkTrainer;
+                    else 
+                        stringPtr = sText_PlayerLostAgainstTrainer1;
                     break;
                 case B_OUTCOME_DREW:
                     stringPtr = sText_PlayerBattledToDrawLinkTrainer;
