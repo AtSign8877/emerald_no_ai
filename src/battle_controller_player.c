@@ -1587,39 +1587,40 @@ static void PlayerHandleGetMonData(void)
     u8 monToCheck;
     s32 i;
 
-    MgbaPrintf(MGBA_LOG_INFO, "Player getting mon data for active battler: %d", gActiveBattler);
+    u32 index = 0;
 
     if (gBattleBufferA[gActiveBattler][2] == 0)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Copying all with monId being %d", gBattlerPartyIndexes[gActiveBattler]);
         size += CopyPlayerMonData(gBattlerPartyIndexes[gActiveBattler], monData);
+        index = gBattlerPartyIndexes[gActiveBattler];
     }
     else
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Copying partial");
         monToCheck = gBattleBufferA[gActiveBattler][2];
         for (i = 0; i < PARTY_SIZE; i++)
         {
-            if (monToCheck & 1)
+            if (monToCheck & 1) 
+            {
+                index = i;
                 size += CopyPlayerMonData(i, monData + size);
+            }
             monToCheck >>= 1;
         }
     }
-    
-    //BtlController_EmitDataTransfer(BUFFER_B, size, monData);
     
     if (gBattleBufferA[gActiveBattler][1] == REQUEST_ALL_BATTLE && !gBattleSetupFlag && (gBattleTypeFlags & BATTLE_TYPE_LINK))
     {
         PlayerBufferExecCompleted();
         
-        MgbaPrintf(MGBA_LOG_INFO, "Copying party index from slot %d", gBattlerPartyIndexes[gActiveBattler]);
+        if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER) return;
+        
+        MgbaPrintf(MGBA_LOG_INFO, "Player getting mon data for active battler: %d and index: %d", gActiveBattler, index);
+        MgbaPrintf(MGBA_LOG_INFO, "Struct 3 size: %d", sizeof(struct PokemonSubstruct3));
         
         gBattleBufferA[gActiveBattler][1] = REQUEST_ALL_BATTLE;
-        CopyPlayerMonData(gBattlerPartyIndexes[gActiveBattler], (u8*) &gBattleMons[gActiveBattler]);
+        CopyPlayerMonData(index, (u8*) &gBattleMons[gActiveBattler]);
         
-        MgbaPrintf(MGBA_LOG_INFO, "Sanity check for hp: %d", gBattleMons[gActiveBattler].hp);
-        
-        BtlController_EmitDataTransfer(BUFFER_A, sizeof(struct Pokemon) + gBattlerPartyIndexes[gActiveBattler], &gPlayerParty[gBattlerPartyIndexes[gActiveBattler]]);
+        BtlController_EmitDataTransfer(BUFFER_A, sizeof(struct Pokemon) + index, &gPlayerParty[index]);
         MarkBattlerForControllerExec(gActiveBattler);
     }
     else 
@@ -1643,6 +1644,7 @@ static u32 CopyPlayerMonData(u8 monId, u8 *dst)
     switch (gBattleBufferA[gActiveBattler][1])
     {
     case REQUEST_ALL_BATTLE:
+        MgbaPrintf(MGBA_LOG_INFO, "Mon Id: %d", monId);
         battleMon.species = GetMonData(&gPlayerParty[monId], MON_DATA_SPECIES);
         battleMon.item = GetMonData(&gPlayerParty[monId], MON_DATA_HELD_ITEM);
         for (size = 0; size < MAX_MON_MOVES; size++)
@@ -1663,8 +1665,8 @@ static u32 CopyPlayerMonData(u8 monId, u8 *dst)
         battleMon.status1 = GetMonData(&gPlayerParty[monId], MON_DATA_STATUS);
         battleMon.level = GetMonData(&gPlayerParty[monId], MON_DATA_LEVEL);
         battleMon.hp = GetMonData(&gPlayerParty[monId], MON_DATA_HP);
-        MgbaPrintf(MGBA_LOG_INFO, "Hp at time of copy: %d", battleMon.hp);
         battleMon.maxHP = GetMonData(&gPlayerParty[monId], MON_DATA_MAX_HP);
+        MgbaPrintf(MGBA_LOG_INFO, "Max HP: %d", battleMon.maxHP);
         battleMon.attack = GetMonData(&gPlayerParty[monId], MON_DATA_ATK);
         battleMon.defense = GetMonData(&gPlayerParty[monId], MON_DATA_DEF);
         battleMon.speed = GetMonData(&gPlayerParty[monId], MON_DATA_SPEED);
@@ -2815,14 +2817,6 @@ static void PlayerHandleStatusXor(void)
 
 static void PlayerHandleDataTransfer(void)
 {
-    MgbaPrintf(MGBA_LOG_INFO, "Handling data transfer for active mon: %d and species: %d", gActiveBattler, (u16)*((u16*) &gBattleBufferA[gActiveBattler][4]));
-    MgbaPrintf(MGBA_LOG_INFO, "Party index: %d", gBattlerPartyIndexes[gActiveBattler]);
-    
-    if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER && gBattleBufferA[gActiveBattler][0] == CONTROLLER_DATATRANSFER)
-    {
-        MgbaPrintf(MGBA_LOG_INFO, "Copying reached!");
-        memcpy(&gEnemyParty[gBattlerPartyIndexes[gActiveBattler]], &gBattleBufferA[gActiveBattler][4], gBattleBufferA[gActiveBattler][2] + (gBattleBufferA[gActiveBattler][3] << 8));
-    }
     PlayerBufferExecCompleted();
 }
 

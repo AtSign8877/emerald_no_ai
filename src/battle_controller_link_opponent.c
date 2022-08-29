@@ -577,7 +577,11 @@ static u32 CopyLinkOpponentMonData(u8 monId, u8 *dst)
     switch (gBattleBufferA[gActiveBattler][1])
     {
     case REQUEST_ALL_BATTLE:
+        src = (u8 *)&battleMon;
+        for (size = 0; size < sizeof(battleMon); size++)
+            src[size] = 0;
         battleMon.species = GetMonData(&gEnemyParty[monId], MON_DATA_SPECIES);
+        MgbaPrintf(MGBA_LOG_INFO, "Species: %d", battleMon.species);
         battleMon.item = GetMonData(&gEnemyParty[monId], MON_DATA_HELD_ITEM);
         for (size = 0; size < MAX_MON_MOVES; size++)
         {
@@ -597,7 +601,6 @@ static u32 CopyLinkOpponentMonData(u8 monId, u8 *dst)
         battleMon.status1 = GetMonData(&gEnemyParty[monId], MON_DATA_STATUS);
         battleMon.level = GetMonData(&gEnemyParty[monId], MON_DATA_LEVEL);
         battleMon.hp = GetMonData(&gEnemyParty[monId], MON_DATA_HP);
-        MgbaPrintf(MGBA_LOG_INFO, "Copied hp val: %d", battleMon.hp);
         battleMon.maxHP = GetMonData(&gEnemyParty[monId], MON_DATA_MAX_HP);
         battleMon.attack = GetMonData(&gEnemyParty[monId], MON_DATA_ATK);
         battleMon.defense = GetMonData(&gEnemyParty[monId], MON_DATA_DEF);
@@ -610,9 +613,16 @@ static u32 CopyLinkOpponentMonData(u8 monId, u8 *dst)
         GetMonData(&gEnemyParty[monId], MON_DATA_NICKNAME, nickname);
         StringCopy_Nickname(battleMon.nickname, nickname);
         GetMonData(&gEnemyParty[monId], MON_DATA_OT_NAME, battleMon.otName);
-        src = (u8 *)&battleMon;
+        for (size = 0; size < NUM_BATTLE_STATS; size++)
+            battleMon.statStages[size] = 6;
         for (size = 0; size < sizeof(battleMon); size++)
             dst[size] = src[size];
+        //A lot of the data that gets changed on switch in instead of right here isn't properly updated and uses dummy or otherwise corrupted data
+        //This only applies to when Jan sends in a mon
+        gBattleMons[gActiveBattler].ability = GetAbilityBySpecies(gBattleMons[gActiveBattler].species, gBattleMons[gActiveBattler].abilityNum);
+        gBattleMons[gActiveBattler].type1 = gBaseStats[gBattleMons[gActiveBattler].species].type1;
+        gBattleMons[gActiveBattler].type2 = gBaseStats[gBattleMons[gActiveBattler].species].type2;
+        
         break;
     case REQUEST_SPECIES_BATTLE:
         data16 = GetMonData(&gEnemyParty[monId], MON_DATA_SPECIES);
@@ -1595,6 +1605,7 @@ static void LinkOpponentHandleStatusXor(void)
 
 static void LinkOpponentHandleDataTransfer(void)
 {
+    u8 temp;
     u16 size;
     u16 partyIndex;
     
@@ -1602,14 +1613,15 @@ static void LinkOpponentHandleDataTransfer(void)
     partyIndex = size - sizeof(struct Pokemon);
     
     MgbaPrintf(MGBA_LOG_INFO, "Handling link opponent data transfer?");
-    MgbaPrintf(MGBA_LOG_INFO, "Party index: %d", partyIndex);
     
     if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER && gBattleBufferA[gActiveBattler][0] == CONTROLLER_DATATRANSFER)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Reached copying (link opponent)");
+        MgbaPrintf(MGBA_LOG_INFO, "Reached copying (link opponent) in index %d and active battler %d", partyIndex, gActiveBattler);
         memcpy(&gEnemyParty[partyIndex], &gBattleBufferA[gActiveBattler][4], sizeof(struct Pokemon));
+        temp = gBattleBufferA[gActiveBattler][1];
         gBattleBufferA[gActiveBattler][1] = REQUEST_ALL_BATTLE;
         CopyLinkOpponentMonData(partyIndex, (u8*) &gBattleMons[gActiveBattler]);
+        gBattleBufferA[gActiveBattler][1] = temp;
     }
     LinkOpponentBufferExecCompleted();
 }

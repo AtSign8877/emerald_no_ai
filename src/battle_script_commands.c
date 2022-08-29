@@ -4613,7 +4613,6 @@ static void Cmd_switchindataupdate(void)
 
     for (i = 0; i < sizeof(struct BattlePokemon); i++) 
     {
-        if (i == 0x28) continue; //hp
         //monData[i] = gBattleBufferB[gActiveBattler][4 + i];
     }
 
