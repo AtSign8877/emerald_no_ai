@@ -1345,9 +1345,9 @@ static void LinkOpponentHandleTrainerSlide(void)
     u32 trainerPicId;
 
     if (gActiveBattler == 1)
-        trainerPicId = GetFrontierTrainerFrontSpriteId(gTrainerBattleOpponent_A);
+        trainerPicId = gTrainers[gTrainerBattleOpponent_A_backup].trainerPic;
     else
-        trainerPicId = GetFrontierTrainerFrontSpriteId(gTrainerBattleOpponent_B);
+        trainerPicId = gTrainers[gTrainerBattleOpponent_B_backup].trainerPic;
 
     DecompressTrainerFrontPic(trainerPicId, gActiveBattler);
     SetMultiuseSpriteTemplateToTrainerBack(trainerPicId, GetBattlerPosition(gActiveBattler));

@@ -3515,6 +3515,7 @@ static void Cmd_checkteamslost(void)
     u16 HP_count = 0;
     s32 i;
 
+    MgbaPrintf(MGBA_LOG_INFO, "In Check Teams Lost");
     if (gBattleControllerExecFlags)
         return;
 
@@ -3539,8 +3540,10 @@ static void Cmd_checkteamslost(void)
             }
         }
     }
-    if (HP_count == 0)
+    if (HP_count == 0) {
+        MgbaPrintf(MGBA_LOG_INFO, "Battle Lost!");
         gBattleOutcome |= B_OUTCOME_LOST;
+    }
     HP_count = 0;
 
     // Get total HP for the enemy's party to determine if the player has won
@@ -3552,8 +3555,10 @@ static void Cmd_checkteamslost(void)
             HP_count += GetMonData(&gEnemyParty[i], MON_DATA_HP);
         }
     }
-    if (HP_count == 0)
+    if (HP_count == 0) {
+        MgbaPrintf(MGBA_LOG_INFO, "Battle Won!");
         gBattleOutcome |= B_OUTCOME_WON;
+    }
 
     // For link battles that haven't ended, count number of empty battler spots
     // In link multi battles, jump to pointer if more than 1 spot empty
@@ -3562,6 +3567,7 @@ static void Cmd_checkteamslost(void)
     {
         s32 emptyPlayerSpots = 0;
         s32 emptyOpponentSpots;
+        MgbaPrintf(MGBA_LOG_INFO, "Link Battle hasnt ended?");
 
         for (i = 0; i < gBattlersCount; i += 2)
         {
@@ -5619,9 +5625,9 @@ static u32 GetTrainerMoneyToGive(u16 trainerId)
 
 static void Cmd_getmoneyreward(void)
 {
-    u32 moneyReward = GetTrainerMoneyToGive(gTrainerBattleOpponent_A);
+    u32 moneyReward = GetTrainerMoneyToGive(gTrainerBattleOpponent_A_backup);
     if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
-        moneyReward += GetTrainerMoneyToGive(gTrainerBattleOpponent_B);
+        moneyReward += GetTrainerMoneyToGive(gTrainerBattleOpponent_B_backup);
 
     AddMoney(&gSaveBlock1Ptr->money, moneyReward);
     PREPARE_WORD_NUMBER_BUFFER(gBattleTextBuff1, 5, moneyReward);
@@ -7390,6 +7396,7 @@ static void Cmd_givepaydaymoney(void)
     if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK)) && gPaydayMoney != 0)
     {
         u32 bonusMoney = gPaydayMoney * gBattleStruct->moneyMultiplier;
+        MgbaPrintf(MGBA_LOG_INFO, "In give pay day??");
         AddMoney(&gSaveBlock1Ptr->money, bonusMoney);
 
         PREPARE_HWORD_NUMBER_BUFFER(gBattleTextBuff1, 5, bonusMoney)
@@ -7399,6 +7406,7 @@ static void Cmd_givepaydaymoney(void)
     }
     else
     {
+        MgbaPrintf(MGBA_LOG_INFO, "In give pay day??");
         gBattlescriptCurrInstr++;
     }
 }

@@ -33,6 +33,7 @@
 #include "constants/songs.h"
 #include "constants/rgb.h"
 #include "constants/items.h"
+#include "mgba_printf/mgba.h"
 
 extern struct Evolution gEvolutionTable[][EVOS_PER_MON];
 
@@ -214,6 +215,7 @@ void EvolutionScene(struct Pokemon* mon, u16 postEvoSpecies, bool8 canStopEvo, u
     const struct CompressedSpritePalette* pokePal;
     u8 ID;
 
+    //MgbaPrintf(MGBA_LOG_INFO, "Start In Evolution Scene");
     SetHBlankCallback(NULL);
     SetVBlankCallback(NULL);
     CpuFill32(0, (void*)(VRAM), VRAM_SIZE);
@@ -633,6 +635,7 @@ static void Task_EvolutionScene(u8 taskId)
 {
     u32 var;
     struct Pokemon* mon = &gPlayerParty[gTasks[taskId].tPartyId];
+    //MgbaPrintf(MGBA_LOG_INFO, "In Task_EvolutionScene");
 
     // check if B Button was held, so the evolution gets stopped
     if (gMain.heldKeys == B_BUTTON

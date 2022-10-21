@@ -862,6 +862,7 @@ static void SetLinkBattleEndCallbacks(void)
             if (gBattleOutcome == B_OUTCOME_WON)
                 TryPutLinkBattleTvShowOnAir();
             FreeAllWindowBuffers();
+            gBattlerControllerFuncs[gActiveBattler] = PlayerCmdEnd;
         }
     }
     else
@@ -875,8 +876,10 @@ static void SetLinkBattleEndCallbacks(void)
             if (gBattleOutcome == B_OUTCOME_WON)
                 TryPutLinkBattleTvShowOnAir();
             FreeAllWindowBuffers();
+            gBattlerControllerFuncs[gActiveBattler] = PlayerCmdEnd;
         }
     }
+    
 }
 
 // Despite handling link battles separately, this is only ever used by link battles
@@ -888,8 +891,10 @@ void SetBattleEndCallbacks(void)
         {
             if (IsLinkTaskFinished())
             {
-                if (gWirelessCommType == 0)
+                if (gWirelessCommType == 0) {
+                    MgbaPrintf(MGBA_LOG_INFO, "Set Battle End Callbacks Close Link");
                     SetCloseLinkCallback();
+                }
                 else
                     SetLinkStandbyCallback();
 
@@ -3187,6 +3192,7 @@ static void PlayerHandleResetActionMoveSelection(void)
 
 static void PlayerHandleEndLinkBattle(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Player Handle End Link Battle!");
     RecordedBattle_RecordAllBattlerData(&gBattleBufferA[gActiveBattler][4]);
     gBattleOutcome = gBattleBufferA[gActiveBattler][1];
     gSaveBlock2Ptr->frontier.disableRecordBattle = gBattleBufferA[gActiveBattler][2];

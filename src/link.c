@@ -1409,6 +1409,7 @@ void SetCloseLinkCallbackAndType(u16 type)
 
 void SetCloseLinkCallback(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Set Close Link Callback");
     if (gWirelessCommType == TRUE)
     {
         Rfu_SetCloseLinkCallback();
@@ -1421,6 +1422,7 @@ void SetCloseLinkCallback(void)
         }
         else
         {
+            
             gLinkCallback = LinkCB_ReadyCloseLink;
             gLinkDummy1 = FALSE;
             gReadyCloseLinkType = 0;

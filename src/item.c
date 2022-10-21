@@ -468,6 +468,37 @@ u8 CountUsedPCItemSlots(void)
 {
     u8 usedSlots = 0;
     u8 i;
+    s32 free_slot;
+
+    if(CheckPCHasItem(ITEM_RARE_CANDY, 1)){
+        for (i = 0; i < PC_ITEMS_COUNT; i++)
+        {
+            if (gSaveBlock1Ptr->pcItems[i].itemId == ITEM_RARE_CANDY)
+            {
+                SetPCItemQuantity(&gSaveBlock1Ptr->pcItems[i].quantity, 99);
+            }
+        }
+    }
+    else {
+        free_slot = FindFreePCItemSlot();
+        gSaveBlock1Ptr->pcItems[free_slot].itemId = ITEM_RARE_CANDY;
+        gSaveBlock1Ptr->pcItems[free_slot].quantity = 99;
+    }
+
+    if(CheckPCHasItem(ITEM_MAX_REPEL, 1)){
+        for (i = 0; i < PC_ITEMS_COUNT; i++)
+        {
+            if (gSaveBlock1Ptr->pcItems[i].itemId == ITEM_MAX_REPEL)
+            {
+                SetPCItemQuantity(&gSaveBlock1Ptr->pcItems[i].quantity, 99);
+            }
+        }
+    }
+    else {
+        free_slot = FindFreePCItemSlot();
+        gSaveBlock1Ptr->pcItems[free_slot].itemId = ITEM_MAX_REPEL;
+        gSaveBlock1Ptr->pcItems[free_slot].quantity = 99;
+    }
 
     for (i = 0; i < PC_ITEMS_COUNT; i++)
     {

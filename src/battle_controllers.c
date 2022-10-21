@@ -718,7 +718,7 @@ void PrepareBufferDataTransferLink(u8 bufferId, u16 size, u8 *data)
 {
     s32 alignedSize;
     s32 i;
-
+    
     alignedSize = size - size % 4 + 4;
     if (gTasks[sLinkSendTaskId].tSendBufferOffset + alignedSize + LINK_BUFF_DATA + 1 > BATTLE_BUFFER_LINK_SIZE)
     {

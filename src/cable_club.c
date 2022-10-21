@@ -1373,7 +1373,7 @@ void Task_WaitForLinkPlayerConnection(u8 taskId)
     struct Task *task = &gTasks[taskId];
 
     task->tTimer++;
-    if (task->tTimer > 300)
+    if (task->tTimer > 3000)
     {
         MgbaPrintf(MGBA_LOG_INFO, "Closing link in Task_WaitForLinkPlayerConnection, first instance");
         CloseLink();

@@ -112,7 +112,9 @@ static void CheckFocusPunch_ClearVarsBeforeTurnStarts(void);
 static void FreeResetData_ReturnToOvOrDoEvolutions(void);
 static void ReturnFromBattleToOverworld(void);
 static void TryEvolvePokemon(void);
+static void TryEvolvePokemonLink(void);
 static void WaitForEvoSceneToFinish(void);
+static void WaitForEvoSceneToFinishLink(void);
 static void HandleEndTurn_ContinueBattle(void);
 static void HandleEndTurn_BattleWon(void);
 static void HandleEndTurn_BattleLost(void);
@@ -2250,7 +2252,7 @@ static void CB2_EndLinkBattle(void)
 }
 
 static void EndLinkBattleInSteps(void)
-{
+{   
     s32 i;
 
     switch (gBattleCommunication[MULTIUSE_STATE])
@@ -2259,7 +2261,7 @@ static void EndLinkBattleInSteps(void)
         ShowBg(0);
         ShowBg(1);
         ShowBg(2);
-        gBattleCommunication[1] = 0xFF;
+        gBattleCommunication[1] = 1;
         gBattleCommunication[MULTIUSE_STATE]++;
         break;
     case 1:
@@ -2294,10 +2296,13 @@ static void EndLinkBattleInSteps(void)
                 else if (!gMain.anyLinkBattlerHasFrontierPass)
                 {
                     // No players can record this battle, end
-                    SetMainCallback2(gMain.savedCallback);
+                    gMain.callback1 = BattleMainCB1;
+                    SetMainCallback2(BattleMainCB2);
+                    gBattleMainFunc = TryEvolvePokemonLink;
                     FreeBattleResources();
                     FreeBattleSpritesData();
                     FreeMonSpritesGfx();
+                    gCB2_AfterEvolution = BattleMainCB2;
                 }
                 else if (gReceivedRemoteLinkPlayers == 0)
                 {
@@ -2313,10 +2318,13 @@ static void EndLinkBattleInSteps(void)
             }
             else
             {
-                SetMainCallback2(gMain.savedCallback);
+                gMain.callback1 = BattleMainCB1;
+                SetMainCallback2(BattleMainCB2);
+                gBattleMainFunc = TryEvolvePokemonLink;
                 FreeBattleResources();
                 FreeBattleSpritesData();
                 FreeMonSpritesGfx();
+                gCB2_AfterEvolution = BattleMainCB2;
             }
         }
         break;
@@ -2353,20 +2361,76 @@ static void EndLinkBattleInSteps(void)
         }
         break;
     case 8:
-        if (!gWirelessCommType)
+        if (!gWirelessCommType) {
+            MgbaPrintf(MGBA_LOG_INFO, "Battle Main Trying to Close Link?");
             SetCloseLinkCallback();
+        }
         gBattleCommunication[MULTIUSE_STATE]++;
         break;
     case 9:
         if (!gMain.anyLinkBattlerHasFrontierPass || gWirelessCommType || gReceivedRemoteLinkPlayers != 1)
         {
+            SetMainCallback2(BattleMainCB2);
+            gMain.callback1 = BattleMainCB1;
             gMain.anyLinkBattlerHasFrontierPass = FALSE;
-            SetMainCallback2(gMain.savedCallback);
+            gBattleMainFunc = TryEvolvePokemonLink;
             FreeBattleResources();
             FreeBattleSpritesData();
             FreeMonSpritesGfx();
+            gCB2_AfterEvolution = BattleMainCB2;
         }
         break;
+    case 10:
+        SetMainCallback2(gMain.savedCallback);
+        break;
+    }
+}
+
+static void TryEvolvePokemonLink(void)
+{
+    s32 i;
+    SetMainCallback2(BattleMainCB2);
+
+    while (gLeveledUpInBattle != 0)
+    {
+        for (i = 0; i < PARTY_SIZE; i++)
+        {
+            if (gLeveledUpInBattle & gBitTable[i])
+            {
+                u16 species;
+                u8 levelUpBits = gLeveledUpInBattle;
+
+                levelUpBits &= ~(gBitTable[i]);
+                gLeveledUpInBattle = levelUpBits;
+
+                species = GetEvolutionTargetSpecies(&gPlayerParty[i], EVO_MODE_NORMAL, levelUpBits);
+                if (species != SPECIES_NONE)
+                {
+                    gSoftResetDisabled = TRUE;
+                    MgbaPrintf(MGBA_LOG_INFO, "Do Evolve");
+                    FreeAllWindowBuffers();
+                    gBattleMainFunc = WaitForEvoSceneToFinishLink;
+                    EvolutionScene(&gPlayerParty[i], species, TRUE, i);
+                    return;
+                }
+            }
+        }
+    }
+
+    MgbaPrintf(MGBA_LOG_INFO, "Finished Try Level Up");
+    gBattleMainFunc = ReturnFromBattleToOverworld;
+    gBattleCommunication[MULTIUSE_STATE] = 10;
+    gMain.callback1 = gPreBattleCallback1;
+    EndLinkBattleInSteps();
+}
+
+
+static void WaitForEvoSceneToFinishLink(void)
+{
+    if (gMain.callback2 == BattleMainCB2) {
+        MgbaPrintf(MGBA_LOG_INFO, "Finish Evolve");
+        gSoftResetDisabled = FALSE;
+        gBattleMainFunc = TryEvolvePokemonLink;
     }
 }
 
@@ -2559,8 +2623,10 @@ static void AskRecordBattle(void)
     case STATE_WAIT_END:
         if (--gBattleCommunication[1] == 0)
         {
-            if (gMain.anyLinkBattlerHasFrontierPass && !gWirelessCommType)
+            if (gMain.anyLinkBattlerHasFrontierPass && !gWirelessCommType) {
+                MgbaPrintf(MGBA_LOG_INFO, "Ask Record Trying to Close Link?");
                 SetCloseLinkCallback();
+            }
             gBattleCommunication[MULTIUSE_STATE]++;
         }
         break;
@@ -4914,6 +4980,7 @@ static void RunTurnActionsFunctions(void)
     {
         gHitMarker &= ~HITMARKER_PASSIVE_DAMAGE;
         gBattleMainFunc = sEndTurnFuncsTable[gBattleOutcome & 0x7F];
+        MgbaPrintf(MGBA_LOG_INFO, "gBattleMainFunc is setting sEndTurnFuncsTable %d", gBattleOutcome & 0x7F);
     }
     else
     {
@@ -4928,14 +4995,39 @@ static void RunTurnActionsFunctions(void)
 static void HandleEndTurn_BattleWon(void)
 {
     gCurrentActionFuncId = 0;
+    MgbaPrintf(MGBA_LOG_INFO, "HandleEndTurn_BattleWon");
 
     if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK))
     {
+        BattleStopLowHpSound();
+
+        switch (gTrainers[gTrainerBattleOpponent_A_backup].trainerClass)
+        {
+        case TRAINER_CLASS_ELITE_FOUR:
+        case TRAINER_CLASS_CHAMPION:
+            PlayBGM(MUS_VICTORY_LEAGUE);
+            break;
+        case TRAINER_CLASS_TEAM_AQUA:
+        case TRAINER_CLASS_TEAM_MAGMA:
+        case TRAINER_CLASS_AQUA_ADMIN:
+        case TRAINER_CLASS_AQUA_LEADER:
+        case TRAINER_CLASS_MAGMA_ADMIN:
+        case TRAINER_CLASS_MAGMA_LEADER:
+            PlayBGM(MUS_VICTORY_AQUA_MAGMA);
+            break;
+        case TRAINER_CLASS_LEADER:
+            PlayBGM(MUS_VICTORY_GYM_LEADER);
+            break;
+        default:
+            PlayBGM(MUS_VICTORY_TRAINER);
+            break;
+        }
+        
+        gBattlescriptCurrInstr = BattleScript_LinkBattleWon;
         gSpecialVar_Result = gBattleOutcome;
-        gBattleTextBuff1[0] = gBattleOutcome;
         gBattlerAttacker = GetBattlerAtPosition(B_POSITION_PLAYER_LEFT);
-        gBattlescriptCurrInstr = BattleScript_LinkBattleWonOrLost;
         gBattleOutcome &= ~B_OUTCOME_LINK_BATTLE_RAN;
+        MgbaPrintf(MGBA_LOG_INFO, "Set Flags Link Flags");
     }
     else if (gBattleTypeFlags & BATTLE_TYPE_TRAINER
             && gBattleTypeFlags & (BATTLE_TYPE_FRONTIER | BATTLE_TYPE_TRAINER_HILL | BATTLE_TYPE_EREADER_TRAINER))
@@ -4948,7 +5040,7 @@ static void HandleEndTurn_BattleWon(void)
         else
             PlayBGM(MUS_VICTORY_TRAINER);
     }
-    else if (gBattleTypeFlags & BATTLE_TYPE_TRAINER && !(gBattleTypeFlags & BATTLE_TYPE_LINK))
+    else if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
     {
         BattleStopLowHpSound();
         gBattlescriptCurrInstr = BattleScript_LocalTrainerBattleWon;
@@ -4986,6 +5078,7 @@ static void HandleEndTurn_BattleWon(void)
 static void HandleEndTurn_BattleLost(void)
 {
     gCurrentActionFuncId = 0;
+    MgbaPrintf(MGBA_LOG_INFO, "In HandleEndTurn_BattleLost");
 
     if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK))
     {
@@ -5106,7 +5199,6 @@ static void HandleEndTurn_FinishBattle(void)
         {
             TryPutBreakingNewsOnAir();
         }
-
         RecordedBattle_SetPlaybackFinished();
         BeginFastPaletteFade(3);
         FadeOutMapMusic(5);
@@ -5125,7 +5217,7 @@ static void FreeResetData_ReturnToOvOrDoEvolutions(void)
     if (!gPaletteFade.active)
     {
         ResetSpriteData();
-        if (gLeveledUpInBattle == 0 || gBattleOutcome != B_OUTCOME_WON)
+        if (gLeveledUpInBattle == 0 || gBattleOutcome != B_OUTCOME_WON || gBattleTypeFlags & BATTLE_TYPE_LINK)
         {
             gBattleMainFunc = ReturnFromBattleToOverworld;
             return;
@@ -5176,10 +5268,12 @@ static void TryEvolvePokemon(void)
     gBattleMainFunc = ReturnFromBattleToOverworld;
 }
 
+
 static void WaitForEvoSceneToFinish(void)
 {
-    if (gMain.callback2 == BattleMainCB2)
+    if (gMain.callback2 == BattleMainCB2) {
         gBattleMainFunc = TryEvolvePokemon;
+    }
 }
 
 static void ReturnFromBattleToOverworld(void)
