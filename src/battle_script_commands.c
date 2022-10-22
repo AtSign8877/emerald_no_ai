@@ -3473,6 +3473,9 @@ static void Cmd_getexp(void)
                     gBattleMons[2].spAttack = GetMonData(&gPlayerParty[gBattleStruct->expGetterMonId], MON_DATA_SPATK);
                 }
                 gBattleScripting.getexpState = 5;
+                
+                BtlController_EmitGetMonData(BUFFER_A, REQUEST_ALL_BATTLE, gBitTable[gBattlerPartyIndexes[gActiveBattler]]);
+                MarkBattlerForControllerExec(gActiveBattler);
             }
             else
             {
