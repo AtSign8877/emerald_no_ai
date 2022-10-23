@@ -1616,12 +1616,12 @@ static void LinkOpponentHandleDataTransfer(void)
     
     if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER && gBattleBufferA[gActiveBattler][0] == CONTROLLER_DATATRANSFER)
     {
-        MgbaPrintf(MGBA_LOG_INFO, "Reached copying (link opponent) in index %d and active battler %d", partyIndex, gActiveBattler);
         memcpy(&gEnemyParty[partyIndex], &gBattleBufferA[gActiveBattler][4], sizeof(struct Pokemon));
         temp = gBattleBufferA[gActiveBattler][1];
         gBattleBufferA[gActiveBattler][1] = REQUEST_ALL_BATTLE;
         CopyLinkOpponentMonData(partyIndex, (u8*) &gBattleMons[gActiveBattler]);
         gBattleBufferA[gActiveBattler][1] = temp;
+        UpdateHealthboxAttribute(gHealthboxSpriteIds[gActiveBattler], &gEnemyParty[partyIndex], HEALTHBOX_ALL);
     }
     LinkOpponentBufferExecCompleted();
 }
