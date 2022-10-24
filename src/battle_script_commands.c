@@ -4622,7 +4622,9 @@ static void Cmd_switchindataupdate(void)
 
     for (i = 0; i < sizeof(struct BattlePokemon); i++) 
     {
-        //monData[i] = gBattleBufferB[gActiveBattler][4 + i];
+        if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
+            continue;
+        monData[i] = gBattleBufferB[gActiveBattler][4 + i];
     }
 
     gBattleMons[gActiveBattler].type1 = gBaseStats[gBattleMons[gActiveBattler].species].type1;
