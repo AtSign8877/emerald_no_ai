@@ -1612,10 +1612,10 @@ static void LinkOpponentHandleDataTransfer(void)
     size = gBattleBufferA[gActiveBattler][2] + (gBattleBufferA[gActiveBattler][3] << 8);
     partyIndex = size - sizeof(struct Pokemon);
     
-    MgbaPrintf(MGBA_LOG_INFO, "Handling link opponent data transfer?");
+
     
     if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER && gBattleBufferA[gActiveBattler][0] == CONTROLLER_DATATRANSFER)
-    {
+    {    MgbaPrintf(MGBA_LOG_INFO, "Handling link opponent data transfer?");
         memcpy(&gEnemyParty[partyIndex], &gBattleBufferA[gActiveBattler][4], sizeof(struct Pokemon));
         temp = gBattleBufferA[gActiveBattler][1];
         gBattleBufferA[gActiveBattler][1] = REQUEST_ALL_BATTLE;

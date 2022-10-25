@@ -3473,7 +3473,7 @@ static void Cmd_getexp(void)
                     gBattleMons[2].spAttack = GetMonData(&gPlayerParty[gBattleStruct->expGetterMonId], MON_DATA_SPATK);
                 }
                 gBattleScripting.getexpState = 5;
-                
+                //gBattleScripting.levelUpFlag = TRUE;
                 BtlController_EmitGetMonData(BUFFER_A, REQUEST_ALL_BATTLE, gBitTable[gBattlerPartyIndexes[gActiveBattler]]);
                 MarkBattlerForControllerExec(gActiveBattler);
             }
@@ -3505,6 +3505,7 @@ static void Cmd_getexp(void)
             gBattleMons[gBattlerFainted].item = 0;
             gBattleMons[gBattlerFainted].ability = 0;
             gBattlescriptCurrInstr += 2;
+            //gBattleScripting.levelUpFlag = FALSE;
         }
         break;
     }
@@ -4600,6 +4601,8 @@ static void Cmd_getswitchedmondata(void)
     gActiveBattler = GetBattlerForBattleScript(gBattlescriptCurrInstr[1]);
 
     gBattlerPartyIndexes[gActiveBattler] = *(gBattleStruct->monToSwitchIntoId + gActiveBattler);
+
+    gBattleScripting.switchingFlag = TRUE;
 
     BtlController_EmitGetMonData(BUFFER_A, REQUEST_ALL_BATTLE, gBitTable[gBattlerPartyIndexes[gActiveBattler]]);
     MarkBattlerForControllerExec(gActiveBattler);

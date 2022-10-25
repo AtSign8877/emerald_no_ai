@@ -1620,10 +1620,13 @@ static void PlayerHandleGetMonData(void)
         if (GetBattlerSide(gActiveBattler) != B_SIDE_PLAYER) return;
         
         MgbaPrintf(MGBA_LOG_INFO, "Player getting mon data for active battler: %d and index: %d", gActiveBattler, index);
-        MgbaPrintf(MGBA_LOG_INFO, "Struct 3 size: %d", sizeof(struct PokemonSubstruct3));
         
         gBattleBufferA[gActiveBattler][1] = REQUEST_ALL_BATTLE;
-        CopyPlayerMonData(index, (u8*) &gBattleMons[gActiveBattler]);
+        
+        if (gBattleScripting.switchingFlag) {
+            CopyPlayerMonData(index, (u8*) &gBattleMons[gActiveBattler]);
+            gBattleScripting.switchingFlag = FALSE;
+        }
         
         BtlController_EmitDataTransfer(BUFFER_A, sizeof(struct Pokemon) + index, &gPlayerParty[index]);
         MarkBattlerForControllerExec(gActiveBattler);
@@ -1649,7 +1652,6 @@ static u32 CopyPlayerMonData(u8 monId, u8 *dst)
     switch (gBattleBufferA[gActiveBattler][1])
     {
     case REQUEST_ALL_BATTLE:
-        MgbaPrintf(MGBA_LOG_INFO, "Mon Id: %d", monId);
         battleMon.species = GetMonData(&gPlayerParty[monId], MON_DATA_SPECIES);
         battleMon.item = GetMonData(&gPlayerParty[monId], MON_DATA_HELD_ITEM);
         for (size = 0; size < MAX_MON_MOVES; size++)
