@@ -328,7 +328,7 @@ void HandleAction_UseItem(void)
     {
         gBattlescriptCurrInstr = gBattlescriptsForRunningByItem[0]; // BattleScript_RunByUsingItem
     }
-    else if (!TRUE && GetBattlerSide(gBattlerAttacker) == B_SIDE_PLAYER)
+    else if (GetBattlerSide(gBattlerAttacker) == B_SIDE_PLAYER)
     {
         MgbaPrintf(MGBA_LOG_INFO, "Player uses item");
         gBattlescriptCurrInstr = gBattlescriptsForUsingItem[0]; // BattleScript_PlayerUsesItem
