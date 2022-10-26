@@ -46,6 +46,7 @@
 #include "constants/moves.h"
 #include "constants/songs.h"
 #include "constants/trainers.h"
+#include "mgba_printf/mgba.h"
 
 struct SpeciesItem
 {
@@ -4718,6 +4719,8 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
     s8 evChange;
     u16 evCount;
 
+    MgbaPrintf(MGBA_LOG_INFO, "UseItemEffects");
+
     // Get item hold effect
     heldItem = GetMonData(mon, MON_DATA_HELD_ITEM, NULL);
     if (heldItem == ITEM_ENIGMA_BERRY)
@@ -5025,7 +5028,9 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
                             dataUnsigned = gBattleScripting.levelUpHP;
                             break;
                         }
-
+                        
+                        MgbaPrintf(MGBA_LOG_INFO, "Reached the hp max hp check");
+                        
                         // Only restore HP if not at max health
                         if (GetMonData(mon, MON_DATA_MAX_HP, NULL) != GetMonData(mon, MON_DATA_HP, NULL))
                         {
@@ -5036,7 +5041,7 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
                                 if (dataUnsigned > GetMonData(mon, MON_DATA_MAX_HP, NULL))
                                     dataUnsigned = GetMonData(mon, MON_DATA_MAX_HP, NULL);
                                 SetMonData(mon, MON_DATA_HP, &dataUnsigned);
-
+                                MgbaPrintf(MGBA_LOG_INFO, "HP Restored to %d!", dataUnsigned);
                                 // Update battler (if applicable)
                                 if (gMain.inBattle && battlerId != MAX_BATTLERS_COUNT)
                                 {

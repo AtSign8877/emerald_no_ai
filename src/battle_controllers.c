@@ -920,6 +920,7 @@ void BtlController_EmitUseItemFromBag(u8 bufferId, u16 itemId)
 
 void BtlController_EmitGetMonData(u8 bufferId, u8 requestId, u8 monToCheck)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Emitting getting mon data!");
     sBattleBuffersTransferData[0] = CONTROLLER_GETMONDATA;
     sBattleBuffersTransferData[1] = requestId;
     sBattleBuffersTransferData[2] = monToCheck;

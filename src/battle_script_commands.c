@@ -6310,9 +6310,9 @@ static void Cmd_useitemonopponent(void)
 {
     gBattlerInMenuId = gBattlerAttacker;
     if (GetBattlerSide(gBattlerAttacker) == B_SIDE_PLAYER) 
-        PokemonUseItemEffects(&gEnemyParty[gBattlerPartyIndexes[gBattlerAttacker]], gLastUsedItem, gBattlerPartyIndexes[gBattlerAttacker], 0, TRUE);
+        PokemonUseItemEffects(&gPlayerParty[gBattlerPartyIndexes[gBattlerAttacker]], gLastUsedItem, gBattlerPartyIndexes[gBattlerAttacker], 0, FALSE);
     else
-        PokemonUseItemEffects(&gPlayerParty[gBattlerPartyIndexes[gBattlerAttacker]], gLastUsedItem, gBattlerPartyIndexes[gBattlerAttacker], 0, TRUE);
+        PokemonUseItemEffects(&gEnemyParty[gBattlerPartyIndexes[gBattlerAttacker]], gLastUsedItem, gBattlerPartyIndexes[gBattlerAttacker], 0, FALSE);
     gBattlescriptCurrInstr += 1;
 }
 
