@@ -35,6 +35,7 @@
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "constants/rgb.h"
+#include "constants/battle_string_ids.h"
 #include "mgba_printf/mgba.h"
 
 static void PlayerHandleGetMonData(void);
@@ -2579,10 +2580,11 @@ static void PlayerDoMoveAnimation(void)
 static void PlayerHandlePrintString(void)
 {
     u16 *stringId;
-    MgbaPrintf(MGBA_LOG_INFO, "Player controller print string success!");
+    
     gBattle_BG0_X = 0;
     gBattle_BG0_Y = 0;
     stringId = (u16*)(&gBattleBufferA[gActiveBattler][2]);
+    
     BufferStringBattle(*stringId);
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MSG);
     gBattlerControllerFuncs[gActiveBattler] = CompleteOnInactiveTextPrinter2;

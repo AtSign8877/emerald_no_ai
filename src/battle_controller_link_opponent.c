@@ -28,6 +28,7 @@
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "recorded_battle.h"
+#include "constants/battle_string_ids.h"
 #include "mgba_printf/mgba.h"
 
 static void LinkOpponentHandleGetMonData(void);
@@ -1499,10 +1500,33 @@ static void LinkOpponentHandlePrintString(void)
     gBattle_BG0_X = 0;
     gBattle_BG0_Y = 0;
     stringId = (u16*)(&gBattleBufferA[gActiveBattler][2]);
+    
+    if(!IsLinkMaster()) {
+        if(*stringId == STRINGID_PLAYERGOTMONEY) {
+            PlayerBufferExecCompleted();
+            return;
+        }
+        else if(*stringId == STRINGID_PLAYERDEFEATEDTRAINER1 || *stringId == STRINGID_TWOENEMIESDEFEATED || *stringId == STRINGID_TRAINER1LOSETEXT || *stringId == STRINGID_TRAINER2LOSETEXT) {
+            BufferStringBattle(STRINGID_LINKLISTENERLOSE);
+            BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MSG);
+            gBattlerControllerFuncs[gActiveBattler] = CompleteOnInactiveTextPrinter;
+            BattleTv_SetDataBasedOnString(STRINGID_LINKLISTENERLOSE);
+            return;
+        }
+        else if(*stringId == STRINGID_TRAINER1LOSETEXT || *stringId == STRINGID_TRAINER2LOSETEXT) {
+            BufferStringBattle(STRINGID_LINKLISTENERWIN);
+            BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MSG);
+            gBattlerControllerFuncs[gActiveBattler] = CompleteOnInactiveTextPrinter;
+            BattleTv_SetDataBasedOnString(STRINGID_LINKLISTENERWIN);
+            return;
+        }
+    }
+    
     BufferStringBattle(*stringId);
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MSG);
     gBattlerControllerFuncs[gActiveBattler] = CompleteOnInactiveTextPrinter;
     BattleTv_SetDataBasedOnString(*stringId);
+
 }
 
 static void LinkOpponentHandlePrintSelectionString(void)

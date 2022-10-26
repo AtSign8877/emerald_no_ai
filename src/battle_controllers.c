@@ -1092,6 +1092,7 @@ void BtlController_EmitPrintString(u8 bufferId, u16 stringID)
     s32 i;
     struct BattleMsgData* stringInfo;
 
+    MgbaPrintf(MGBA_LOG_INFO, "Emitting String Id %d", stringID);
     sBattleBuffersTransferData[0] = CONTROLLER_PRINTSTRING;
     sBattleBuffersTransferData[1] = gBattleOutcome;
     sBattleBuffersTransferData[2] = stringID;
