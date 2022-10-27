@@ -506,6 +506,7 @@ struct BattleScripting
     u8 multiplayerId;
     u8 specialTrainerBattleType;
     u8 switchingFlag;
+    u8 levelUpFlag;
 };
 
 struct BattleSpriteInfo

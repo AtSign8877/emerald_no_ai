@@ -615,7 +615,8 @@ static u32 CopyLinkOpponentMonData(u8 monId, u8 *dst)
         StringCopy_Nickname(battleMon.nickname, nickname);
         GetMonData(&gEnemyParty[monId], MON_DATA_OT_NAME, battleMon.otName);
         for (size = 0; size < NUM_BATTLE_STATS; size++)
-            battleMon.statStages[size] = 6;
+                battleMon.statStages[size] = 6;
+        
         for (size = 0; size < sizeof(battleMon); size++)
             dst[size] = src[size];
         //A lot of the data that gets changed on switch in instead of right here isn't properly updated and uses dummy or otherwise corrupted data

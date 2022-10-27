@@ -4979,6 +4979,7 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
 
                     case 2: // ITEM4_HEAL_HP
                         // If Revive, update number of times revive has been used
+                        //gBattleScripting.levelUpFlag = TRUE;
                         if (effectFlags & (ITEM4_REVIVE >> 2))
                         {
                             if (GetMonData(mon, MON_DATA_HP, NULL) != 0)
@@ -5053,7 +5054,8 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
 
                                         temp2 = gActiveBattler;
                                         gActiveBattler = battlerId;
-                                        gBattleScripting.switchingFlag = TRUE;
+                                        //gBattleScripting.switchingFlag = TRUE;
+                                        //gBattleScripting.levelUpFlag = TRUE;
                                         BtlController_EmitGetMonData(BUFFER_A, REQUEST_ALL_BATTLE, 0);
                                         MarkBattlerForControllerExec(gActiveBattler);
                                         gActiveBattler = temp2;
