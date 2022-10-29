@@ -1241,6 +1241,7 @@ static void HandleChooseMonSelection(u8 taskId, s8 *slotPtr)
                     if (!(*slotPtr))
                     {
                         *(gBattleStruct->chosenItem + (gActiveBattler / 2) * 2) = gSpecialVar_ItemId;
+                        RemoveBagItem(gSpecialVar_ItemId, 1);
                         gPartyMenuUseExitCallback = TRUE;
                         gTasks[taskId].func = Task_ClosePartyMenuAfterText;
                     }
@@ -4372,6 +4373,7 @@ void ItemUseCB_Medicine(u8 taskId, TaskFunc task)
         if (!IsItemFlute(item))
         {
             PlaySE(SE_USE_ITEM);
+            MgbaPrintf(MGBA_LOG_INFO, "Removing bag item!");
             if (gPartyMenu.action != PARTY_ACTION_REUSABLE_ITEM)
                 RemoveBagItem(item, 1);
         }

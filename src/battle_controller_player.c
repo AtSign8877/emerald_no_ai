@@ -93,6 +93,7 @@ static void PlayerHandleBattleAnimation(void);
 static void PlayerHandleLinkStandbyMsg(void);
 static void PlayerHandleResetActionMoveSelection(void);
 static void PlayerHandleEndLinkBattle(void);
+static void PlayerHandleChooseItemFromBag(void);
 static void PlayerCmdEnd(void);
 
 static void PlayerBufferRunCommand(void);
@@ -180,6 +181,7 @@ static void (*const sPlayerBufferCommands[CONTROLLER_CMDS_COUNT])(void) =
     [CONTROLLER_LINKSTANDBYMSG]           = PlayerHandleLinkStandbyMsg,
     [CONTROLLER_RESETACTIONMOVESELECTION] = PlayerHandleResetActionMoveSelection,
     [CONTROLLER_ENDLINKBATTLE]            = PlayerHandleEndLinkBattle,
+    [CONTROLLER_USEITEMFROMBAG]           = PlayerHandleChooseItemFromBag,
     [CONTROLLER_TERMINATOR_NOP]           = PlayerCmdEnd
 };
 
@@ -3204,6 +3206,17 @@ static void PlayerHandleEndLinkBattle(void)
     BeginFastPaletteFade(3);
     PlayerBufferExecCompleted();
     gBattlerControllerFuncs[gActiveBattler] = SetBattleEndCallbacks;
+}
+
+static void PlayerHandleChooseItemFromBag(void) 
+{
+    MgbaPrintf(MGBA_LOG_INFO, "Attempting to remove item from bag with active battler being %d", gActiveBattler);
+    if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) 
+    {
+        MgbaPrintf(MGBA_LOG_INFO, "Removing bag item: %d", *(gBattleStruct->chosenItem + (gActiveBattler / 2) * 2));
+        RemoveBagItem(*(gBattleStruct->chosenItem + (gActiveBattler / 2) * 2), 1);
+    }
+    PlayerBufferExecCompleted();
 }
 
 static void PlayerCmdEnd(void)
