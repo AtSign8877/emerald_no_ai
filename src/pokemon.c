@@ -5056,8 +5056,8 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
                                         gActiveBattler = battlerId;
                                         //gBattleScripting.switchingFlag = TRUE;
                                         //gBattleScripting.levelUpFlag = TRUE;
-                                        BtlController_EmitGetMonData(BUFFER_A, REQUEST_ALL_BATTLE, 0);
-                                        MarkBattlerForControllerExec(gActiveBattler);
+                                        //BtlController_EmitGetMonData(BUFFER_A, REQUEST_ALL_BATTLE, 0);
+                                        //MarkBattlerForControllerExec(gActiveBattler);
                                         gActiveBattler = temp2;
                                     }
                                 }
