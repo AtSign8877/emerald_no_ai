@@ -4209,7 +4209,7 @@ static void HandleTurnActionSelectionState(void)
             {
                 RecordedBattle_SetBattlerAction(gActiveBattler, gBattleBufferB[gActiveBattler][1]);
                 gChosenActionByBattler[gActiveBattler] = gBattleBufferB[gActiveBattler][1];
-
+                MgbaPrintf(MGBA_LOG_INFO, "Reached action with gBattleBufferB being %d", gBattleBufferB[gActiveBattler][1]);
                 switch (gBattleBufferB[gActiveBattler][1])
                 {
                 case B_ACTION_USE_MOVE:

@@ -1244,14 +1244,14 @@ static void HandleChooseMonSelection(u8 taskId, s8 *slotPtr)
                         RemoveBagItem(gSpecialVar_ItemId, 1);
                         gPartyMenuUseExitCallback = TRUE;
                         gTasks[taskId].func = Task_ClosePartyMenuAfterText;
+                        PlayerBufferExecCompleted();
                     }
                     else 
                     {
                         PartyMenuRemoveWindow(&sPartyMenuInternal->windowId[1]);
                         gItemUseCB(taskId, Task_ClosePartyMenuAfterText);
                     }
-
-                    PlayerBufferExecCompleted();
+                    
                     return;
                 }
                 
@@ -4390,6 +4390,7 @@ void ItemUseCB_Medicine(u8 taskId, TaskFunc task)
                 AnimatePartySlot(gPartyMenu.slotId, 1);
             PartyMenuModifyHP(taskId, gPartyMenu.slotId, 1, GetMonData(mon, MON_DATA_HP) - hp, Task_DisplayHPRestoredMessage);
             ResetHPTaskData(taskId, 0, hp);
+            PlayerBufferExecCompleted();
             return;
         }
         else
