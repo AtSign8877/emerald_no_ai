@@ -49,6 +49,7 @@
 #include "cable_club.h"
 #include "mgba_printf/mgba.h"
 #include "field_message_box.h"
+#include "script_pokemon_util.h"
 
 // Menu actions
 enum
@@ -130,6 +131,9 @@ static u8 SaveConfirmInputCallback(void);
 static u8 SaveFileExistsCallback(void);
 static u8 SaveConfirmOverwriteDefaultNoCallback(void);
 static u8 SaveConfirmOverwriteCallback(void);
+static u8 SaveCheckHealCallback(void);
+static u8 SaveHealConfirmNoCallback(void);
+static u8 SaveHealInputCallback(void);
 static u8 SaveOverwriteInputCallback(void);
 static u8 SaveSavingMessageCallback(void);
 static u8 SaveDoSaveCallback(void);
@@ -1101,10 +1105,44 @@ static u8 SaveOverwriteInputCallback(void)
     switch (Menu_ProcessInputNoWrapClearOnChoose())
     {
     case 0: // Yes
-        sSaveDialogCallback = SaveSavingMessageCallback;
+        sSaveDialogCallback = SaveCheckHealCallback;
         return SAVE_IN_PROGRESS;
     case -1: // B Button
     case 1: // No
+        HideSaveInfoWindow();
+        HideSaveMessageWindow();
+        return SAVE_CANCELED;
+    }
+
+    return SAVE_IN_PROGRESS;
+}
+
+static u8 SaveCheckHealCallback(void)
+{
+    ShowSaveMessage(gText_HealPrompt, SaveHealConfirmNoCallback);
+
+    return SAVE_IN_PROGRESS;
+}
+
+static u8 SaveHealConfirmNoCallback(void)
+{
+    DisplayYesNoMenuWithDefault(1); // Show Yes/No menu (No selected as default)
+    sSaveDialogCallback = SaveHealInputCallback;
+    return SAVE_IN_PROGRESS;
+}
+
+static u8 SaveHealInputCallback(void)
+{
+    switch (Menu_ProcessInputNoWrapClearOnChoose())
+    {
+    case 0: // Yes
+        HealPlayerParty();
+        sSaveDialogCallback = SaveSavingMessageCallback;
+        return SAVE_IN_PROGRESS;
+    case 1: // No
+        sSaveDialogCallback = SaveSavingMessageCallback;
+        return SAVE_IN_PROGRESS;
+    case -1: // B Button
         HideSaveInfoWindow();
         HideSaveMessageWindow();
         return SAVE_CANCELED;
