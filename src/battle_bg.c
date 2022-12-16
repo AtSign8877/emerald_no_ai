@@ -871,7 +871,7 @@ static void DrawLinkBattleParticipantPokeballs(u8 taskId, u8 multiplayerId, u8 b
     u16 pokeballStatuses = 0;
     u16 tiles[6];
 
-    if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
+    if (gBattleTypeFlags & BATTLE_TYPE_MULTI && FALSE)
     {
         if (gTasks[taskId].data[5] != 0)
         {
@@ -937,7 +937,7 @@ static void DrawLinkBattleVsScreenOutcomeText(void)
     {
         BattlePutTextOnWindow(gText_Draw, B_WIN_VS_OUTCOME_DRAW);
     }
-    else if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
+    else if (gBattleTypeFlags & BATTLE_TYPE_MULTI && FALSE)
     {
         if (gBattleOutcome == B_OUTCOME_WON)
         {
@@ -1021,7 +1021,7 @@ void InitLinkBattleVsScreen(u8 taskId)
     switch (gTasks[taskId].data[0])
     {
     case 0:
-        if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
+        if (gBattleTypeFlags & BATTLE_TYPE_MULTI && FALSE)
         {
             for (i = 0; i < MAX_BATTLERS_COUNT; i++)
             {

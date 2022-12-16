@@ -1332,7 +1332,25 @@ void ColosseumPlayerSpotTriggered(void) //called via script only
 
 void TriggerLinkedTrainerBattle(u8 transition, u16 song)
 {
+    gBattleTypeFlags |= BATTLE_TYPE_LINK;
     gLinkType = LINKTYPE_BATTLE;
+
+    gSpecialVar_0x8004 = USING_SINGLE_BATTLE;
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    {
+        //gLinkType = LINKTYPE_DOUBLE_BATTLE;
+        gSpecialVar_0x8004 = USING_DOUBLE_BATTLE;
+    }
+
+    gTrainerBattleOpponent_A_backup = gTrainerBattleOpponent_A;
+    gTrainerBattleOpponent_B_backup = gTrainerBattleOpponent_B;
+    
+    if(IsLinkMaster()) {
+        gSpecialVar_0x8005 = 1;
+    }
+    else 
+        gSpecialVar_0x8005 = 0;
+    
     //MgbaPrintf(MGBA_LOG_INFO, "TriggerLinkedTrainerBattle");
     CreateTask_EnterCableClubSeat_1(Task_StartWiredLinkTrainerBattle, transition, song);
 }

@@ -2295,7 +2295,7 @@ bool8 HasNoMonsToSwitch(u8 battler, u8 partyIdBattlerOn1, u8 partyIdBattlerOn2)
         }
         return (i == id1 * MULTI_PARTY_SIZE + MULTI_PARTY_SIZE);
     }
-    else if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
+    else if (gBattleTypeFlags & (BATTLE_TYPE_MULTI | BATTLE_TYPE_INGAME_PARTNER))
     {
         if (gBattleTypeFlags & BATTLE_TYPE_TOWER_LINK_MULTI)
         {

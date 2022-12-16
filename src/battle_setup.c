@@ -1298,8 +1298,6 @@ void BattleSetup_StartTrainerBattle(void)
     IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
     IncrementGameStat(GAME_STAT_TRAINER_BATTLES);
     TryUpdateGymLeaderRematchFromTrainer();
-
-    gBattleTypeFlags |= BATTLE_TYPE_LINK;
     
     gLinkType = LINKTYPE_SINGLE_BATTLE;
     gSpecialVar_0x8004 = USING_SINGLE_BATTLE;
@@ -1308,27 +1306,15 @@ void BattleSetup_StartTrainerBattle(void)
         gLinkType = LINKTYPE_DOUBLE_BATTLE;
         gSpecialVar_0x8004 = USING_DOUBLE_BATTLE;
     }
-    
-    if(IsLinkMaster()) {
-        gSpecialVar_0x8005 = 1;
-    }
-    else 
-        gSpecialVar_0x8005 = 0;
 
     sNoOfPossibleTrainerRetScripts = gNoOfApproachingTrainers;
     gNoOfApproachingTrainers = 0;
     sShouldCheckTrainerBScript = FALSE;
     gWhichTrainerToFaceAfterBattle = 0;
-    gTrainerBattleOpponent_A_backup = gTrainerBattleOpponent_A;
-    gTrainerBattleOpponent_B_backup = gTrainerBattleOpponent_B;
 
     //gSpecialVar_0x8004 = 1;
     ScriptContext1_Stop();
     TriggerLinkedTrainerBattle(transitionType, 0);
-    
-    /*
-    DoTrainerBattle();
-    */
     
     
 }

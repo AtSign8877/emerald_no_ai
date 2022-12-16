@@ -511,11 +511,15 @@ static void HandleReceiveRemoteLinkPlayer(u8 who)
     for (i = 0; i < GetLinkPlayerCount_2(); i++)
     {
         count += gRemoteLinkPlayersNotReceived[i];
+        if (gRemoteLinkPlayersNotReceived[i]) {
+            MgbaPrintf(MGBA_LOG_INFO, "Warning: player index %d not recieved");
+        }
+        
     }
     if (count == 0 && gReceivedRemoteLinkPlayers == 0)
     {
         gReceivedRemoteLinkPlayers = 1;
-    }
+    } 
 }
 
 static void ProcessRecvCmds(u8 unused)

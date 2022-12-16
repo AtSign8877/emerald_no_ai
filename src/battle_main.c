@@ -588,7 +588,7 @@ void CB2_InitBattle(void)
         else if (!(gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER))
         {
             HandleLinkBattleSetup();
-            SetMainCallback2(CB2_PreInitMultiBattle);
+            SetMainCallback2(CB2_PreInitIngamePlayerPartnerBattle);
         }
         else
         {
@@ -670,13 +670,13 @@ static void CB2_InitBattleInternal(void)
     SetVBlankCallback(VBlankCB_Battle);
     SetUpBattleVarsAndBirchZigzagoon();
 
-    if (gBattleTypeFlags & BATTLE_TYPE_MULTI && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
+    /*if (gBattleTypeFlags & BATTLE_TYPE_MULTI && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
         SetMainCallback2(CB2_HandleStartMultiPartnerBattle);
     else if (gBattleTypeFlags & BATTLE_TYPE_MULTI && gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER)
         SetMainCallback2(CB2_HandleStartMultiPartnerBattle);
     else if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
         SetMainCallback2(CB2_HandleStartMultiBattle);
-    else
+    else*/
         SetMainCallback2(CB2_HandleStartBattle);
 
     if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED)))
@@ -834,7 +834,7 @@ static void SetAllPlayersBerryData(void)
             if (gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
                 numPlayers = 2;
             else
-                numPlayers = 4;
+                numPlayers = 2;
 
             for (i = 0; i < numPlayers; i++)
             {
@@ -1421,7 +1421,7 @@ static void CB2_PreInitMultiBattle(void)
 {
     s32 i;
     u8 playerMultiplierId;
-    s32 numPlayers = MAX_BATTLERS_COUNT;
+    s32 numPlayers = 2;
     u8 blockMask = 0xF;
     u32 *savedBattleTypeFlags;
     void (**savedCallback)(void);
@@ -1444,6 +1444,7 @@ static void CB2_PreInitMultiBattle(void)
     switch (gBattleCommunication[MULTIUSE_STATE])
     {
     case 0:
+        MgbaPrintf(MGBA_LOG_INFO, "Multi battle init case 0!");
         if (gReceivedRemoteLinkPlayers != 0 && IsLinkTaskFinished())
         {
             sMultiPartnerPartyBuffer = Alloc(sizeof(gMultiPartnerParty));
@@ -1453,6 +1454,7 @@ static void CB2_PreInitMultiBattle(void)
         }
         break;
     case 1:
+        MgbaPrintf(MGBA_LOG_INFO, "Multi battle init case 1!");
         if ((GetBlockReceivedStatus() & blockMask) == blockMask)
         {
             ResetBlockReceivedFlags();
@@ -1482,6 +1484,7 @@ static void CB2_PreInitMultiBattle(void)
         }
         break;
     case 2:
+        MgbaPrintf(MGBA_LOG_INFO, "Multi battle init case 2!");
         if (IsLinkTaskFinished() && !gPaletteFade.active)
         {
             gBattleCommunication[MULTIUSE_STATE]++;
@@ -1492,10 +1495,12 @@ static void CB2_PreInitMultiBattle(void)
         }
         break;
     case 3:
+        MgbaPrintf(MGBA_LOG_INFO, "Multi battle init case 3!");
         if (gWirelessCommType)
         {
             if (IsLinkRfuTaskFinished())
             {
+                MgbaPrintf(MGBA_LOG_INFO, "Finished Multi Battle Initing!");
                 gBattleTypeFlags = *savedBattleTypeFlags;
                 gMain.savedCallback = *savedCallback;
                 SetMainCallback2(CB2_InitBattleInternal);
@@ -2279,7 +2284,7 @@ static void EndLinkBattleInSteps(void)
             gMain.anyLinkBattlerHasFrontierPass = RecordedBattle_GetFrontierPassFlag();
 
             if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
-                battlerCount = 4;
+                battlerCount = 2;
             else
                 battlerCount = 2;
 
@@ -3433,6 +3438,7 @@ static void BattleIntroGetMonsData(void)
 
 static void BattleIntroPrepareBackgroundSlide(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "BattleIntroPrepareBackgroundSlide");
     if (gBattleControllerExecFlags == 0)
     {
         gActiveBattler = GetBattlerAtPosition(0);
@@ -3448,6 +3454,8 @@ static void BattleIntroDrawTrainersOrMonsSprites(void)
 {
     u8 *ptr;
     s32 i;
+
+    MgbaPrintf(MGBA_LOG_INFO, "Grrr stuck in dawing intro trainers or mon sprites L");
 
     if (gBattleControllerExecFlags)
         return;
@@ -3547,6 +3555,8 @@ static void BattleIntroDrawPartySummaryScreens(void)
     s32 i;
     struct HpAndStatus hpStatus[PARTY_SIZE];
 
+    MgbaPrintf(MGBA_LOG_INFO, "BattleIntroDrawPartySummaryScreens %d", gBattleControllerExecFlags);
+
     if (gBattleControllerExecFlags)
         return;
 
@@ -3618,6 +3628,7 @@ static void BattleIntroDrawPartySummaryScreens(void)
 
 static void BattleIntroPrintTrainerWantsToBattle(void)
 {
+    MgbaPrintf(MGBA_LOG_INFO, "Battle intro message");
     if (gBattleControllerExecFlags == 0)
     {
         gActiveBattler = GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);

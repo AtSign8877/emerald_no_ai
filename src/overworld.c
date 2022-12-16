@@ -2359,6 +2359,11 @@ void CB1_OverworldLink(void)
                     gTrainerBattleOpponent_B_backup = trainerInfo->trainerIdB;
                     CreateNPCTrainerParty(&gPlayerParty[PARTY_SIZE/2], trainerInfo->trainerIdB, FALSE);
                     gBattleTypeFlags &= ~BATTLE_TYPE_TWO_OPPONENTS;
+               
+                    if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
+                        gBattleTypeFlags &= ~BATTLE_TYPE_INGAME_PARTNER;
+                        gBattleTypeFlags |= BATTLE_TYPE_VS_PARTNER;
+                    }
                     gBattleTypeFlags |= BATTLE_TYPE_TWO_PLAYERS;
                 }
                 gBattleSetupFlag = 1;

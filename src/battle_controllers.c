@@ -93,7 +93,7 @@ void InitBattleControllers(void)
 
     SetBattlePartyIds();
 
-    if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
+    if (!(gBattleTypeFlags & (BATTLE_TYPE_MULTI | BATTLE_TYPE_INGAME_PARTNER)))
     {
         for (i = 0; i < gBattlersCount; i++)
             BufferBattlePartyCurrentOrderBySide(i, 0);
@@ -414,9 +414,39 @@ static void InitLinkBtlControllers(void)
             gBattlersCount = 2;
         }
     }
-    else if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI) && gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    else if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI) && (gBattleTypeFlags & BATTLE_TYPE_DOUBLE))
     {
-        if (gBattleTypeFlags & BATTLE_TYPE_IS_MASTER || IsLinkMaster())
+        if ((gBattleTypeFlags & BATTLE_TYPE_IS_MASTER || IsLinkMaster()) && (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER))
+        {
+            gBattleMainFunc = BeginBattleIntro;
+
+            gBattlerControllerFuncs[0] = SetControllerToPlayer;
+            gBattlerPositions[0] = B_POSITION_PLAYER_LEFT;
+
+            gBattlerControllerFuncs[1] = SetControllerToLinkOpponent;
+            gBattlerPositions[1] = B_POSITION_OPPONENT_LEFT;
+
+            gBattlerControllerFuncs[2] = SetControllerToPlayerPartner;
+            gBattlerPositions[2] = B_POSITION_PLAYER_RIGHT;
+
+            gBattlerControllerFuncs[3] = SetControllerToLinkOpponent;
+            gBattlerPositions[3] = B_POSITION_OPPONENT_RIGHT;
+
+            gBattlersCount = MAX_BATTLERS_COUNT;
+            
+            BufferBattlePartyCurrentOrderBySide(0, 0);
+            BufferBattlePartyCurrentOrderBySide(1, 0);
+            BufferBattlePartyCurrentOrderBySide(2, 1);
+            BufferBattlePartyCurrentOrderBySide(3, 1);
+
+            gBattlerPartyIndexes[0] = 0;
+            gBattlerPartyIndexes[1] = 0;
+            gBattlerPartyIndexes[2] = 3;
+            gBattlerPartyIndexes[3] = 3;
+            
+            MgbaPrintf(MGBA_LOG_INFO, "Setting link master in game partner controllers");
+        }
+        else if (gBattleTypeFlags & BATTLE_TYPE_IS_MASTER || IsLinkMaster())
         {
             gBattleMainFunc = BeginBattleIntro;
 
@@ -433,6 +463,52 @@ static void InitLinkBtlControllers(void)
             gBattlerPositions[3] = B_POSITION_OPPONENT_RIGHT;
 
             gBattlersCount = MAX_BATTLERS_COUNT;
+        }
+        else
+        {
+            gBattlerControllerFuncs[1] = SetControllerToPlayer;
+            gBattlerPositions[1] = B_POSITION_PLAYER_LEFT;
+
+            gBattlerControllerFuncs[0] = SetControllerToLinkOpponent;
+            gBattlerPositions[0] = B_POSITION_OPPONENT_LEFT;
+
+            gBattlerControllerFuncs[3] = SetControllerToPlayer;
+            gBattlerPositions[3] = B_POSITION_PLAYER_RIGHT;
+
+            gBattlerControllerFuncs[2] = SetControllerToLinkOpponent;
+            gBattlerPositions[2] = B_POSITION_OPPONENT_RIGHT;
+
+            gBattlersCount = MAX_BATTLERS_COUNT;
+        }
+    }
+    else if (gBattleTypeFlags & BATTLE_TYPE_MULTI) {
+        if (gBattleTypeFlags & BATTLE_TYPE_IS_MASTER || IsLinkMaster())
+        {
+            gBattleMainFunc = BeginBattleIntro;
+
+            gBattlerControllerFuncs[0] = SetControllerToPlayer;
+            gBattlerPositions[0] = B_POSITION_PLAYER_LEFT;
+
+            gBattlerControllerFuncs[1] = SetControllerToLinkOpponent;
+            gBattlerPositions[1] = B_POSITION_OPPONENT_LEFT;
+
+            gBattlerControllerFuncs[2] = SetControllerToPlayerPartner;
+            gBattlerPositions[2] = B_POSITION_PLAYER_RIGHT;
+
+            gBattlerControllerFuncs[3] = SetControllerToLinkOpponent;
+            gBattlerPositions[3] = B_POSITION_OPPONENT_RIGHT;
+
+            gBattlersCount = MAX_BATTLERS_COUNT;
+            
+            BufferBattlePartyCurrentOrderBySide(0, 0);
+            BufferBattlePartyCurrentOrderBySide(1, 0);
+            BufferBattlePartyCurrentOrderBySide(2, 1);
+            BufferBattlePartyCurrentOrderBySide(3, 1);
+
+            gBattlerPartyIndexes[0] = 0;
+            gBattlerPartyIndexes[1] = 0;
+            gBattlerPartyIndexes[2] = 3;
+            gBattlerPartyIndexes[3] = 3;
         }
         else
         {
@@ -646,6 +722,8 @@ static void SetBattlePartyIds(void)
 
         if (gBattleTypeFlags & (BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TWO_PLAYERS)) 
             gBattlerPartyIndexes[1] = 0, gBattlerPartyIndexes[3] = 3;
+        if (gBattleTypeFlags & (BATTLE_TYPE_INGAME_PARTNER | BATTLE_TYPE_VS_PARTNER))
+            gBattlerPartyIndexes[0] = 0, gBattlerPartyIndexes[2] = 3;
     }
 }
 
@@ -766,7 +844,7 @@ static void Task_HandleSendLinkBuffersData(u8 taskId)
             if (gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
                 numPlayers = 2;
             else
-                numPlayers = (gBattleTypeFlags & BATTLE_TYPE_MULTI) ? 4 : 2;
+                numPlayers = (gBattleTypeFlags & BATTLE_TYPE_MULTI) ? 2 : 2;
 
             if (GetLinkPlayerCount_2() >= numPlayers)
             {
