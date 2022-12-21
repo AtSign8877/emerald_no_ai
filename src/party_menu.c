@@ -5891,7 +5891,7 @@ static void BufferBattlePartyOrderBySide(u8 *partyBattleOrder, u8 flankId, u8 ba
         rightBattler = GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT);
     }
 
-    if ((IsMultiBattle() == TRUE) || (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER))
+    if ((IsMultiBattle() == TRUE) || (gBattleTypeFlags & (BATTLE_TYPE_INGAME_PARTNER | BATTLE_TYPE_VS_PARTNER)))
     {
         if (flankId != 0)
         {

@@ -87,7 +87,7 @@ struct TrainerInfoBlock
     u8 init; //set to false by default and true when sent to not recive blank trainer info by mistake
     u16 trainerId;
     u16 trainerIdB;
-    u16 battleFlags;
+    u32 battleFlags;
     u8 terrain;
     u8 scene; //this mostly matters for special areas like gyms, e4 rooms, and legendary areas
 };
@@ -2359,8 +2359,9 @@ void CB1_OverworldLink(void)
                     gTrainerBattleOpponent_B_backup = trainerInfo->trainerIdB;
                     CreateNPCTrainerParty(&gPlayerParty[PARTY_SIZE/2], trainerInfo->trainerIdB, FALSE);
                     gBattleTypeFlags &= ~BATTLE_TYPE_TWO_OPPONENTS;
-               
+                    MgbaPrintf(MGBA_LOG_INFO, "Battle type two opponents recieved successfully!");
                     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
+                        MgbaPrintf(MGBA_LOG_INFO, "Battle type two partners recieved successfully!");
                         gBattleTypeFlags &= ~BATTLE_TYPE_INGAME_PARTNER;
                         gBattleTypeFlags |= BATTLE_TYPE_VS_PARTNER;
                     }
