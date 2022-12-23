@@ -5754,6 +5754,14 @@ static bool8 TrySwitchInPokemon(void)
         StringExpandPlaceholders(gStringVar4, gText_CantSwitchWithAlly);
         return FALSE;
     }
+    
+    if ((gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) &&
+        !(slot == 2 || slot == 3))
+    {
+        StringCopy(gStringVar1, GetTrainerPartnerName());
+        StringExpandPlaceholders(gStringVar4, gText_CantSwitchWithAlly);
+        return FALSE;
+    }
 
     // In a multi battle, slots 1, 4, and 5 are the partner's pokemon
     /*if ((IsMultiBattle() == TRUE) && (slot == 1 || slot == 4 || slot == 5))
